@@ -1,10 +1,6 @@
 "use client";
 
-import {
-  type ChangeEvent,
-  type FormEvent,
-  useState,
-} from "react";
+import {type ChangeEvent, type FormEvent, useState,} from "react";
 import {
   DOCUMENT_INPUT_ACCEPT,
   DOCUMENT_TYPE_LABEL,
@@ -12,10 +8,7 @@ import {
   MAX_DOCUMENT_SIZE_MB,
   validateDocumentSelection,
 } from "@/lib/documents/upload-policy";
-import type {
-  DocumentUploadResponse,
-  UploadStatus,
-} from "@/types/document-upload";
+import type {DocumentUploadResponse, UploadStatus,} from "@/types/document-upload";
 
 function formatBytes(bytes: number) {
   if (bytes < 1024) {

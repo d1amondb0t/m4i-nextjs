@@ -11,15 +11,14 @@ export type AcceptedExtension = (typeof ACCEPTED_EXTENSIONS)[number];
 
 export const MAX_DOCUMENT_COUNT = 10;
 export const MAX_DOCUMENT_SIZE_MB = 25;
-export const MAX_DOCUMENT_SIZE_BYTES =
-  MAX_DOCUMENT_SIZE_MB * 1024 * 1024;
+export const MAX_DOCUMENT_SIZE_BYTES = MAX_DOCUMENT_SIZE_MB * 1024 * 1024;
 
 export const DOCUMENT_INPUT_ACCEPT = ACCEPTED_EXTENSIONS.map(
   (extension) => `.${extension}`,
 ).join(",");
 
-export const DOCUMENT_TYPE_LABEL = ACCEPTED_EXTENSIONS.map((extension) =>
-  extension.toUpperCase(),
+export const DOCUMENT_TYPE_LABEL = ACCEPTED_EXTENSIONS.map(
+  (extension) => extension.toUpperCase(),
 ).join(", ");
 
 type DocumentCandidate = {
