@@ -5,19 +5,17 @@ import {
   type FormEvent,
   useState,
 } from "react";
-
-const acceptedExtensions = new Set(["pdf", "csv", "docx", "txt", "md", "xlsx"]);
-const maxFileCount = 10;
-const maxFileSize = 25 * 1024 * 1024;
-
-type UploadStatus =
-  | { type: "idle"; message: "" }
-  | { type: "error"; message: string }
-  | { type: "success"; message: string };
-
-function extensionOf(filename: string) {
-  return filename.split(".").pop()?.toLowerCase() ?? "";
-}
+import {
+  DOCUMENT_INPUT_ACCEPT,
+  DOCUMENT_TYPE_LABEL,
+  MAX_DOCUMENT_COUNT,
+  MAX_DOCUMENT_SIZE_MB,
+  validateDocumentSelection,
+} from "@/lib/documents/upload-policy";
+import type {
+  DocumentUploadResponse,
+  UploadStatus,
+} from "@/types/document-upload";
 
 function formatBytes(bytes: number) {
   if (bytes < 1024) {
@@ -31,34 +29,6 @@ function formatBytes(bytes: number) {
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 }
 
-function validateFiles(files: File[]) {
-  if (files.length > maxFileCount) {
-    return `Cannot select more than ${maxFileCount} documents at once.`;
-  }
-
-  const unsupportedFile = files.find(
-    (file) => !acceptedExtensions.has(extensionOf(file.name)),
-  );
-
-  if (unsupportedFile) {
-    return `${unsupportedFile.name} is not a supported document type.`;
-  }
-
-  const oversizedFile = files.find((file) => file.size > maxFileSize);
-
-  if (oversizedFile) {
-    return `${oversizedFile.name} exceeds the 25 MB file limit.`;
-  }
-
-  const emptyFile = files.find((file) => file.size === 0);
-
-  if (emptyFile) {
-    return `${emptyFile.name} is empty.`;
-  }
-
-  return null;
-}
-
 export function DocumentUpload() {
   const [files, setFiles] = useState<File[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -69,7 +39,7 @@ export function DocumentUpload() {
 
   function handleSelection(event: ChangeEvent<HTMLInputElement>) {
     const selectedFiles = Array.from(event.target.files ?? []);
-    const validationError = validateFiles(selectedFiles);
+    const validationError = validateDocumentSelection(selectedFiles);
 
     if (validationError) {
       setFiles([]);
@@ -91,12 +61,12 @@ export function DocumentUpload() {
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
-    const validationError = validateFiles(files);
+    const validationError = validateDocumentSelection(files);
 
-    if (validationError || files.length === 0) {
+    if (validationError) {
       setStatus({
         type: "error",
-        message: validationError ?? "Select at least one document.",
+        message: validationError,
       });
       return;
     }
@@ -116,19 +86,15 @@ export function DocumentUpload() {
         body: formData,
       });
 
-      const result = (await response.json()) as {
-        message?: string;
-      };
+      const result = (await response.json()) as DocumentUploadResponse;
 
-      if (!response.ok) {
-        throw new Error(result.message ?? "The documents could not be submitted.");
+      if (!response.ok || !result.ok) {
+        throw new Error(result.message);
       }
 
       setStatus({
         type: "success",
-        message:
-          result.message ??
-          `${files.length} document${files.length === 1 ? "" : "s"} submitted.`,
+        message: result.message,
       });
       setFiles([]);
     } catch (error) {
@@ -158,17 +124,17 @@ export function DocumentUpload() {
             Choose documents
           </span>
           <span className="mt-1 text-sm text-zinc-500">
-            PDF, CSV, DOCX, TXT, XLSX, or MD
+            {DOCUMENT_TYPE_LABEL}
           </span>
           <span className="mt-1 text-xs text-zinc-400">
-            Up to 10 files, 25 MB each
+            Up to {MAX_DOCUMENT_COUNT} files, {MAX_DOCUMENT_SIZE_MB} MB each
           </span>
 
           <input
             id="documents"
             name="documents"
             type="file"
-            accept=".pdf,.csv,.docx,.txt,.xlsx,.md"
+            accept={DOCUMENT_INPUT_ACCEPT}
             multiple
             className="sr-only"
             onChange={handleSelection}
@@ -182,7 +148,7 @@ export function DocumentUpload() {
                 Selected documents
               </h3>
               <span className="text-xs text-zinc-500">
-                {files.length} of {maxFileCount}
+                {files.length} of {MAX_DOCUMENT_COUNT}
               </span>
             </div>
 

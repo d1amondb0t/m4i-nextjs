@@ -1,56 +1,25 @@
-const acceptedExtensions = new Set(["pdf", "csv", "docx", "txt", "md", "xlsx"]);
-const maxFileCount = 10;
-const maxFileSize = 25 * 1024 * 1024;
+import { validateDocumentSelection } from "@/lib/documents/upload-policy";
+import type { DocumentUploadResponse } from "@/types/document-upload";
 
-function extensionOf(filename: string) {
-  return filename.split(".").pop()?.toLowerCase() ?? "";
-}
-
-export async function POST(request:Request) {
+export async function POST(request: Request) {
   const formData = await request.formData();
   const entries = formData.getAll("documents");
   const documents = entries.filter(
     (entry): entry is File => entry instanceof File,
   );
+  const validationError = validateDocumentSelection(documents);
 
-  if (documents.length === 0) {
-    return Response.json(
-      {message: `Select at minimum one document.`},
-      {status: 400},
-    );
+  if (validationError) {
+    const response = {
+      ok: false,
+      message: validationError,
+    } satisfies DocumentUploadResponse;
+
+    return Response.json(response, { status: 400 });
   }
 
-  if (documents.length > maxFileCount) {
-    return Response.json(
-      {message: `Cannot submit more than ${maxFileCount}.`},
-      {status: 400},
-    )
-  }
-
-  for (const document of documents) {
-    if (!acceptedExtensions.has(extensionOf(document.name))) {
-      return Response.json(
-        {message: `${document.name} is not a supported document type`},
-        {status: 400},
-      )
-    }
-
-    if (document.size === 0) {
-      return Response.json(
-        {message: `${document.name} cannot be empty.`},
-        {status: 400},
-      )
-    }
-
-    if (document.size > maxFileSize) {
-      return Response.json(
-        {message: `${document.name} cannot surpass the maximum file size of ${maxFileSize}`},
-        {status: 400},
-      )
-    }
-  }
-
-  return Response.json({
+  const response = {
+    ok: true,
     message: `${documents.length} document${
       documents.length === 1 ? "" : "s"
     } received and validated.`,
@@ -59,5 +28,7 @@ export async function POST(request:Request) {
       size: document.size,
       type: document.type,
     })),
-  });
+  } satisfies DocumentUploadResponse;
+
+  return Response.json(response);
 }
