@@ -1,4 +1,4 @@
-import { validateDocumentSelection } from "@/lib/documents/upload-policy";
+import { validateDocumentSelection } from "@/app/server/documents/upload-policy";
 import type { DocumentUploadResponse } from "@/types/document-upload";
 
 export async function POST(request: Request) {
