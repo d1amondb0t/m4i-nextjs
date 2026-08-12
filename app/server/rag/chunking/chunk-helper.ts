@@ -14,6 +14,7 @@ export type ChunkConfiguration = {
 
 export type DocumentChunkMetadata = {
   contentType: AcceptedExtension;
+  indexFingerprint: string;
   wordCount: number;
   wordStart?: number;
   rowStart?: number;
@@ -33,8 +34,8 @@ export async function hashFileSha256(file: File): Promise<string> {
   return hash("sha256", new Uint8Array(await file.arrayBuffer()));
 }
 
-export function createHashKeyDocument(file: File, algorithm: "sha1" | "sha256"): string {
-  return hash(algorithm, file.name.toLocaleLowerCase("en-US")) 
+export function createHashKeyDocument(file: File, algorithm: "sha1" | "sha256", sourceHash: string): string {
+  return `${hash(algorithm, file.name.toLocaleLowerCase("en-US"))}:${sourceHash}` 
 }
 
 export function createDocumentChunkKey(identity: DocumentIdentity,

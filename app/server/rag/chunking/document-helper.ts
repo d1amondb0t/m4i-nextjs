@@ -8,7 +8,7 @@ export type DocumentChunk = {
   source: string;
   sourceHash: string;
   page: number;
-  chunkNumber: number;
+  number: number;
   text: string;
   metadata: DocumentChunkMetadata;
 };

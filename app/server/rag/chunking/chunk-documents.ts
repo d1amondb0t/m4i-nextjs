@@ -48,6 +48,7 @@ type ExtractedPage = {
   text: string;
 };
 
+
 type CsvRow = {
   number: number;
   text: string;
@@ -60,7 +61,7 @@ type ParsedCsv = {
   rows: CsvRow[];
 };
 
-type DocumentIdentity = {
+export type DocumentIdentity = {
   documentId: string;
   source: string;
   sourceHash: string;

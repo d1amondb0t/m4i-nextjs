@@ -12,6 +12,7 @@ async function chunkPages(file: File, extension: string, config: ChunkConfigurat
 
   const stepSize = config.wordSize - config.overlapWords;
   const extractedPages = await extractFile(file, extension);
+  const indexFingerprint = hash("sha1",`${identity.sourceHash}:${config.wordSize}:${config.overlapWords}`);
 
   const chunks: DocumentChunk[] = [];
 
@@ -30,10 +31,11 @@ async function chunkPages(file: File, extension: string, config: ChunkConfigurat
         chunkId: hash("sha1", chunkKey),
         ...identity,
         page: page.page,
-        chunkNumber: chunks.length +1,
+        number: chunks.length +1,
         text:  currentWords.join(" "),
         metadata: {
           contentType: extensionOf(file.name) as AcceptedExtension,
+          indexFingerprint: indexFingerprint,
           wordStart: start,
           wordCount: currentWords.length,
         }
@@ -52,11 +54,12 @@ async function chunkPages(file: File, extension: string, config: ChunkConfigurat
 export async function chunkDocument(file: File, config: ChunkConfiguration = DEFAULT_CHUNK_CONFIG) {
 
   // read type of document
+  const sourceHash = await hashFileSha256(file);
   const extension = extensionOf(file.name);
   const identity: DocumentIdentity = {
-    documentId: createHashKeyDocument(file, "sha1").slice(0, 16),
+    documentId: createHashKeyDocument(file, "sha1", sourceHash).slice(0, 16),
     source: file.name,
-    sourceHash: await hashFileSha256(file)
+    sourceHash
   }
 
   // extract, clean and chunk document content
