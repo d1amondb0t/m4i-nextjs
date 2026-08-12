@@ -63,7 +63,8 @@ export function validateChunkConfiguration(config: ChunkConfiguration): void {
 }
 
 export function assertPageExtension(extension:string): asserts extension is AcceptedExtension {
-  if (!isAcceptedExtension(extension)) {
+  // Temporary includes
+  if (!isAcceptedExtension(extension) || !["pdf", "txt", "md"].includes(extension)) {
     throw new Error(`Document type ".${extension}" is not implemented for chunking`);
   }
 }
