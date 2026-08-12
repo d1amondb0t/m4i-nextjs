@@ -1,7 +1,7 @@
 import { PDFDocument, StandardFonts } from "pdf-lib";
 import { describe, expect, it } from "vitest";
 
-import { chunkDocument } from "./chunk-documents-ref";
+import { chunkDocument } from "./chunk-documents";
 import { cleanText, extractFile } from "./document-helper";
 
 function toArrayBuffer(bytes: Uint8Array): ArrayBuffer {

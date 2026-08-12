@@ -1,7 +1,7 @@
 import { PDFDocument, StandardFonts } from "pdf-lib";
 import { describe, expect, it } from "vitest";
 
-import { chunkDocument } from "./chunk-documents-ref";
+import { chunkDocument } from "./chunk-documents";
 
 const NO_OVERLAP = { wordSize: 4, overlapWords: 0 };
 
