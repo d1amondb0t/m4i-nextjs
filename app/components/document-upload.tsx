@@ -7,7 +7,7 @@ import {
   MAX_DOCUMENT_COUNT,
   MAX_DOCUMENT_SIZE_MB,
   validateDocumentSelection,
-} from "@/lib/documents/upload-policy";
+} from "@/app/server/documents/upload-policy";
 import type {DocumentUploadResponse, UploadStatus,} from "@/types/document-upload";
 
 function formatBytes(bytes: number) {

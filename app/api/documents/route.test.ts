@@ -5,7 +5,7 @@ import {
   MAX_DOCUMENT_COUNT,
   MAX_DOCUMENT_SIZE_BYTES,
   MAX_DOCUMENT_SIZE_MB,
-} from "@/lib/documents/upload-policy";
+} from "@/app/server/documents/upload-policy";
 
 import { submitDocuments, validDocument } from "./route.test-helpers";
 
