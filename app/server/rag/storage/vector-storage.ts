@@ -1,5 +1,5 @@
 import { QdrantClient } from "@qdrant/js-client-rest"
-import { DEFAULT_STORAGE_CONFIGURATION, SearchResult, StorageConfiguration } from "./storage-types";
+import { DEFAULT_STORAGE_CONFIGURATION, pointId, SearchResult, StorageConfiguration } from "./storage-types";
 import { DocumentChunk } from "../chunking/chunk-type";
 
 
@@ -16,6 +16,30 @@ export class QdrantStore {
 
   async exists(): Promise<boolean> {
     return (await this.client.collectionExists(this.collection)).exists;
+  }
+
+  async upsert(chunks: DocumentChunk[], denseVectors: number[][]): Promise<void> {
+    const vector = denseVectors[0].length;
+
+    await this.ensureCollection(vector);
+
+    await this.client.upsert(this.collection, {
+      wait: true,
+      points: chunks.map((chunk, index) => ({
+        id: pointId(chunk),
+        vector: {
+          dense: denseVectors[index],
+          sparse: {
+            text: chunk.text,
+            model: "qdrant/bm25",
+            options: {
+              language: "english",
+            },
+          },
+        },
+        payload: { ...chunk },
+      })),
+    });
   }
 
   private async assertVectorSize(expectedSize: number): Promise<void> {
@@ -118,9 +142,8 @@ export class QdrantStore {
     });
   }
 
-  async hybridSearch(query: string, queryVector: number[], limit:number) {}
-  // abstract pointId(): string;
-  // abstract upsert(): Promise<void>;
+  async hybridSearch(query: string, queryVector: number[], limit: number) { }
+
   // abstract documentIsCurrent(): Promise<boolean>;
   // abstract deleteDocument(): Promise<void>;
   // abstract allChunks(): Promise<void>;
