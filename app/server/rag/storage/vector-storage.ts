@@ -18,6 +18,59 @@ export class QdrantStore {
     return (await this.client.collectionExists(this.collection)).exists;
   }
 
+  private async assertVectorSize(expectedSize: number): Promise<void> {
+    const info = await this.client.getCollection(this.collection);
+    const vectors = info.config.params.vectors;
+    const existingSize =
+      vectors && "size" in vectors
+        ? vectors.size
+        : vectors?.dense?.size;
+
+    if (existingSize === undefined) {
+      throw new Error(
+        `Collection ${this.collection} has no "dense" vector configuration`,
+      );
+    }
+
+    if (existingSize !== expectedSize) {
+      throw new Error(
+        `Collection "${this.collection}" uses ${existingSize}-dimensional vectors, but the embedder returned ${expectedSize}. Re-index the collection.`,
+      );
+    }
+  }
+
+  async ensureCollection(vectorSize: number, recreate: boolean = false): Promise<void> {
+    if (!Number.isSafeInteger(vectorSize) || vectorSize <= 0) {
+      throw new RangeError("vectorSize must be a positve integer");
+    }
+
+    const collectionExists = await this.exists();
+
+    if (collectionExists && !recreate) {
+      await this.assertVectorSize(vectorSize);
+      return;
+    }
+
+    if (recreate && collectionExists) {
+      await this.client.deleteCollection(this.collection);
+    }
+
+    await this.client.createCollection(this.collection, {
+      vectors: {
+        dense: {
+          size: vectorSize,
+          distance: "Cosine"
+        }
+      },
+      sparse_vectors: {
+        sparse: {
+          modifier: "idf",
+        }
+      },
+    });
+  }
+
+  // Semantic Matching
   async denseSearch(queryVector: number[], limit: number): Promise<SearchResult[]> {
     const response = await this.client.query(this.collection, {
       query: queryVector,
@@ -38,13 +91,38 @@ export class QdrantStore {
     });
   }
 
-  // abstract ensureCollection(): Promise<void>;
+  // Exact Key-Word Matching
+  async sparseSearch(query: string, limit: number) {
+    const response = await this.client.query(this.collection, {
+      query: {
+        text: query,
+        model: "qdrant/bm25",
+        options: {
+          language: "english",
+        },
+      },
+      using: "sparse",
+      limit,
+      with_payload: true,
+    });
+
+    return response.points.map((point) => {
+      if (!point.payload) throw new Error(`Qdrant point ${point.id} has no payload`);
+
+      return {
+        chunk: point.payload as DocumentChunk,
+        score: point.score,
+        denseScore: null,
+        sparseScore: point.score
+      };
+    });
+  }
+
+  async hybridSearch(query: string, queryVector: number[], limit:number) {}
   // abstract pointId(): string;
   // abstract upsert(): Promise<void>;
   // abstract documentIsCurrent(): Promise<boolean>;
   // abstract deleteDocument(): Promise<void>;
   // abstract allChunks(): Promise<void>;
   // abstract count(): Promise<number>;
-  // abstract close(): Promise<void>;
-
 }
