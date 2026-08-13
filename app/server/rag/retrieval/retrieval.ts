@@ -5,7 +5,7 @@ import { DocumentChunk } from "../chunking/chunk-type";
 import { SearchResult } from "../storage/storage-types";
 
 
-class Retriever {
+export class Retriever {
   private chunks: DocumentChunk[] | null = null;
 
   constructor(
@@ -17,10 +17,12 @@ class Retriever {
 
   async dense(question: string, limit: number): Promise<SearchResult[]> {
     const queryVector = await this.embedder.embedQuery(question);
-    return this.store.denseSearch(queryVector as number[], limit);
+    return this.store.denseSearch(queryVector, limit);
   }
 
-  async spare(question: string, limit: number) {}
+  async sparse(question: string, limit: number): Promise<SearchResult[]> {
+    return this.store.sparseSearch(question, limit);
+  }
 
   async hybrid(question: string) {}
 }

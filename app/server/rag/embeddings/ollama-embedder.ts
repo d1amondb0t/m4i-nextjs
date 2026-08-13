@@ -32,7 +32,7 @@ export class OllamaEmbedder {
     return vectors;
   }
 
-  async embedQuery(text:string): Promise<Number[]> {
+  async embedQuery(text:string): Promise<number[]> {
     const vectors = await this.embed([`${this.queryPrefix}${text}`]);
     const vector = vectors[0];
 
