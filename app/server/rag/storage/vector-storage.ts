@@ -1,8 +1,9 @@
 import { QdrantClient } from "@qdrant/js-client-rest"
-import { DEFAULT_STORAGE_CONFIGURATION, StorageConfiguration } from "./storage-types";
+import { DEFAULT_STORAGE_CONFIGURATION, SearchResult, StorageConfiguration } from "./storage-types";
+import { DocumentChunk } from "../chunking/chunk-type";
 
 
-abstract class QDrantStore {
+export class QdrantStore {
   private readonly client: QdrantClient;
 
   constructor(
@@ -17,14 +18,33 @@ abstract class QDrantStore {
     return (await this.client.collectionExists(this.collection)).exists;
   }
 
-  abstract ensureCollection(): Promise<void>;
-  abstract pointId(): string;
-  abstract upsert(): Promise<void>;
-  abstract documentIsCurrent(): Promise<boolean>;
-  abstract deleteDocument(): Promise<void>;
-  abstract denseSearch(): Promise<void>;
-  abstract allChunks(): Promise<void>;
-  abstract count(): Promise<number>;
-  abstract close(): Promise<void>;
+  async denseSearch(queryVector: number[], limit: number): Promise<SearchResult[]> {
+    const response = await this.client.query(this.collection, {
+      query: queryVector,
+      using: "dense",
+      limit,
+      with_payload: true
+    });
+
+    return response.points.map((point) => {
+      if (!point.payload) throw new Error(`Qdrant point ${point.id} has no payload`);
+
+      return {
+        chunk: point.payload as DocumentChunk,
+        score: point.score,
+        denseScore: point.score,
+        sparseScore: null
+      };
+    });
+  }
+
+  // abstract ensureCollection(): Promise<void>;
+  // abstract pointId(): string;
+  // abstract upsert(): Promise<void>;
+  // abstract documentIsCurrent(): Promise<boolean>;
+  // abstract deleteDocument(): Promise<void>;
+  // abstract allChunks(): Promise<void>;
+  // abstract count(): Promise<number>;
+  // abstract close(): Promise<void>;
 
 }

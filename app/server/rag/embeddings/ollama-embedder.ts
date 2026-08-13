@@ -1,6 +1,6 @@
 import { EmbedResponse, Ollama } from "ollama";
 
-class OllamaEmbedder {
+export class OllamaEmbedder {
   private readonly client: Ollama;
 
   constructor(
