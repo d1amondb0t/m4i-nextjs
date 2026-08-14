@@ -1,7 +1,7 @@
 import { AcceptedExtension, extensionOf } from "../../documents/upload-policy";
 import { extractFile } from "./document-helper";
 import { assertPageExtension, createDocumentChunkKey, createHashKeyDocument, createIndexFingerprint, hash, hashFileSha256, validateChunkConfiguration } from "./chunk-helper";
-import { ChunkConfiguration, DocumentChunk, DocumentIdentity, ExtractedPage } from "./chunk-type";
+import { ChunkConfiguration, DocumentChunk, DocumentIdentity, ExtractedPage } from "@/types/chunk-type";
 
 export const DEFAULT_CHUNK_CONFIG: ChunkConfiguration = {
   overlapWords: 50,
