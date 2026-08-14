@@ -1,7 +1,7 @@
 import type { QdrantClient } from "@qdrant/js-client-rest";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import type { DocumentChunk } from "../chunking/chunk-type";
+import { DocumentChunk } from "@/types/chunk-type";
 import { pointId } from "./storage-helper";
 import { QdrantStore } from "./vector-storage";
 

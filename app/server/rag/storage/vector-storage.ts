@@ -1,6 +1,6 @@
 import { QdrantClient } from "@qdrant/js-client-rest"
 import { DEFAULT_STORAGE_CONFIGURATION, SearchResult, StorageConfiguration } from "./storage-types";
-import { DocumentChunk } from "../chunking/chunk-type";
+import { DocumentChunk } from "@/types/chunk-type";
 import { pointId } from "./storage-helper";
 
 export class QdrantStore {

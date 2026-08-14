@@ -1,7 +1,7 @@
 import { QdrantStore } from "../storage/vector-storage";
 import { OllamaEmbedder } from "../embeddings/ollama-embedder";
-import { RerankingConfiguration, RetrievalConfiguration } from "./retrieval-types";
-import { DocumentChunk } from "../chunking/chunk-type";
+import { RetrievalConfiguration, RerankingConfiguration } from "@/types/retrieval-types";
+import { DocumentChunk } from "@/types/chunk-type";
 import { SearchResult } from "../storage/storage-types";
 
 

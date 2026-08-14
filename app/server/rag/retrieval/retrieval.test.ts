@@ -1,11 +1,11 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import type { DocumentChunk } from "../chunking/chunk-type";
+import { DocumentChunk } from "@/types/chunk-type";
 import type { OllamaEmbedder } from "../embeddings/ollama-embedder";
 import type { QdrantStore } from "../storage/vector-storage";
 import type { SearchResult } from "../storage/storage-types";
 import { Retriever } from "./retrieval";
-import { DEFAULT_RETRIEVAL_CONFIGURATION } from "./retrieval-types";
+import { DEFAULT_RETRIEVAL_CONFIGURATION } from "@/types/retrieval-types";
 
 function createStoreMock() {
   return {
