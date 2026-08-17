@@ -1,4 +1,5 @@
-import { AcceptedExtension } from "../../documents/upload-policy";
+import { AcceptedExtension } from "@/app/server/documents/upload-policy";
+
 
 export type ExtractedPage = {
   page: number,
