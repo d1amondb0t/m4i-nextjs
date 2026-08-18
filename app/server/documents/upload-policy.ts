@@ -21,6 +21,16 @@ export const DOCUMENT_TYPE_LABEL = ACCEPTED_EXTENSIONS.map(
   (extension) => extension.toUpperCase(),
 ).join(", ");
 
+export const RAG_ACCEPTED_EXTENSIONS = ["pdf", "txt", "md"] as const;
+
+export const RAG_DOCUMENT_INPUT_ACCEPT = RAG_ACCEPTED_EXTENSIONS.map(
+  (extension) => `.${extension}`,
+).join(",");
+
+export const RAG_DOCUMENT_TYPE_LABEL = RAG_ACCEPTED_EXTENSIONS.map(
+  (extension) => extension.toUpperCase(),
+).join(", ");
+
 type DocumentCandidate = {
   name: string;
   size: number;
@@ -58,6 +68,26 @@ export function validateDocumentSelection(
 
     if (document.size > MAX_DOCUMENT_SIZE_BYTES) {
       return `${document.name} exceeds the ${MAX_DOCUMENT_SIZE_MB} MB file limit.`;
+    }
+  }
+
+  return null;
+}
+
+export function validateRagDocumentSelection(
+  documents: readonly DocumentCandidate[],
+): string | null {
+  const validationError = validateDocumentSelection(documents);
+
+  if (validationError) {
+    return validationError;
+  }
+
+  for (const document of documents) {
+    const extension = extensionOf(document.name);
+
+    if (!(RAG_ACCEPTED_EXTENSIONS as readonly string[]).includes(extension)) {
+      return `${document.name} is accepted for upload, but is not implemented in the RAG chunker yet.`;
     }
   }
 
