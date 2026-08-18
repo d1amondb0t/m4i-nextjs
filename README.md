@@ -22,7 +22,9 @@ npm install
 Copy-Item .env.example .env.local
 docker compose up -d
 ollama pull hf.co/CompendiumLabs/bge-base-en-v1.5-gguf
-ollama pull hf.co/bartowski/Llama-3.2-1B-Instruct-GGUF
+# ollama pull hf.co/bartowski/Llama-3.2-1B-Instruct-GGUF
+# ollama pull qwen3.5:9b-q8_0
+ollama pull qwen3.5:9b-q4_K_M
 npm run dev
 ```
 

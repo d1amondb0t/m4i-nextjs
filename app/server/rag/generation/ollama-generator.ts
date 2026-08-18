@@ -41,6 +41,7 @@ export class OllamaGenerator {
 
     const response = await this.client.chat({
       model: this.model,
+      think: false,
       messages: [
         {"role": "system", "content": this.systemPrompt},
         {"role": "user", "content": `Question:\n${question}\n\nContext:\n${this.buildContext(question, results)}`},
