@@ -1,14 +1,11 @@
 "use client";
 
-import {type ChangeEvent, type FormEvent, useState,} from "react";
-import {
-  DOCUMENT_INPUT_ACCEPT,
-  DOCUMENT_TYPE_LABEL,
-  MAX_DOCUMENT_COUNT,
-  MAX_DOCUMENT_SIZE_MB,
-  validateDocumentSelection,
-} from "@/app/server/documents/upload-policy";
-import type {DocumentUploadResponse, UploadStatus,} from "@/types/document-upload";
+import { type ChangeEvent, type FormEvent, useState, } from "react";
+import { MAX_DOCUMENT_COUNT, MAX_DOCUMENT_SIZE_MB, RAG_DOCUMENT_INPUT_ACCEPT, RAG_DOCUMENT_TYPE_LABEL, validateRagDocumentSelection, } from "@/app/server/documents/upload-policy";
+import type { UploadStatus } from "@/types/document-upload";
+import { MAX_QUESTION_LENGTH, type RagPipelineResponse, validateQuestion, } from "@/types/rag-pipeline-type";
+
+type SuccessfulPipelineResponse = Extract<RagPipelineResponse, { ok: true }>;
 
 function formatBytes(bytes: number) {
   if (bytes < 1024) {
@@ -24,7 +21,9 @@ function formatBytes(bytes: number) {
 
 export function DocumentUpload() {
   const [files, setFiles] = useState<File[]>([]);
+  const [question, setQuestion] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [result, setResult] = useState<SuccessfulPipelineResponse | null>(null);
   const [status, setStatus] = useState<UploadStatus>({
     type: "idle",
     message: "",
@@ -32,15 +31,17 @@ export function DocumentUpload() {
 
   function handleSelection(event: ChangeEvent<HTMLInputElement>) {
     const selectedFiles = Array.from(event.target.files ?? []);
-    const validationError = validateDocumentSelection(selectedFiles);
+    const validationError = validateRagDocumentSelection(selectedFiles);
 
     if (validationError) {
       setFiles([]);
+      setResult(null);
       setStatus({ type: "error", message: validationError });
       return;
     }
 
     setFiles(selectedFiles);
+    setResult(null);
     setStatus({ type: "idle", message: "" });
   }
 
@@ -48,13 +49,15 @@ export function DocumentUpload() {
     setFiles((currentFiles) =>
       currentFiles.filter((_, currentIndex) => currentIndex !== index),
     );
+    setResult(null);
     setStatus({ type: "idle", message: "" });
   }
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
-    const validationError = validateDocumentSelection(files);
+    const validationError =
+      validateRagDocumentSelection(files) ?? validateQuestion(question);
 
     if (validationError) {
       setStatus({
@@ -69,27 +72,33 @@ export function DocumentUpload() {
     for (const file of files) {
       formData.append("documents", file);
     }
+    formData.append("question", question);
 
     setIsSubmitting(true);
+    setResult(null);
     setStatus({ type: "idle", message: "" });
 
     try {
-      const response = await fetch("/api/documents", {
+      const response = await fetch("/api/rag", {
         method: "POST",
         body: formData,
       });
 
-      const result = (await response.json()) as DocumentUploadResponse;
+      const pipelineResponse = (await response.json()) as RagPipelineResponse;
 
-      if (!response.ok || !result.ok) {
-        throw new Error(result.message);
+      if (!response.ok || !pipelineResponse.ok) {
+        throw new Error(
+          pipelineResponse.ok
+            ? "The RAG pipeline returned an unsuccessful response."
+            : pipelineResponse.message,
+        );
       }
 
+      setResult(pipelineResponse);
       setStatus({
         type: "success",
-        message: result.message,
+        message: `${pipelineResponse.indexedChunks} chunks indexed and ${pipelineResponse.sources.length} retrieved.`,
       });
-      setFiles([]);
     } catch (error) {
       setStatus({
         type: "error",
@@ -117,7 +126,7 @@ export function DocumentUpload() {
             Choose documents
           </span>
           <span className="mt-1 text-sm text-zinc-500">
-            {DOCUMENT_TYPE_LABEL}
+            {RAG_DOCUMENT_TYPE_LABEL}
           </span>
           <span className="mt-1 text-xs text-zinc-400">
             Up to {MAX_DOCUMENT_COUNT} files, {MAX_DOCUMENT_SIZE_MB} MB each
@@ -127,7 +136,7 @@ export function DocumentUpload() {
             id="documents"
             name="documents"
             type="file"
-            accept={DOCUMENT_INPUT_ACCEPT}
+            accept={RAG_DOCUMENT_INPUT_ACCEPT}
             multiple
             className="sr-only"
             onChange={handleSelection}
@@ -174,29 +183,107 @@ export function DocumentUpload() {
           </div>
         ) : null}
 
+        <div className="mt-6">
+          <label htmlFor="question" className="text-sm font-medium text-zinc-900">
+            Question
+          </label>
+          <p className="mt-1 text-sm text-zinc-500">
+            Ask something that can be answered from the selected documents.
+          </p>
+          <textarea
+            id="question"
+            name="question"
+            value={question}
+            maxLength={MAX_QUESTION_LENGTH}
+            rows={4}
+            className="mt-3 w-full resize-y rounded-xl border border-zinc-300 px-4 py-3 text-sm text-zinc-900 outline-none transition placeholder:text-zinc-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+            placeholder="What are the main conclusions?"
+            onChange={(event) => {
+              setQuestion(event.target.value);
+              setResult(null);
+              setStatus({ type: "idle", message: "" });
+            }}
+          />
+          <p className="mt-1 text-right text-xs text-zinc-400">
+            {question.length}/{MAX_QUESTION_LENGTH}
+          </p>
+        </div>
+
+        <ol className="mt-6 grid gap-2 text-xs text-zinc-600 sm:grid-cols-5">
+          {["Chunk", "Embed", "Store", "Retrieve", "Generate"].map(
+            (step, index) => (
+              <li
+                key={step}
+                className="rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-2"
+              >
+                <span className="mr-1 font-semibold text-blue-700">
+                  {index + 1}.
+                </span>
+                {step}
+              </li>
+            ),
+          )}
+        </ol>
+
         <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <p
             aria-live="polite"
-            className={`text-sm ${
-              status.type === "error"
-                ? "text-red-600"
-                : status.type === "success"
-                  ? "text-emerald-700"
-                  : "text-zinc-500"
-            }`}
+            className={`text-sm ${status.type === "error"
+              ? "text-red-600"
+              : status.type === "success"
+                ? "text-emerald-700"
+                : "text-zinc-500"
+              }`}
           >
             {status.message}
           </p>
 
           <button
             type="submit"
-            disabled={files.length === 0 || isSubmitting}
+            disabled={files.length === 0 || !question.trim() || isSubmitting}
             className="rounded-xl bg-zinc-950 px-5 py-3 text-sm font-medium text-white transition hover:bg-zinc-800 disabled:cursor-not-allowed disabled:bg-zinc-300"
           >
-            {isSubmitting ? "Submitting…" : "Submit documents"}
+            {isSubmitting ? "Running pipeline…" : "Run RAG pipeline"}
           </button>
         </div>
       </form>
+
+      {result ? (
+        <div className="mt-8 border-t border-zinc-200 pt-8">
+          <h2 className="text-lg font-semibold text-zinc-950">Answer</h2>
+          <p className="mt-3 whitespace-pre-wrap text-sm leading-7 text-zinc-700">
+            {result.answer}
+          </p>
+
+          <h3 className="mt-7 text-sm font-semibold text-zinc-950">
+            Retrieved context
+          </h3>
+          {result.sources.length > 0 ? (
+            <ul className="mt-3 space-y-3">
+              {result.sources.map((source, index) => (
+                <li
+                  key={`${source.source}-${source.page}-${source.chunk}-${index}`}
+                  className="rounded-xl border border-zinc-200 bg-zinc-50 p-4"
+                >
+                  <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-zinc-500">
+                    <span>
+                      {source.source} · page {source.page} · chunk {source.chunk}
+                    </span>
+                    <span>score {source.score.toFixed(3)}</span>
+                  </div>
+                  <p className="mt-2 text-sm leading-6 text-zinc-700">
+                    {source.text}
+                  </p>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="mt-2 text-sm text-zinc-500">
+              No chunks were returned by retrieval.
+            </p>
+          )}
+        </div>
+      ) : null}
     </section>
   );
 }
