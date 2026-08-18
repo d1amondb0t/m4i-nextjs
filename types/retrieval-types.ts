@@ -1,8 +1,8 @@
 export type RetrievalConfiguration = {
   strategy: "dense" | "sparse" | "hybrid";
   topK : number; // default = 5
-  denseCandidates: number // default = 20;
-  sparseCandidates: number // default = 20; 
+  denseCandidates: number; // default = 20
+  sparseCandidates: number; // default = 20
 };
 
 export type RerankingConfiguration = {
@@ -18,4 +18,3 @@ export const DEFAULT_RETRIEVAL_CONFIGURATION = {
   denseCandidates: 20,
   sparseCandidates: 20,
 } as const satisfies RetrievalConfiguration;
-

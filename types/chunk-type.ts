@@ -1,4 +1,5 @@
-import { AcceptedExtension } from "../../documents/upload-policy";
+import { AcceptedExtension } from "@/app/server/documents/upload-policy";
+
 
 export type ExtractedPage = {
   page: number,
@@ -36,3 +37,21 @@ export type DocumentChunk =  DocumentIdentity & {
   text: string;
   metadata: DocumentChunkMetadata;
 };
+
+
+export function getContextLabel(chunk: DocumentChunk): string {
+  const safeSource = chunk.source
+    .replaceAll("]", "")
+    .replaceAll("\n", " ");
+
+  if (chunk.metadata.contentType == "csv") {
+    const rowStart = chunk.metadata.rowStart ?? 1;
+    const rowEnd = chunk.metadata.rowEnd ?? rowStart;
+    const location = rowStart === rowEnd ? `Row ${rowStart}` : `Row ${rowStart}-${rowEnd}`;
+
+    return `${location} | Source: ${safeSource}`;
+  }
+
+  return `[Page ${chunk.page}] [Source: ${safeSource}]`;
+
+}

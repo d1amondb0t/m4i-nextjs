@@ -1,4 +1,5 @@
-import { DocumentChunk } from "../chunking/chunk-type";
+import { DocumentChunk } from "@/types/chunk-type";
+
 
 export type QdrantLocalStorageConfiguration = {
   host: string;
