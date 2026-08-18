@@ -1,36 +1,61 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# M4I RAG pipeline tester
 
-## Getting Started
+This Next.js application runs the current RAG implementation end to end:
 
-First, run the development server:
+1. `DocumentChunker` extracts and chunks uploaded PDF, TXT, or Markdown files.
+2. `OllamaEmbedder` creates dense embeddings.
+3. `QdrantStore` creates the collection and upserts dense and BM25 vectors.
+4. `Retriever` embeds the question and retrieves the top matching chunks.
+5. `OllamaGenerator` generates an answer from the retrieved context.
 
-```bash
+`RagPipeline` in `app/server/rag/pipeline/rag-pipeline.ts` initializes and
+coordinates these components. The browser submits the files and question to
+`POST /api/rag`; Ollama and Qdrant remain server-side.
+
+## Run the live pipeline
+
+Prerequisites: Node.js, Docker, and Ollama. The Qdrant instance must support
+server-side `qdrant/bm25` vectors (Qdrant 1.15.2 or newer).
+
+```powershell
+npm install
+Copy-Item .env.example .env.local
+docker compose up -d
+ollama pull hf.co/CompendiumLabs/bge-base-en-v1.5-gguf
+ollama pull hf.co/bartowski/Llama-3.2-1B-Instruct-GGUF
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open `http://localhost:3000`, select one or more implemented document types,
+enter a question, and choose **Run RAG pipeline**. The page displays the answer,
+the number of indexed chunks, and the retrieved context with similarity scores.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+The defaults work with Ollama and Qdrant on the local machine. Edit `.env.local`
+to use other models, ports, collection names, prompt files, or a Qdrant Cloud
+cluster. If the embedding model changes its vector dimensions, use a new
+`QDRANT_COLLECTION` name or recreate the existing test collection.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Scanned PDFs require OCR and are not supported by the current chunker. CSV,
+DOCX, and XLSX pass the general upload policy but are hidden from this tester
+until their chunking implementations are complete.
 
-## Learn More
+## Automated verification
 
-To learn more about Next.js, take a look at the following resources:
+```powershell
+npm test
+npm run lint
+npm run build
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+The unit tests mock Ollama and Qdrant at the pipeline boundary, so they verify
+stage order and data flow without requiring either service. Running the browser
+flow is the integration test for the real local services and selected models.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Stop Qdrant when finished:
 
-## Deploy on Vercel
+```powershell
+docker compose down
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+The named Docker volume preserves the test collection between runs. Use
+`docker compose down --volumes` only when you intentionally want to delete it.
