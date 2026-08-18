@@ -19,7 +19,20 @@ export class QdrantStore {
   }
 
   async upsert(chunks: DocumentChunk[], denseVectors: number[][]): Promise<void> {
-    const vector = denseVectors[0].length;
+    if (chunks.length === 0) {
+      throw new Error("At least one chunk is required for storage.");
+    }
+
+    if (chunks.length !== denseVectors.length) {
+      throw new Error("Every chunk must have exactly one dense vector.");
+    }
+
+    const vector = denseVectors[0]?.length ?? 0;
+
+    if ( vector === 0 ||
+      denseVectors.some((denseVector) => denseVector.length !== vector)) {
+      throw new Error("Dense vectors must be non-empty and have equal dimensions.");
+    }
 
     await this.ensureCollection(vector);
 
@@ -141,9 +154,6 @@ export class QdrantStore {
       };
     });
   }
-
-  async hybridSearch(query: string, queryVector: number[], limit: number) { }
-
   // abstract documentIsCurrent(): Promise<boolean>;
   // abstract deleteDocument(): Promise<void>;
   // abstract allChunks(): Promise<void>;

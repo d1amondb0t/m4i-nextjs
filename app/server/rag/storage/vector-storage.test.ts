@@ -259,6 +259,32 @@ describe("QdrantStore", () => {
   });
 
   describe("upsert", () => {
+    it("rejects an empty chunk list before contacting Qdrant", async () => {
+      await expect(store.upsert([], [])).rejects.toThrow(
+        "At least one chunk is required for storage.",
+      );
+      expect(client.upsert).not.toHaveBeenCalled();
+    });
+
+    it("rejects when chunk and vector counts differ", async () => {
+      await expect(store.upsert([chunk(0, "text")], [])).rejects.toThrow(
+        "Every chunk must have exactly one dense vector.",
+      );
+      expect(client.upsert).not.toHaveBeenCalled();
+    });
+
+    it("rejects vectors with inconsistent dimensions", async () => {
+      await expect(
+        store.upsert(
+          [chunk(0, "first"), chunk(1, "second")],
+          [[0.1, 0.2], [0.3]],
+        ),
+      ).rejects.toThrow(
+        "Dense vectors must be non-empty and have equal dimensions.",
+      );
+      expect(client.upsert).not.toHaveBeenCalled();
+    });
+
     it("ensures the collection and constructs the complete upsert request", async () => {
       const chunks = [chunk(0, "first chunk"), chunk(1, "second chunk")];
       const denseVectors = [
