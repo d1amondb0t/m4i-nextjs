@@ -28,7 +28,7 @@ export class OllamaGenerator {
       const remaining = this.config.maxContextWords - wordsUsed;
 
       if (remaining <= 0) break;
-      const selectedWords = words.slice(remaining);
+      const selectedWords = words.slice(0, remaining);
       text = selectedWords.join(" ");
 
       sections.push(`${getContextLabel(item.chunk)}\n${text}`);
