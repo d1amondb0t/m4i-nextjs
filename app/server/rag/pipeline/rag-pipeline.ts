@@ -9,17 +9,8 @@ import { Retriever } from "../retrieval/retrieval";
 import { QdrantStore } from "../storage/vector-storage";
 import { ragPipelineConfigurationFromEnvironment } from "./rag-pipeline-helper";
 
-export {
-  DEFAULT_RAG_PIPELINE_CONFIGURATION,
-  positiveInteger,
-  ragPipelineConfigurationFromEnvironment,
-  storageFromEnvironment,
-} from "./rag-pipeline-helper";
-export type {
-  RagPipelineConfiguration,
-  RagPipelineDependencies,
-  RagPipelineResult,
-} from "@/types/rag-pipeline-type";
+export { DEFAULT_RAG_PIPELINE_CONFIGURATION, positiveInteger, ragPipelineConfigurationFromEnvironment, storageFromEnvironment } from "./rag-pipeline-helper";
+export type { RagPipelineConfiguration, RagPipelineDependencies, RagPipelineResult, } from "@/types/rag-pipeline-type";
 
 export class RagPipeline {
   private readonly chunker: Chunker;
@@ -82,19 +73,3 @@ export class RagPipeline {
     return { answer, chunks, results };
   }
 }
-
-// export class RagPipelineV2 {
-//   private readonly chunker: Chunker;
-//   private readonly embedder: Embedder;
-//   private readonly store: Store;
-//   private readonly retriever: PipelineRetriever;
-//   private readonly generator: Generator;
-
-//   constructor(
-//     config: RagPipelineConfiguration = ragPipelineConfigurationFromEnvironment(),
-//     dependencies: RagPipelineConfiguration = {},
-//   ) {
-//     const ollamaClient = new Ollama(config.ollamaHost ? { host: config.ollamaHost} : undefined);
-//     const concreteEmbedder = new OllamaEmbedder()
-//   }
-// }
