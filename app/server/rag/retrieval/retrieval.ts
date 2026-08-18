@@ -1,6 +1,6 @@
 import { QdrantStore } from "../storage/vector-storage";
 import { OllamaEmbedder } from "../embeddings/ollama-embedder";
-import { RetrievalConfiguration, RerankingConfiguration } from "@/types/retrieval-types";
+import { RetrievalConfiguration } from "@/types/retrieval-types";
 import { DocumentChunk } from "@/types/chunk-type";
 import { SearchResult } from "../storage/storage-types";
 
@@ -24,5 +24,14 @@ export class Retriever {
     return this.store.sparseSearch(question, limit);
   }
 
-  async hybrid(question: string) {}
+  async retrieve(question: string): Promise<SearchResult[]> {
+    switch (this.retrievalConfig.strategy) {
+      case "dense":
+        return this.dense(question, this.retrievalConfig.topK);
+      case "sparse":
+        return this.sparse(question, this.retrievalConfig.topK);
+      case "hybrid":
+        throw new Error("Hybrid retrieval is not implemented yet.");
+    }
+  }
 }
