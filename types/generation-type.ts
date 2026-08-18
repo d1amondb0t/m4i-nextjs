@@ -13,6 +13,6 @@ export const DEFAULT_GENERATION_CONFIGURATION = {
   model: DEFAULT_LANGUAGE_MODEL,
   temperature: 0.0,
   prompt: "prompts/grounded.txt",
-  sentencesPerChunk: 3,
+  sentencesPerChunk: 0,
   maxContextWords: 1200
 }
