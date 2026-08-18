@@ -1,4 +1,4 @@
-import { DocumentChunk } from "../chunking/chunk-type";
+import type { DocumentChunk } from "@/types/chunk-type";
 import { QdrantCloudStorageConfiguration, StorageConfiguration } from "./storage-types";
 import { v5 as uuidv5 } from "uuid";
 
