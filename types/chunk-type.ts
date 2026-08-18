@@ -38,6 +38,11 @@ export type DocumentChunk =  DocumentIdentity & {
   metadata: DocumentChunkMetadata;
 };
 
+export const DEFAULT_CHUNK_CONFIG: ChunkConfiguration = {
+  overlapWords: 50,
+  wordSize: 200
+} as const;
+
 
 export function getContextLabel(chunk: DocumentChunk): string {
   const safeSource = chunk.source
