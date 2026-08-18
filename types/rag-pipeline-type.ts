@@ -69,7 +69,7 @@ export type RagPipelineResponse =
   }
   | {
     ok: false;
-      message: string;
+    message: string;
     };
 
 export function validateQuestion(question: string): string | null {
