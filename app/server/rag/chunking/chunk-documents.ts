@@ -1,15 +1,16 @@
 import { AcceptedExtension, extensionOf } from "../../documents/upload-policy";
 import { extractFile } from "./document-helper";
 import { assertPageExtension, createDocumentChunkKey, createHashKeyDocument, createIndexFingerprint, hash, hashFileSha256, validateChunkConfiguration } from "./chunk-helper";
-import { ChunkConfiguration, DocumentChunk, DocumentIdentity, ExtractedPage } from "@/types/chunk-type";
+import { ChunkConfiguration, DEFAULT_CHUNK_CONFIG, DocumentChunk, DocumentIdentity, ExtractedPage } from "@/types/chunk-type";
 
-export const DEFAULT_CHUNK_CONFIG: ChunkConfiguration = {
-  overlapWords: 50,
-  wordSize: 200
-} as const;
+export class DocumentChunker {
+  constructor(
+    private readonly config: ChunkConfiguration = DEFAULT_CHUNK_CONFIG,
+  ) {
+    validateChunkConfiguration(config);
+  }
 
-
-function chunkPages(pages: readonly ExtractedPage[], extension: string, config: ChunkConfiguration = DEFAULT_CHUNK_CONFIG, identity: DocumentIdentity): DocumentChunk[] {
+  chunkPages(pages: readonly ExtractedPage[], extension: string, config: ChunkConfiguration = DEFAULT_CHUNK_CONFIG, identity: DocumentIdentity): DocumentChunk[] {
 
   const stepSize = config.wordSize - config.overlapWords;
   const indexFingerprint = createIndexFingerprint(identity, extension, config);
@@ -49,29 +50,35 @@ function chunkPages(pages: readonly ExtractedPage[], extension: string, config: 
 }
 
 
-export async function chunkDocument(file: File, config: ChunkConfiguration = DEFAULT_CHUNK_CONFIG): Promise<DocumentChunk[]> {
+  async chunkDocument(file: File, config: ChunkConfiguration = DEFAULT_CHUNK_CONFIG): Promise<DocumentChunk[]> {
 
-  validateChunkConfiguration(config);
+    validateChunkConfiguration(config);
+    
+    const sourceHash = await hashFileSha256(file);
+    const extension = extensionOf(file.name);
+
+    assertPageExtension(extension);
+    
+    const identity: DocumentIdentity = {
+      documentId: createHashKeyDocument(file, "sha1", sourceHash),
+      source: file.name,
+      sourceHash
+    }
+
+    // extract, clean and chunk document content
+    const extractedPages = await extractFile(file, extension);
+    const chunks = this.chunkPages(extractedPages, extension, config, identity);
+
+    if (chunks.length === 0) {
+      const detail = extension === "pdf" ? "; scanned PDFs require OCR" : "";
+      throw new Error(`No text could be extracted from ${file.name}${detail}.`);
+    }
+
+    return chunks;
+  };
   
-  const sourceHash = await hashFileSha256(file);
-  const extension = extensionOf(file.name);
-
-  assertPageExtension(extension);
-  
-  const identity: DocumentIdentity = {
-    documentId: createHashKeyDocument(file, "sha1", sourceHash),
-    source: file.name,
-    sourceHash
+  async chunkDocuments(files: readonly File[]): Promise<DocumentChunk[]> {
+    const chunkGroups = await Promise.all(files.map((file) => this.chunkDocument(file, this.config)));
+    return chunkGroups.flat();
   }
-
-  // extract, clean and chunk document content
-  const extractedPages = await extractFile(file, extension);
-  const chunks = chunkPages(extractedPages, extension, config, identity);
-
-  if (chunks.length === 0) {
-    const detail = extension === "pdf" ? "; scanned PDFs require OCR" : "";
-    throw new Error(`No text could be extracted from ${file.name}${detail}.`);
-  }
-
-  return chunks;
 }

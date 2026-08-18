@@ -1,5 +1,8 @@
 import { PDFParse } from "pdf-parse";
-import { ExtractedPage } from "./chunk-type";
+import { getData as getPdfWorkerData } from "pdf-parse/worker";
+import type { ExtractedPage } from "@/types/chunk-type";
+
+PDFParse.setWorker(getPdfWorkerData());
 
 export function cleanText(text: string): string {
   return text

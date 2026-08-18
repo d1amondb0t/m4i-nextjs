@@ -1,9 +1,11 @@
 import { PDFDocument, StandardFonts } from "pdf-lib";
 import { describe, expect, it } from "vitest";
 
-import { chunkDocument } from "./chunk-documents";
+import { DocumentChunker } from "./chunk-documents";
 
 const NO_OVERLAP = { wordSize: 4, overlapWords: 0 };
+const documentChunker = new DocumentChunker();
+const chunkDocument = documentChunker.chunkDocument.bind(documentChunker);
 
 function words(count: number): string[] {
   return Array.from({ length: count }, (_, index) => `word${index + 1}`);

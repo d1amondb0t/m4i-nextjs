@@ -1,5 +1,5 @@
 import { createHash } from "crypto";
-import { ChunkConfiguration, DocumentIdentity, ExtractedPage } from "./chunk-type";
+import type { ChunkConfiguration, DocumentIdentity, ExtractedPage, } from "@/types/chunk-type";
 import { AcceptedExtension, isAcceptedExtension } from "../../documents/upload-policy";
 
 

@@ -1,8 +1,11 @@
 import { PDFDocument, StandardFonts } from "pdf-lib";
 import { describe, expect, it } from "vitest";
 
-import { chunkDocument } from "./chunk-documents";
+import { DocumentChunker } from "./chunk-documents";
 import { cleanText, extractFile } from "./document-helper";
+
+const documentChunker = new DocumentChunker();
+const chunkDocument = documentChunker.chunkDocument.bind(documentChunker);
 
 function toArrayBuffer(bytes: Uint8Array): ArrayBuffer {
   const buffer = new ArrayBuffer(bytes.byteLength);

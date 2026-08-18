@@ -28,7 +28,7 @@ export class OllamaGenerator {
       const remaining = this.config.maxContextWords - wordsUsed;
 
       if (remaining <= 0) break;
-      const selectedWords = words.slice(remaining);
+      const selectedWords = words.slice(0, remaining);
       text = selectedWords.join(" ");
 
       sections.push(`${getContextLabel(item.chunk)}\n${text}`);
@@ -41,6 +41,7 @@ export class OllamaGenerator {
 
     const response = await this.client.chat({
       model: this.model,
+      think: false,
       messages: [
         {"role": "system", "content": this.systemPrompt},
         {"role": "user", "content": `Question:\n${question}\n\nContext:\n${this.buildContext(question, results)}`},

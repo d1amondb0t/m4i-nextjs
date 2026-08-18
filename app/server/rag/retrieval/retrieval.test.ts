@@ -128,4 +128,46 @@ describe("Retriever", () => {
       await expect(retriever.sparse("question", 7)).resolves.toBe(results);
     });
   });
+
+  describe("retrieve", () => {
+    it("uses the configured dense strategy and topK", async () => {
+      const results = searchResults();
+      embedder.embedQuery.mockResolvedValue([0.1, 0.2]);
+      store.denseSearch.mockResolvedValue(results);
+
+      await expect(retriever.retrieve("question")).resolves.toBe(results);
+      expect(store.denseSearch).toHaveBeenCalledWith([0.1, 0.2], 5);
+      expect(store.sparseSearch).not.toHaveBeenCalled();
+    });
+
+    it("uses the configured sparse strategy and topK", async () => {
+      const results = searchResults();
+      store.sparseSearch.mockResolvedValue(results);
+      retriever = new Retriever(
+        store as unknown as QdrantStore,
+        embedder as unknown as OllamaEmbedder,
+        {
+          ...DEFAULT_RETRIEVAL_CONFIGURATION,
+          strategy: "sparse",
+          topK: 3,
+        },
+      );
+
+      await expect(retriever.retrieve("question")).resolves.toBe(results);
+      expect(store.sparseSearch).toHaveBeenCalledWith("question", 3);
+      expect(embedder.embedQuery).not.toHaveBeenCalled();
+    });
+
+    it("reports that hybrid retrieval is not implemented", async () => {
+      retriever = new Retriever(
+        store as unknown as QdrantStore,
+        embedder as unknown as OllamaEmbedder,
+        { ...DEFAULT_RETRIEVAL_CONFIGURATION, strategy: "hybrid" },
+      );
+
+      await expect(retriever.retrieve("question")).rejects.toThrow(
+        "Hybrid retrieval is not implemented yet.",
+      );
+    });
+  });
 });
