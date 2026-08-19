@@ -108,12 +108,25 @@ export class QdrantStore {
   }
 
   // Semantic Matching
-  async denseSearch(queryVector: number[], limit: number): Promise<SearchResult[]> {
+  async denseSearch(
+    queryVector: number[],
+    limit: number,
+    documentIds?: readonly string[],
+  ): Promise<SearchResult[]> {
+    if (documentIds?.length === 0) return [];
+
     const response = await this.client.query(this.collection, {
       query: queryVector,
       using: "dense",
       limit,
-      with_payload: true
+      with_payload: true,
+      ...(documentIds
+        ? {
+            filter: {
+              must: [{ key: "documentId", match: { any: [...documentIds] } }],
+            },
+          }
+        : {}),
     });
 
     return response.points.map((point) => {
@@ -129,7 +142,13 @@ export class QdrantStore {
   }
 
   // Exact Key-Word Matching
-  async sparseSearch(query: string, limit: number) {
+  async sparseSearch(
+    query: string,
+    limit: number,
+    documentIds?: readonly string[],
+  ) {
+    if (documentIds?.length === 0) return [];
+
     const response = await this.client.query(this.collection, {
       query: {
         text: query,
@@ -141,6 +160,13 @@ export class QdrantStore {
       using: "sparse",
       limit,
       with_payload: true,
+      ...(documentIds
+        ? {
+            filter: {
+              must: [{ key: "documentId", match: { any: [...documentIds] } }],
+            },
+          }
+        : {}),
     });
 
     return response.points.map((point) => {

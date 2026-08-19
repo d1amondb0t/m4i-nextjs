@@ -15,21 +15,36 @@ export class Retriever {
     //private readonly rerankingConfig: RerankingConfiguration,
   ) {}
 
-  async dense(question: string, limit: number): Promise<SearchResult[]> {
+  async dense(
+    question: string,
+    limit: number,
+    documentIds?: readonly string[],
+  ): Promise<SearchResult[]> {
     const queryVector = await this.embedder.embedQuery(question);
-    return this.store.denseSearch(queryVector, limit);
+    return documentIds === undefined
+      ? this.store.denseSearch(queryVector, limit)
+      : this.store.denseSearch(queryVector, limit, documentIds);
   }
 
-  async sparse(question: string, limit: number): Promise<SearchResult[]> {
-    return this.store.sparseSearch(question, limit);
+  async sparse(
+    question: string,
+    limit: number,
+    documentIds?: readonly string[],
+  ): Promise<SearchResult[]> {
+    return documentIds === undefined
+      ? this.store.sparseSearch(question, limit)
+      : this.store.sparseSearch(question, limit, documentIds);
   }
 
-  async retrieve(question: string): Promise<SearchResult[]> {
+  async retrieve(
+    question: string,
+    documentIds?: readonly string[],
+  ): Promise<SearchResult[]> {
     switch (this.retrievalConfig.strategy) {
       case "dense":
-        return this.dense(question, this.retrievalConfig.topK);
+        return this.dense(question, this.retrievalConfig.topK, documentIds);
       case "sparse":
-        return this.sparse(question, this.retrievalConfig.topK);
+        return this.sparse(question, this.retrievalConfig.topK, documentIds);
       case "hybrid":
         throw new Error("Hybrid retrieval is not implemented yet.");
     }

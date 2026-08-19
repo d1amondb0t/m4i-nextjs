@@ -357,6 +357,26 @@ describe("QdrantStore", () => {
       );
     });
 
+    it("can scope dense retrieval to the current document IDs", async () => {
+      client.query.mockResolvedValue({ points: [] });
+
+      await store.denseSearch([0.1, 0.2], 5, ["document-1", "document-2"]);
+
+      expect(client.query).toHaveBeenCalledWith(
+        COLLECTION,
+        expect.objectContaining({
+          filter: {
+            must: [
+              {
+                key: "documentId",
+                match: { any: ["document-1", "document-2"] },
+              },
+            ],
+          },
+        }),
+      );
+    });
+
     it("maps dense results and preserves their order", async () => {
       const first = chunk(0, "first");
       const second = chunk(1, "second");
@@ -425,6 +445,23 @@ describe("QdrantStore", () => {
         limit: 8,
         with_payload: true,
       });
+    });
+
+    it("can scope sparse retrieval to the current document IDs", async () => {
+      client.query.mockResolvedValue({ points: [] });
+
+      await store.sparseSearch("search terms", 8, ["document-1"]);
+
+      expect(client.query).toHaveBeenCalledWith(
+        COLLECTION,
+        expect.objectContaining({
+          filter: {
+            must: [
+              { key: "documentId", match: { any: ["document-1"] } },
+            ],
+          },
+        }),
+      );
     });
 
     it("maps sparse results and preserves their order", async () => {

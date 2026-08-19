@@ -1,4 +1,5 @@
 import { DocumentUpload } from "./components/document-upload";
+import Link from "next/link";
 
 export default function Home() {
   return (
@@ -15,6 +16,12 @@ export default function Home() {
             Upload implemented document types, ask a question, and run every
             stage from chunking through grounded generation.
           </p>
+          <Link
+            href="/hierarchy"
+            className="mt-5 inline-flex text-sm font-medium text-blue-700 hover:text-blue-900"
+          >
+            Try the hierarchy extraction experiment →
+          </Link>
         </header>
 
         <DocumentUpload />

@@ -61,3 +61,36 @@ docker compose down
 
 The named Docker volume preserves the test collection between runs. Use
 `docker compose down --volumes` only when you intentionally want to delete it.
+
+## Hierarchy extraction experiment
+
+The `/hierarchy` route tests ontology-guided framework extraction without
+changing the behavior of the standard `/api/rag` pipeline. Supply the same
+document types plus a JSON ontology containing dimensions and leaf categories.
+The page includes an editable example.
+
+For every category the experiment:
+
+1. Builds separate outcome and indicator queries from the dimension and
+   category definitions, inclusion criteria, and exclusion criteria.
+2. Retrieves up to 12 chunks per query and discards cosine scores below `0.45`.
+   Searches are filtered to the documents uploaded in the current run, even
+   when the Qdrant collection also contains earlier documents.
+3. Merges duplicate chunks and asks Ollama for structured candidate evidence.
+4. Rejects citations whose chunk IDs or verbatim quotes are absent from the
+   retrieved context.
+5. Independently scores category fit, type fit, evidence support, and
+   specificity, applying the thresholds in
+   `DEFAULT_HIERARCHY_CONFIGURATION`.
+6. Consolidates exact equivalent candidates, assigning a cross-category
+   duplicate to the category with the stronger category-fit score.
+
+The result view keeps outcomes and indicators separate and shows retrieval
+scores, validation scores, citations, and rejection reasons. Empty categories
+are preserved as explicit abstentions.
+
+These defaults are experimental rather than calibrated confidence
+probabilities. Adjust the values in `types/hierarchy-types.ts` against a
+labelled evaluation set before treating them as production thresholds. Each
+leaf category currently makes two embedding queries, one extraction model call,
+and one validation model call, so runtime grows linearly with category count.

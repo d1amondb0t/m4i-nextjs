@@ -18,7 +18,7 @@ export type Store = {
 };
 
 export type PipelineRetriever = {
-  retrieve(question: string): Promise<SearchResult[]>;
+  retrieve(question: string, documentIds?: readonly string[]): Promise<SearchResult[]>;
 };
 
 export type Generator = {
