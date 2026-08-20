@@ -12,7 +12,6 @@ describe("hierarchy model response parsing", () => {
         JSON.stringify({
           candidates: [
             {
-              id: "c1",
               kind: "outcome",
               text: "Policy recommendations are adopted",
               explicitness: "explicit",
@@ -23,7 +22,7 @@ describe("hierarchy model response parsing", () => {
       ),
     ).toEqual([
       {
-        id: "c1",
+        id: "candidate-1",
         kind: "outcome",
         text: "Policy recommendations are adopted",
         explicitness: "explicit",
@@ -32,18 +31,20 @@ describe("hierarchy model response parsing", () => {
     ]);
   });
 
-  it("rejects duplicate candidate IDs", () => {
-    const candidate = {
-      id: "c1",
+  it("assigns unique IDs even if a model response contains duplicate ID fields", () => {
+    const candidate = (text: string) => ({
+      id: "duplicate-model-id",
       kind: "outcome",
-      text: "An outcome",
+      text,
       explicitness: "explicit",
       evidence: [{ chunkId: "chunk-1", quote: "evidence" }],
-    };
+    });
 
-    expect(() =>
-      parseExtractionResponse(JSON.stringify({ candidates: [candidate, candidate] })),
-    ).toThrow('duplicate candidate id "c1"');
+    expect(
+      parseExtractionResponse(
+        JSON.stringify({ candidates: [candidate("First"), candidate("Second")] }),
+      ).map(({ id }) => id),
+    ).toEqual(["candidate-1", "candidate-2"]);
   });
 
   it("rejects validation scores outside zero and one", () => {
@@ -52,7 +53,6 @@ describe("hierarchy model response parsing", () => {
         JSON.stringify({
           assessments: [
             {
-              candidateId: "c1",
               categoryFit: 1.1,
               typeFit: 0.9,
               evidenceSupport: 0.9,
@@ -61,7 +61,40 @@ describe("hierarchy model response parsing", () => {
             },
           ],
         }),
+        ["candidate-1"],
       ),
-    ).toThrow("invalid c1 categoryFit score");
+    ).toThrow("invalid candidate-1 categoryFit score");
+  });
+
+  it("matches validation assessments to server IDs by array order", () => {
+    expect(
+      parseValidationResponse(
+        JSON.stringify({
+          assessments: [
+            {
+              categoryFit: 0.8,
+              typeFit: 0.9,
+              evidenceSupport: 1,
+              specificity: 0.7,
+              reason: "First.",
+            },
+            {
+              categoryFit: 0.7,
+              typeFit: 0.8,
+              evidenceSupport: 0.9,
+              specificity: 0.6,
+              reason: "Second.",
+            },
+          ],
+        }),
+        ["candidate-1", "candidate-2"],
+      ).map(({ candidateId }) => candidateId),
+    ).toEqual(["candidate-1", "candidate-2"]);
+  });
+
+  it("rejects a validation response with the wrong assessment count", () => {
+    expect(() =>
+      parseValidationResponse(JSON.stringify({ assessments: [] }), ["candidate-1"]),
+    ).toThrow("returned 0 assessments for 1 candidates");
   });
 });

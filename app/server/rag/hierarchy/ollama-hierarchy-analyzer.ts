@@ -20,9 +20,8 @@ const EXTRACTION_SCHEMA = {
       items: {
         type: "object",
         additionalProperties: false,
-        required: ["id", "kind", "text", "explicitness", "evidence"],
+        required: ["kind", "text", "explicitness", "evidence"],
         properties: {
-          id: { type: "string" },
           kind: { type: "string", enum: ["outcome", "indicator"] },
           text: { type: "string" },
           explicitness: { type: "string", enum: ["explicit", "derived"] },
@@ -56,7 +55,6 @@ const VALIDATION_SCHEMA = {
         type: "object",
         additionalProperties: false,
         required: [
-          "candidateId",
           "categoryFit",
           "typeFit",
           "evidenceSupport",
@@ -64,7 +62,6 @@ const VALIDATION_SCHEMA = {
           "reason",
         ],
         properties: {
-          candidateId: { type: "string" },
           categoryFit: { type: "number", minimum: 0, maximum: 1 },
           typeFit: { type: "number", minimum: 0, maximum: 1 },
           evidenceSupport: { type: "number", minimum: 0, maximum: 1 },
@@ -119,8 +116,6 @@ export function parseExtractionResponse(content: string): ExtractedHierarchyCand
     throw new Error("The hierarchy extraction model omitted candidates.");
   }
 
-  const ids = new Set<string>();
-
   if (value.candidates.length > 20) {
     throw new Error("The hierarchy extraction model returned more than 20 candidates.");
   }
@@ -130,14 +125,9 @@ export function parseExtractionResponse(content: string): ExtractedHierarchyCand
       throw new Error(`The hierarchy model returned an invalid candidate ${candidateIndex}.`);
     }
 
-    const id = text(candidate.id, `candidate ${candidateIndex} id`);
+    const id = `candidate-${candidateIndex + 1}`;
     const kind = candidate.kind;
     const explicitness = candidate.explicitness;
-
-    if (ids.has(id)) {
-      throw new Error(`The hierarchy model returned duplicate candidate id "${id}".`);
-    }
-    ids.add(id);
 
     if (kind !== "outcome" && kind !== "indicator") {
       throw new Error(`The hierarchy model returned an invalid candidate ${id} kind.`);
@@ -170,28 +160,32 @@ export function parseExtractionResponse(content: string): ExtractedHierarchyCand
   });
 }
 
-export function parseValidationResponse(content: string): HierarchyValidation[] {
+export function parseValidationResponse(
+  content: string,
+  candidateIds: readonly string[],
+): HierarchyValidation[] {
   const value = parseJsonObject(content, "validation");
 
   if (!Array.isArray(value.assessments)) {
     throw new Error("The hierarchy validation model omitted assessments.");
   }
 
-  const ids = new Set<string>();
+  if (value.assessments.length !== candidateIds.length) {
+    throw new Error(
+      `The hierarchy validation model returned ${value.assessments.length} assessments for ${candidateIds.length} candidates.`,
+    );
+  }
 
   return value.assessments.map((assessment, index) => {
     if (!isRecord(assessment)) {
       throw new Error(`The hierarchy model returned an invalid assessment ${index}.`);
     }
 
-    const candidateId = text(assessment.candidateId, `assessment ${index} candidateId`);
+    const candidateId = candidateIds[index];
 
-    if (ids.has(candidateId)) {
-      throw new Error(
-        `The hierarchy model returned duplicate assessment for "${candidateId}".`,
-      );
+    if (!candidateId) {
+      throw new Error(`No server candidate ID exists for assessment ${index}.`);
     }
-    ids.add(candidateId);
 
     return {
       candidateId,
@@ -265,6 +259,12 @@ export class OllamaHierarchyAnalyzer implements HierarchyAnalyzer {
   ): Promise<HierarchyValidation[]> {
     if (candidates.length === 0) return [];
 
+    const candidatesWithoutIds = candidates.map((candidate) => ({
+      kind: candidate.kind,
+      text: candidate.text,
+      explicitness: candidate.explicitness,
+      evidence: candidate.evidence,
+    }));
     const response = await this.client.chat({
       model: this.model,
       think: false,
@@ -275,7 +275,7 @@ export class OllamaHierarchyAnalyzer implements HierarchyAnalyzer {
           role: "user",
           content: [
             `Category:\n${JSON.stringify(category, null, 2)}`,
-            `Candidates:\n${JSON.stringify(candidates, null, 2)}`,
+            `Candidates (return assessments in this exact order):\n${JSON.stringify(candidatesWithoutIds, null, 2)}`,
             `Context:\n${buildHierarchyContext(results, this.maximumContextWords)}`,
           ].join("\n\n"),
         },
@@ -283,6 +283,9 @@ export class OllamaHierarchyAnalyzer implements HierarchyAnalyzer {
       options: { temperature: 0 },
     });
 
-    return parseValidationResponse(response.message.content);
+    return parseValidationResponse(
+      response.message.content,
+      candidates.map((candidate) => candidate.id),
+    );
   }
 }

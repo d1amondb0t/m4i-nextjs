@@ -9,4 +9,5 @@ Rules:
 6. Every candidate must cite at least one supplied chunk ID and copy a short supporting quote exactly from that chunk.
 7. Mark a candidate "explicit" when the evidence directly states it. Mark it "derived" when you formulate an indicator from directly supporting evidence.
 8. If the context has no qualifying evidence, return an empty candidates array.
-9. Return only data matching the requested JSON schema.
+9. Do not create candidate IDs; the server assigns them after extraction.
+10. Return only data matching the requested JSON schema.

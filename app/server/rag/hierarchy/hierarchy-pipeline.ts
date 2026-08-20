@@ -28,18 +28,8 @@ import { ragPipelineConfigurationFromEnvironment } from "../pipeline/rag-pipelin
 import { Retriever } from "../retrieval/retrieval";
 import type { SearchResult } from "../storage/storage-types";
 import { QdrantStore } from "../storage/vector-storage";
-import {
-  buildCategoryQuery,
-  evidenceIsGrounded,
-  mergeSearchResults,
-  normalizedCandidateText,
-  parseFrameworkOntology,
-  validationPasses,
-} from "./hierarchy-helper";
-import {
-  type HierarchyAnalyzer,
-  OllamaHierarchyAnalyzer,
-} from "./ollama-hierarchy-analyzer";
+import { buildCategoryQuery, evidenceIsGrounded, mergeSearchResults, normalizedCandidateText, parseFrameworkOntology, validationPasses, } from "./hierarchy-helper";
+import { type HierarchyAnalyzer, OllamaHierarchyAnalyzer, } from "./ollama-hierarchy-analyzer";
 
 export type HierarchyPipelineDependencies = {
   chunker?: Chunker;
@@ -154,7 +144,7 @@ function consolidateCandidates(drafts: CategoryDraft[]): void {
 
       const preferred =
         candidate.item.assessment.evidenceSupport >
-        existing.item.assessment.evidenceSupport
+          existing.item.assessment.evidenceSupport
           ? candidate
           : existing;
       preferred.item.evidence = mergeEvidence(
