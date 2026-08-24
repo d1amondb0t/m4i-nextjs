@@ -7,6 +7,20 @@ import type { SearchResult } from "../storage/storage-types";
 import { Retriever } from "./retrieval";
 import { DEFAULT_RETRIEVAL_CONFIGURATION } from "@/types/retrieval-types";
 
+const transformersMocks = vi.hoisted(() => ({
+  modelFromPretrained: vi.fn(),
+  tokenizerFromPretrained: vi.fn(),
+}));
+
+vi.mock("@huggingface/transformers", () => ({
+  AutoModelForSequenceClassification: {
+    from_pretrained: transformersMocks.modelFromPretrained,
+  },
+  AutoTokenizer: {
+    from_pretrained: transformersMocks.tokenizerFromPretrained,
+  },
+}));
+
 function createStoreMock() {
   return {
     denseSearch: vi.fn(),
@@ -54,6 +68,7 @@ describe("Retriever", () => {
   let retriever: Retriever;
 
   beforeEach(() => {
+    vi.clearAllMocks();
     store = createStoreMock();
     embedder = createEmbedderMock();
     retriever = new Retriever(
@@ -61,6 +76,72 @@ describe("Retriever", () => {
       embedder as unknown as OllamaEmbedder,
       DEFAULT_RETRIEVAL_CONFIGURATION,
     );
+  });
+
+  describe("_cross_encoder_rerank", () => {
+    it("scores question-chunk pairs and sorts by the cross-encoder score", async () => {
+      const first = searchResults()[0];
+      const second: SearchResult = {
+        ...searchResults()[0],
+        chunk: {
+          ...chunk(),
+          chunkId: "chunk-2",
+          text: "more relevant text",
+        },
+        score: 0.5,
+        denseScore: 0.5,
+      };
+      const tokenizer = vi.fn().mockReturnValue({ input_ids: "features" });
+      const model = vi.fn().mockResolvedValue({
+        logits: { data: new Float32Array([-0.25, 1.5]) },
+      });
+      transformersMocks.tokenizerFromPretrained.mockResolvedValue(tokenizer);
+      transformersMocks.modelFromPretrained.mockResolvedValue(model);
+
+      const actual = await retriever._cross_encoder_rerank("question", [
+        first,
+        second,
+      ]);
+
+      expect(tokenizer).toHaveBeenCalledWith(["question", "question"], {
+        text_pair: ["retrieved text", "more relevant text"],
+        padding: true,
+        truncation: true,
+      });
+      expect(model).toHaveBeenCalledWith({ input_ids: "features" });
+      expect(actual).toEqual([second, first]);
+      expect(first).toMatchObject({ score: -0.25, rerankerScore: -0.25 });
+      expect(second).toMatchObject({ score: 1.5, rerankerScore: 1.5 });
+    });
+
+    it("loads and reuses the model lazily", async () => {
+      const tokenizer = vi.fn().mockReturnValue({ input_ids: "features" });
+      const model = vi.fn().mockResolvedValue({
+        logits: { data: new Float32Array([0.75]) },
+      });
+      transformersMocks.tokenizerFromPretrained.mockResolvedValue(tokenizer);
+      transformersMocks.modelFromPretrained.mockResolvedValue(model);
+
+      await retriever._cross_encoder_rerank("first", searchResults());
+      await retriever._cross_encoder_rerank("second", searchResults());
+
+      expect(transformersMocks.modelFromPretrained).toHaveBeenCalledOnce();
+      expect(transformersMocks.tokenizerFromPretrained).toHaveBeenCalledOnce();
+      expect(transformersMocks.modelFromPretrained).toHaveBeenCalledWith(
+        "cross-encoder/ms-marco-MiniLM-L6-v2",
+        { local_files_only: true },
+      );
+    });
+
+    it("does not load the model for an empty result set", async () => {
+      const results: SearchResult[] = [];
+
+      await expect(
+        retriever._cross_encoder_rerank("question", results),
+      ).resolves.toBe(results);
+      expect(transformersMocks.modelFromPretrained).not.toHaveBeenCalled();
+      expect(transformersMocks.tokenizerFromPretrained).not.toHaveBeenCalled();
+    });
   });
 
   describe("dense", () => {
@@ -168,6 +249,36 @@ describe("Retriever", () => {
       await expect(retriever.retrieve("question")).rejects.toThrow(
         "Hybrid retrieval is not implemented yet.",
       );
+    });
+
+    it("retrieves candidates, reranks them, and returns topK", async () => {
+      const first = searchResults()[0];
+      const second: SearchResult = {
+        ...searchResults()[0],
+        chunk: { ...chunk(), chunkId: "chunk-2", text: "best match" },
+      };
+      const tokenizer = vi.fn().mockReturnValue({ input_ids: "features" });
+      const model = vi.fn().mockResolvedValue({
+        logits: { data: new Float32Array([0.1, 2.5]) },
+      });
+      embedder.embedQuery.mockResolvedValue([0.1, 0.2]);
+      store.denseSearch.mockResolvedValue([first, second]);
+      transformersMocks.tokenizerFromPretrained.mockResolvedValue(tokenizer);
+      transformersMocks.modelFromPretrained.mockResolvedValue(model);
+      retriever = new Retriever(
+        store as unknown as QdrantStore,
+        embedder as unknown as OllamaEmbedder,
+        { ...DEFAULT_RETRIEVAL_CONFIGURATION, topK: 1 },
+        {
+          enabled: true,
+          strategy: "cross_encoder",
+          model: "cross-encoder/ms-marco-MiniLM-L6-v2",
+          candidates: 10,
+        },
+      );
+
+      await expect(retriever.retrieve("question")).resolves.toEqual([second]);
+      expect(store.denseSearch).toHaveBeenCalledWith([0.1, 0.2], 10);
     });
   });
 });

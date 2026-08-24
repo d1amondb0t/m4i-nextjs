@@ -8,6 +8,7 @@ import type {
   RagPipelineConfiguration,
   Store,
 } from "@/types/rag-pipeline-type";
+import { DEFAULT_RERANKING_CONFIGURATION } from "@/types/retrieval-types";
 import {
   DEFAULT_HIERARCHY_CONFIGURATION,
   type ExtractedHierarchyCandidate,
@@ -234,9 +235,13 @@ export class HierarchyPipeline {
     this.retriever =
       dependencies.retriever ??
       new Retriever(concreteStore, concreteEmbedder, {
-        ...ragConfiguration.retrieval,
-        topK: configuration.topKPerQuery,
-      });
+          ...ragConfiguration.retrieval,
+          topK: configuration.topKPerQuery,
+        },
+        {
+          ...DEFAULT_RERANKING_CONFIGURATION,
+          enabled: true,
+        });
     this.analyzer =
       dependencies.analyzer ??
       new OllamaHierarchyAnalyzer(
