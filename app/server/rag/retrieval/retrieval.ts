@@ -4,6 +4,7 @@ import { CrossEncoder, DEFAULT_RERANKING_CONFIGURATION, type RerankingConfigurat
 import { DocumentChunk } from "@/types/chunk-type";
 import { SearchResult } from "../storage/storage-types";
 import { Tensor } from "@huggingface/transformers";
+import { loadCrossEncoder } from "./reranker-helper";
 
 export class Retriever {
   private chunks: DocumentChunk[] | null = null;
@@ -17,31 +18,9 @@ export class Retriever {
       DEFAULT_RERANKING_CONFIGURATION,
   ) { }
 
-  private async loadCrossEncoder(): Promise<CrossEncoder> {
-    const { AutoModelForSequenceClassification, AutoTokenizer } = await import("@huggingface/transformers");
-    const load = async (localFilesOnly: boolean): Promise<CrossEncoder> => {
-      const options = { local_files_only: localFilesOnly };
-      const [model, tokenizer] = await Promise.all([
-        AutoModelForSequenceClassification.from_pretrained(
-          this.rerankingConfig.model,
-          options,
-        ),
-        AutoTokenizer.from_pretrained(this.rerankingConfig.model, options),
-      ]);
-
-      return { model, tokenizer };
-    };
-
-    try {
-      return await load(true);
-    } catch {
-      return load(false);
-    }
-  }
-
   private async getCrossEncoder(): Promise<CrossEncoder> {
     if (this.crossEncoder === null) {
-      this.crossEncoder = this.loadCrossEncoder();
+      this.crossEncoder = loadCrossEncoder(this.rerankingConfig);
     }
 
     try {
