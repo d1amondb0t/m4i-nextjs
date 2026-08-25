@@ -20,7 +20,7 @@ export type CrossEncoder = {
 };
 
 export const DEFAULT_RERANKING_CONFIGURATION = {
-  enabled: false,
+  enabled: true,
   strategy: "cross_encoder",
   model: "cross-encoder/ms-marco-MiniLM-L6-v2",
   candidates: 20,
