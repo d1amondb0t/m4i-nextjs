@@ -1,9 +1,15 @@
-import { QdrantStore } from "../storage/vector-storage";
-import { OllamaEmbedder } from "../embeddings/ollama-embedder";
-import { CrossEncoder, DEFAULT_RERANKING_CONFIGURATION, type RerankingConfiguration, type RetrievalConfiguration } from "@/types/retrieval-types";
-import { DocumentChunk } from "@/types/chunk-type";
-import { SearchResult } from "../storage/storage-types";
-import { Tensor } from "@huggingface/transformers";
+import type { Tensor } from "@huggingface/transformers";
+
+import type { DocumentChunk } from "@/types/chunk-type";
+import {
+  DEFAULT_RERANKING_CONFIGURATION,
+  type CrossEncoder,
+  type RerankingConfiguration,
+  type RetrievalConfiguration,
+} from "@/types/retrieval-types";
+import type { OllamaEmbedder } from "../embeddings/ollama-embedder";
+import type { SearchResult } from "../storage/storage-types";
+import type { QdrantStore } from "../storage/vector-storage";
 import { loadCrossEncoder } from "./reranker-helper";
 
 export class Retriever {

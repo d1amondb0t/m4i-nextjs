@@ -1,11 +1,11 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { DocumentChunk } from "@/types/chunk-type";
-import type { OllamaEmbedder } from "../embeddings/ollama-embedder";
-import type { QdrantStore } from "../storage/vector-storage";
-import type { SearchResult } from "../storage/storage-types";
-import { Retriever } from "./retrieval";
+import type { DocumentChunk } from "@/types/chunk-type";
 import { DEFAULT_RETRIEVAL_CONFIGURATION } from "@/types/retrieval-types";
+import type { OllamaEmbedder } from "../embeddings/ollama-embedder";
+import type { SearchResult } from "../storage/storage-types";
+import type { QdrantStore } from "../storage/vector-storage";
+import { Retriever } from "./retrieval";
 
 const transformersMocks = vi.hoisted(() => ({
   modelFromPretrained: vi.fn(),
@@ -78,7 +78,7 @@ describe("Retriever", () => {
     );
   });
 
-  describe("_cross_encoder_rerank", () => {
+  describe("crossEncoderRerank", () => {
     it("scores question-chunk pairs and sorts by the cross-encoder score", async () => {
       const first = searchResults()[0];
       const second: SearchResult = {
@@ -98,7 +98,7 @@ describe("Retriever", () => {
       transformersMocks.tokenizerFromPretrained.mockResolvedValue(tokenizer);
       transformersMocks.modelFromPretrained.mockResolvedValue(model);
 
-      const actual = await retriever._cross_encoder_rerank("question", [
+      const actual = await retriever.crossEncoderRerank("question", [
         first,
         second,
       ]);
@@ -110,8 +110,10 @@ describe("Retriever", () => {
       });
       expect(model).toHaveBeenCalledWith({ input_ids: "features" });
       expect(actual).toEqual([second, first]);
-      expect(first).toMatchObject({ score: -0.25, rerankerScore: -0.25 });
-      expect(second).toMatchObject({ score: 1.5, rerankerScore: 1.5 });
+      expect(first.score).toBeCloseTo(1 / (1 + Math.exp(0.25)));
+      expect(first.rerankerScore).toBe(first.score);
+      expect(second.score).toBeCloseTo(1 / (1 + Math.exp(-1.5)));
+      expect(second.rerankerScore).toBe(second.score);
     });
 
     it("loads and reuses the model lazily", async () => {
@@ -122,8 +124,8 @@ describe("Retriever", () => {
       transformersMocks.tokenizerFromPretrained.mockResolvedValue(tokenizer);
       transformersMocks.modelFromPretrained.mockResolvedValue(model);
 
-      await retriever._cross_encoder_rerank("first", searchResults());
-      await retriever._cross_encoder_rerank("second", searchResults());
+      await retriever.crossEncoderRerank("first", searchResults());
+      await retriever.crossEncoderRerank("second", searchResults());
 
       expect(transformersMocks.modelFromPretrained).toHaveBeenCalledOnce();
       expect(transformersMocks.tokenizerFromPretrained).toHaveBeenCalledOnce();
@@ -137,7 +139,7 @@ describe("Retriever", () => {
       const results: SearchResult[] = [];
 
       await expect(
-        retriever._cross_encoder_rerank("question", results),
+        retriever.crossEncoderRerank("question", results),
       ).resolves.toBe(results);
       expect(transformersMocks.modelFromPretrained).not.toHaveBeenCalled();
       expect(transformersMocks.tokenizerFromPretrained).not.toHaveBeenCalled();
