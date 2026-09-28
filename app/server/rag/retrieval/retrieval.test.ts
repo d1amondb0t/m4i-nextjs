@@ -62,6 +62,13 @@ function searchResults(): SearchResult[] {
   ];
 }
 
+const CROSS_ENCODER_DISABLED = {
+  enabled: false,
+  strategy: "cross_encoder",
+  model: "cross-encoder/ms-marco-MiniLM-L6-v2",
+  candidates: 20,
+} as const;
+
 describe("Retriever", () => {
   let store: ReturnType<typeof createStoreMock>;
   let embedder: ReturnType<typeof createEmbedderMock>;
@@ -71,10 +78,14 @@ describe("Retriever", () => {
     vi.clearAllMocks();
     store = createStoreMock();
     embedder = createEmbedderMock();
+    // Strategy and reranker are pinned rather than defaulted: the defaults are
+    // fitted values that change with every recalibration, and these tests are
+    // about dispatch, not about which configuration currently wins.
     retriever = new Retriever(
       store as unknown as QdrantStore,
       embedder as unknown as OllamaEmbedder,
-      DEFAULT_RETRIEVAL_CONFIGURATION,
+      { ...DEFAULT_RETRIEVAL_CONFIGURATION, strategy: "dense" },
+      CROSS_ENCODER_DISABLED,
     );
   });
 
@@ -234,6 +245,7 @@ describe("Retriever", () => {
           strategy: "sparse",
           topK: 3,
         },
+        CROSS_ENCODER_DISABLED,
       );
 
       await expect(retriever.retrieve("question")).resolves.toBe(results);
@@ -241,16 +253,37 @@ describe("Retriever", () => {
       expect(embedder.embedQuery).not.toHaveBeenCalled();
     });
 
-    it("reports that hybrid retrieval is not implemented", async () => {
+    it("fuses both retrievers by rank under the hybrid strategy", async () => {
+      const dense = searchResults()[0];
+      const shared: SearchResult = {
+        ...searchResults()[0],
+        chunk: { ...chunk(), chunkId: "chunk-shared", text: "found by both" },
+      };
+      embedder.embedQuery.mockResolvedValue([0.1, 0.2]);
+      // Ranked second by dense but first by sparse, so fusion should lift it.
+      store.denseSearch.mockResolvedValue([dense, shared]);
+      store.sparseSearch.mockResolvedValue([shared]);
       retriever = new Retriever(
         store as unknown as QdrantStore,
         embedder as unknown as OllamaEmbedder,
-        { ...DEFAULT_RETRIEVAL_CONFIGURATION, strategy: "hybrid" },
+        {
+          ...DEFAULT_RETRIEVAL_CONFIGURATION,
+          strategy: "hybrid",
+          topK: 2,
+          denseCandidates: 4,
+          sparseCandidates: 4,
+        },
+        CROSS_ENCODER_DISABLED,
       );
 
-      await expect(retriever.retrieve("question")).rejects.toThrow(
-        "Hybrid retrieval is not implemented yet.",
-      );
+      const actual = await retriever.retrieve("question");
+
+      expect(actual.map((result) => result.chunk.chunkId)).toEqual([
+        "chunk-shared",
+        dense.chunk.chunkId,
+      ]);
+      expect(store.denseSearch).toHaveBeenCalledWith([0.1, 0.2], 4);
+      expect(store.sparseSearch).toHaveBeenCalledWith("question", 4);
     });
 
     it("retrieves candidates, reranks them, and returns topK", async () => {
@@ -270,13 +303,8 @@ describe("Retriever", () => {
       retriever = new Retriever(
         store as unknown as QdrantStore,
         embedder as unknown as OllamaEmbedder,
-        { ...DEFAULT_RETRIEVAL_CONFIGURATION, topK: 1 },
-        {
-          enabled: true,
-          strategy: "cross_encoder",
-          model: "cross-encoder/ms-marco-MiniLM-L6-v2",
-          candidates: 10,
-        },
+        { ...DEFAULT_RETRIEVAL_CONFIGURATION, strategy: "dense", topK: 1 },
+        { ...CROSS_ENCODER_DISABLED, enabled: true, candidates: 10 },
       );
 
       await expect(retriever.retrieve("question")).resolves.toEqual([second]);

@@ -241,7 +241,7 @@ export class HierarchyPipeline {
         {
           ...DEFAULT_RERANKING_CONFIGURATION,
           enabled: true,
-        });
+        }, client);
     this.analyzer =
       dependencies.analyzer ??
       new OllamaHierarchyAnalyzer(

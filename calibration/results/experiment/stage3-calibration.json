@@ -1,0 +1,105 @@
+{
+  "generatedAt": "2026-09-08T21:58:24.715Z",
+  "summaries": [
+    {
+      "pool": "a4.b4.c1",
+      "reranker": "d7",
+      "rerankerLabel": "LLM pointwise (qwen3.5:9b)",
+      "splitSizes": {
+        "calibration": 42,
+        "evaluation": 42
+      },
+      "thresholds": {
+        "optimistic": {
+          "accept": 0.1,
+          "reject": 0.5
+        },
+        "honest": {
+          "accept": 0.1,
+          "reject": 0,
+          "conformalSupported": true,
+          "smallestSupportedAlpha": 0.023255813953488372
+        }
+      },
+      "e1FixedK": {
+        "precision": 0.7047619047619049,
+        "meanK": 5,
+        "relevantPerQuestion": 3.5238095238095237,
+        "rejected": 0,
+        "accepted": 0,
+        "questions": 42
+      },
+      "e2FittedAll": {
+        "precision": 0.6455720092915217,
+        "meanK": 10.976190476190476,
+        "relevantPerQuestion": 7.154761904761905,
+        "rejected": 2,
+        "accepted": 82,
+        "questions": 84
+      },
+      "e3SplitConformal": {
+        "precision": 0.6388296227581941,
+        "meanK": 11.047619047619047,
+        "relevantPerQuestion": 7.095238095238095,
+        "rejected": 0,
+        "accepted": 42,
+        "questions": 42
+      },
+      "outOfScope": {
+        "questions": 24,
+        "caughtOptimistic": 0.9166666666666666,
+        "caughtHonest": 0
+      }
+    },
+    {
+      "pool": "a4.b4.c3",
+      "reranker": "d7",
+      "rerankerLabel": "LLM pointwise (qwen3.5:9b)",
+      "splitSizes": {
+        "calibration": 42,
+        "evaluation": 42
+      },
+      "thresholds": {
+        "optimistic": {
+          "accept": 0.1,
+          "reject": 0.7
+        },
+        "honest": {
+          "accept": 0.1,
+          "reject": 0.7,
+          "conformalSupported": true,
+          "smallestSupportedAlpha": 0.023255813953488372
+        }
+      },
+      "e1FixedK": {
+        "precision": 0.6809523809523811,
+        "meanK": 5,
+        "relevantPerQuestion": 3.4047619047619047,
+        "rejected": 0,
+        "accepted": 0,
+        "questions": 42
+      },
+      "e2FittedAll": {
+        "precision": 0.6359994502851647,
+        "meanK": 10.80952380952381,
+        "relevantPerQuestion": 6.988095238095238,
+        "rejected": 0,
+        "accepted": 84,
+        "questions": 84
+      },
+      "e3SplitConformal": {
+        "precision": 0.6271876932591218,
+        "meanK": 10.80952380952381,
+        "relevantPerQuestion": 6.857142857142857,
+        "rejected": 0,
+        "accepted": 42,
+        "questions": 42
+      },
+      "outOfScope": {
+        "questions": 24,
+        "caughtOptimistic": 1,
+        "caughtHonest": 1
+      }
+    }
+  ]
+}

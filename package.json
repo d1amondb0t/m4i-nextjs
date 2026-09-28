@@ -7,7 +7,9 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "test": "vitest run"
+    "test": "vitest run",
+    "calibrate": "vitest run --config vitest.calibration.mts",
+    "experiment": "vitest run --config vitest.experiment.mts"
   },
   "dependencies": {
     "@huggingface/transformers": "^4.2.0",

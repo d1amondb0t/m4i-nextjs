@@ -1,0 +1,29 @@
+{
+  "$comment": "Negative class for fitting the automatic rejection threshold. Every ontology question finds relevant evidence in the calibration corpus, so the in-scope set contains no negatives and cannot place a reject threshold on its own. These questions are deliberately outside every corpus topic (no politics, economy, social policy, environment, transport, humanitarian law, or education content), but are written in the same analytical register as the ontology questions so the comparison tests subject matter rather than phrasing.",
+  "questions": [
+    "What change in crumb structure is reported for sourdough at different starter hydration levels?",
+    "Which indicators are used to track orbital decay in low-Earth-orbit satellite constellations?",
+    "How did tempo rubato conventions change across nineteenth-century piano performance practice?",
+    "What evidence documents the effect of hive ventilation on overwintering colony survival?",
+    "Which measures assess enamel demineralisation following fluoride varnish application?",
+    "How is fret buzz diagnosed and corrected during electric guitar setup?",
+    "What change in lap time is attributed to differential preload adjustment on a rear-wheel-drive car?",
+    "Which metrics evaluate matchmaking quality in competitive online shooters?",
+    "How did pattern-cutting techniques for bias-cut evening wear evolve between the wars?",
+    "What evidence supports particular dry-ageing durations for improving beef tenderness?",
+    "Which indicators track constant-folding effectiveness in an optimising compiler backend?",
+    "How is side-channel leakage measured in a hardware AES implementation?",
+    "What change in germination rate is reported for stratified alpine seed under varying cold periods?",
+    "Which observations constrain the mass function of intermediate-mass black holes?",
+    "How is rumen fermentation efficiency assessed in dairy cattle on high-forage diets?",
+    "What evidence links casting temperature to porosity defects in aluminium alloy wheels?",
+    "Which indicators measure colony health in captive leafcutter ant husbandry?",
+    "How did glaze recipes for celadon ware differ across Song dynasty kiln sites?",
+    "What change in retention is reported for different spaced-repetition intervals in chess opening study?",
+    "Which measures quantify tannin extraction during red wine maceration?",
+    "How is bat-speed variance evaluated across different baseball swing mechanics?",
+    "What evidence documents corrosion rates of bronze sculpture in coastal display conditions?",
+    "Which indicators assess sleep fragmentation in domestic cats fitted with accelerometers?",
+    "How is thermal runaway onset characterised in lithium-iron-phosphate cells?"
+  ]
+}

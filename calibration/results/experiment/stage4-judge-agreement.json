@@ -1,0 +1,12 @@
+{
+  "generatedAt": "2026-09-08T21:58:25.226Z",
+  "pool": "a3.b4.c3",
+  "pairs": 504,
+  "primaryModel": "qwen3.5:9b-q4_K_M",
+  "secondaryModel": "gemma3:12b",
+  "primaryRelevantRate": 0.5654761904761905,
+  "secondaryRelevantRate": 0.5456349206349206,
+  "observed": 0.6944444444444444,
+  "expected": 0.5059760015117158,
+  "kappa": 0.38149653358833363
+}

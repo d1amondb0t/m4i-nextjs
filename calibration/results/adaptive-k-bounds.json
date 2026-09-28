@@ -1,0 +1,169 @@
+{
+  "baseline": {
+    "k": 5,
+    "precision": 0.4261904761904762,
+    "relevantPerQuestion": 2.130952380952381
+  },
+  "variants": [
+    {
+      "minimumK": 1,
+      "relativeDropoff": 0.01,
+      "meanK": 4.119047619047619,
+      "precision": 0.5094530122655122,
+      "relevantPerQuestion": 1.8571428571428572,
+      "recall": 0.24207303939446806
+    },
+    {
+      "minimumK": 1,
+      "relativeDropoff": 0.05,
+      "meanK": 3.2023809523809526,
+      "precision": 0.5339466089466091,
+      "relevantPerQuestion": 1.5238095238095237,
+      "recall": 0.20843287004001287
+    },
+    {
+      "minimumK": 1,
+      "relativeDropoff": 0.1,
+      "meanK": 2.761904761904762,
+      "precision": 0.556875,
+      "relevantPerQuestion": 1.369047619047619,
+      "recall": 0.18981071838214686
+    },
+    {
+      "minimumK": 1,
+      "relativeDropoff": 0.25,
+      "meanK": 2.119047619047619,
+      "precision": 0.5883630952380952,
+      "relevantPerQuestion": 1.130952380952381,
+      "recall": 0.1604546577760863
+    },
+    {
+      "minimumK": 1,
+      "relativeDropoff": 0.5,
+      "meanK": 1.5714285714285714,
+      "precision": 0.5739583333333333,
+      "relevantPerQuestion": 0.8333333333333334,
+      "recall": 0.12578512757084187
+    },
+    {
+      "minimumK": 2,
+      "relativeDropoff": 0.01,
+      "meanK": 4.345238095238095,
+      "precision": 0.42820301226551216,
+      "relevantPerQuestion": 1.8928571428571428,
+      "recall": 0.24669249401392265
+    },
+    {
+      "minimumK": 2,
+      "relativeDropoff": 0.05,
+      "meanK": 3.4523809523809526,
+      "precision": 0.4464466089466089,
+      "relevantPerQuestion": 1.5595238095238095,
+      "recall": 0.21305232465946747
+    },
+    {
+      "minimumK": 2,
+      "relativeDropoff": 0.1,
+      "meanK": 3.0595238095238093,
+      "precision": 0.45687500000000003,
+      "relevantPerQuestion": 1.4166666666666667,
+      "recall": 0.19591826823969677
+    },
+    {
+      "minimumK": 2,
+      "relativeDropoff": 0.25,
+      "meanK": 2.5238095238095237,
+      "precision": 0.46336309523809527,
+      "relevantPerQuestion": 1.2023809523809523,
+      "recall": 0.1691132280417994
+    },
+    {
+      "minimumK": 2,
+      "relativeDropoff": 0.5,
+      "meanK": 2.1547619047619047,
+      "precision": 0.4489583333333333,
+      "relevantPerQuestion": 0.9761904761904762,
+      "recall": 0.143121891336177
+    },
+    {
+      "minimumK": 3,
+      "relativeDropoff": 0.01,
+      "meanK": 4.726190476190476,
+      "precision": 0.45320301226551224,
+      "relevantPerQuestion": 2.130952380952381,
+      "recall": 0.2757688079116652
+    },
+    {
+      "minimumK": 3,
+      "relativeDropoff": 0.05,
+      "meanK": 3.9047619047619047,
+      "precision": 0.4693632756132756,
+      "relevantPerQuestion": 1.8214285714285714,
+      "recall": 0.24467965896537325
+    },
+    {
+      "minimumK": 3,
+      "relativeDropoff": 0.1,
+      "meanK": 3.607142857142857,
+      "precision": 0.47979166666666667,
+      "relevantPerQuestion": 1.7261904761904763,
+      "recall": 0.23413573860002432
+    },
+    {
+      "minimumK": 3,
+      "relativeDropoff": 0.25,
+      "meanK": 3.1904761904761907,
+      "precision": 0.4800297619047619,
+      "relevantPerQuestion": 1.5476190476190477,
+      "recall": 0.21585342567485416
+    },
+    {
+      "minimumK": 3,
+      "relativeDropoff": 0.5,
+      "meanK": 2.988095238095238,
+      "precision": 0.4697916666666667,
+      "relevantPerQuestion": 1.4047619047619047,
+      "recall": 0.2006047193547193
+    },
+    {
+      "minimumK": 5,
+      "relativeDropoff": 0.01,
+      "meanK": 5.75,
+      "precision": 0.42820301226551205,
+      "relevantPerQuestion": 2.5,
+      "recall": 0.3156517094017094
+    },
+    {
+      "minimumK": 5,
+      "relativeDropoff": 0.05,
+      "meanK": 5.166666666666667,
+      "precision": 0.4304049422799422,
+      "relevantPerQuestion": 2.238095238095238,
+      "recall": 0.28911158286158284
+    },
+    {
+      "minimumK": 5,
+      "relativeDropoff": 0.1,
+      "meanK": 5.023809523809524,
+      "precision": 0.43437499999999984,
+      "relevantPerQuestion": 2.1904761904761907,
+      "recall": 0.2848228160728161
+    },
+    {
+      "minimumK": 5,
+      "relativeDropoff": 0.25,
+      "meanK": 4.880952380952381,
+      "precision": 0.43565476190476177,
+      "relevantPerQuestion": 2.130952380952381,
+      "recall": 0.2786247813033527
+    },
+    {
+      "minimumK": 5,
+      "relativeDropoff": 0.5,
+      "meanK": 4.845238095238095,
+      "precision": 0.4362499999999998,
+      "relevantPerQuestion": 2.119047619047619,
+      "recall": 0.27624382892240035
+    }
+  ]
+}

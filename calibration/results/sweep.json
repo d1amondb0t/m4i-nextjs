@@ -1,0 +1,490 @@
+{
+  "separation": {
+    "rerankerAuc": 0.615914917409692,
+    "denseAuc": 0.5706530790689928,
+    "observations": 1680,
+    "relevantShare": 0.39166666666666666
+  },
+  "grid": [
+    {
+      "maximumFalseAcceptRate": 0.05,
+      "maximumFalseRejectRate": 0.05,
+      "acceptThreshold": 0.9902894557278636,
+      "rejectThreshold": 0.000018087077066891404,
+      "acceptAttainable": true,
+      "decisions": {
+        "accept": 1,
+        "ambiguous": 83,
+        "reject": 0
+      },
+      "meanK": 1.5833333333333333,
+      "precision": 0.5466269841269841,
+      "baselinePrecision": 0.42619047619047606,
+      "relevantPerAnsweredQuestion": 0.8095238095238095
+    },
+    {
+      "maximumFalseAcceptRate": 0.05,
+      "maximumFalseRejectRate": 0.1,
+      "acceptThreshold": 0.9902894557278636,
+      "rejectThreshold": 0.000025556031051790798,
+      "acceptAttainable": true,
+      "decisions": {
+        "accept": 1,
+        "ambiguous": 83,
+        "reject": 0
+      },
+      "meanK": 1.5833333333333333,
+      "precision": 0.5466269841269841,
+      "baselinePrecision": 0.42619047619047606,
+      "relevantPerAnsweredQuestion": 0.8095238095238095
+    },
+    {
+      "maximumFalseAcceptRate": 0.05,
+      "maximumFalseRejectRate": 0.2,
+      "acceptThreshold": 0.9902894557278636,
+      "rejectThreshold": 0.0000480094759484166,
+      "acceptAttainable": true,
+      "decisions": {
+        "accept": 1,
+        "ambiguous": 83,
+        "reject": 0
+      },
+      "meanK": 1.5833333333333333,
+      "precision": 0.5466269841269841,
+      "baselinePrecision": 0.42619047619047606,
+      "relevantPerAnsweredQuestion": 0.8095238095238095
+    },
+    {
+      "maximumFalseAcceptRate": 0.05,
+      "maximumFalseRejectRate": 0.3,
+      "acceptThreshold": 0.9902894557278636,
+      "rejectThreshold": 0.00009119079173563122,
+      "acceptAttainable": true,
+      "decisions": {
+        "accept": 1,
+        "ambiguous": 83,
+        "reject": 0
+      },
+      "meanK": 1.5714285714285714,
+      "precision": 0.5486111111111112,
+      "baselinePrecision": 0.42619047619047606,
+      "relevantPerAnsweredQuestion": 0.8095238095238095
+    },
+    {
+      "maximumFalseAcceptRate": 0.05,
+      "maximumFalseRejectRate": 0.4,
+      "acceptThreshold": 0.9902894557278636,
+      "rejectThreshold": 0.00015833775036552965,
+      "acceptAttainable": true,
+      "decisions": {
+        "accept": 1,
+        "ambiguous": 82,
+        "reject": 1
+      },
+      "meanK": 1.5542168674698795,
+      "precision": 0.5672690763052209,
+      "baselinePrecision": 0.42619047619047606,
+      "relevantPerAnsweredQuestion": 0.8192771084337349
+    },
+    {
+      "maximumFalseAcceptRate": 0.1,
+      "maximumFalseRejectRate": 0.05,
+      "acceptThreshold": 0.9902894557278636,
+      "rejectThreshold": 0.000018087077066891404,
+      "acceptAttainable": true,
+      "decisions": {
+        "accept": 1,
+        "ambiguous": 83,
+        "reject": 0
+      },
+      "meanK": 1.5833333333333333,
+      "precision": 0.5466269841269841,
+      "baselinePrecision": 0.42619047619047606,
+      "relevantPerAnsweredQuestion": 0.8095238095238095
+    },
+    {
+      "maximumFalseAcceptRate": 0.1,
+      "maximumFalseRejectRate": 0.1,
+      "acceptThreshold": 0.9902894557278636,
+      "rejectThreshold": 0.000025556031051790798,
+      "acceptAttainable": true,
+      "decisions": {
+        "accept": 1,
+        "ambiguous": 83,
+        "reject": 0
+      },
+      "meanK": 1.5833333333333333,
+      "precision": 0.5466269841269841,
+      "baselinePrecision": 0.42619047619047606,
+      "relevantPerAnsweredQuestion": 0.8095238095238095
+    },
+    {
+      "maximumFalseAcceptRate": 0.1,
+      "maximumFalseRejectRate": 0.2,
+      "acceptThreshold": 0.9902894557278636,
+      "rejectThreshold": 0.0000480094759484166,
+      "acceptAttainable": true,
+      "decisions": {
+        "accept": 1,
+        "ambiguous": 83,
+        "reject": 0
+      },
+      "meanK": 1.5833333333333333,
+      "precision": 0.5466269841269841,
+      "baselinePrecision": 0.42619047619047606,
+      "relevantPerAnsweredQuestion": 0.8095238095238095
+    },
+    {
+      "maximumFalseAcceptRate": 0.1,
+      "maximumFalseRejectRate": 0.3,
+      "acceptThreshold": 0.9902894557278636,
+      "rejectThreshold": 0.00009119079173563122,
+      "acceptAttainable": true,
+      "decisions": {
+        "accept": 1,
+        "ambiguous": 83,
+        "reject": 0
+      },
+      "meanK": 1.5714285714285714,
+      "precision": 0.5486111111111112,
+      "baselinePrecision": 0.42619047619047606,
+      "relevantPerAnsweredQuestion": 0.8095238095238095
+    },
+    {
+      "maximumFalseAcceptRate": 0.1,
+      "maximumFalseRejectRate": 0.4,
+      "acceptThreshold": 0.9902894557278636,
+      "rejectThreshold": 0.00015833775036552965,
+      "acceptAttainable": true,
+      "decisions": {
+        "accept": 1,
+        "ambiguous": 82,
+        "reject": 1
+      },
+      "meanK": 1.5542168674698795,
+      "precision": 0.5672690763052209,
+      "baselinePrecision": 0.42619047619047606,
+      "relevantPerAnsweredQuestion": 0.8192771084337349
+    },
+    {
+      "maximumFalseAcceptRate": 0.2,
+      "maximumFalseRejectRate": 0.05,
+      "acceptThreshold": 0.9902894557278636,
+      "rejectThreshold": 0.000018087077066891404,
+      "acceptAttainable": true,
+      "decisions": {
+        "accept": 1,
+        "ambiguous": 83,
+        "reject": 0
+      },
+      "meanK": 1.5833333333333333,
+      "precision": 0.5466269841269841,
+      "baselinePrecision": 0.42619047619047606,
+      "relevantPerAnsweredQuestion": 0.8095238095238095
+    },
+    {
+      "maximumFalseAcceptRate": 0.2,
+      "maximumFalseRejectRate": 0.1,
+      "acceptThreshold": 0.9902894557278636,
+      "rejectThreshold": 0.000025556031051790798,
+      "acceptAttainable": true,
+      "decisions": {
+        "accept": 1,
+        "ambiguous": 83,
+        "reject": 0
+      },
+      "meanK": 1.5833333333333333,
+      "precision": 0.5466269841269841,
+      "baselinePrecision": 0.42619047619047606,
+      "relevantPerAnsweredQuestion": 0.8095238095238095
+    },
+    {
+      "maximumFalseAcceptRate": 0.2,
+      "maximumFalseRejectRate": 0.2,
+      "acceptThreshold": 0.9902894557278636,
+      "rejectThreshold": 0.0000480094759484166,
+      "acceptAttainable": true,
+      "decisions": {
+        "accept": 1,
+        "ambiguous": 83,
+        "reject": 0
+      },
+      "meanK": 1.5833333333333333,
+      "precision": 0.5466269841269841,
+      "baselinePrecision": 0.42619047619047606,
+      "relevantPerAnsweredQuestion": 0.8095238095238095
+    },
+    {
+      "maximumFalseAcceptRate": 0.2,
+      "maximumFalseRejectRate": 0.3,
+      "acceptThreshold": 0.9902894557278636,
+      "rejectThreshold": 0.00009119079173563122,
+      "acceptAttainable": true,
+      "decisions": {
+        "accept": 1,
+        "ambiguous": 83,
+        "reject": 0
+      },
+      "meanK": 1.5714285714285714,
+      "precision": 0.5486111111111112,
+      "baselinePrecision": 0.42619047619047606,
+      "relevantPerAnsweredQuestion": 0.8095238095238095
+    },
+    {
+      "maximumFalseAcceptRate": 0.2,
+      "maximumFalseRejectRate": 0.4,
+      "acceptThreshold": 0.9902894557278636,
+      "rejectThreshold": 0.00015833775036552965,
+      "acceptAttainable": true,
+      "decisions": {
+        "accept": 1,
+        "ambiguous": 82,
+        "reject": 1
+      },
+      "meanK": 1.5542168674698795,
+      "precision": 0.5672690763052209,
+      "baselinePrecision": 0.42619047619047606,
+      "relevantPerAnsweredQuestion": 0.8192771084337349
+    },
+    {
+      "maximumFalseAcceptRate": 0.3,
+      "maximumFalseRejectRate": 0.05,
+      "acceptThreshold": 0.9902894557278636,
+      "rejectThreshold": 0.000018087077066891404,
+      "acceptAttainable": true,
+      "decisions": {
+        "accept": 1,
+        "ambiguous": 83,
+        "reject": 0
+      },
+      "meanK": 1.5833333333333333,
+      "precision": 0.5466269841269841,
+      "baselinePrecision": 0.42619047619047606,
+      "relevantPerAnsweredQuestion": 0.8095238095238095
+    },
+    {
+      "maximumFalseAcceptRate": 0.3,
+      "maximumFalseRejectRate": 0.1,
+      "acceptThreshold": 0.9902894557278636,
+      "rejectThreshold": 0.000025556031051790798,
+      "acceptAttainable": true,
+      "decisions": {
+        "accept": 1,
+        "ambiguous": 83,
+        "reject": 0
+      },
+      "meanK": 1.5833333333333333,
+      "precision": 0.5466269841269841,
+      "baselinePrecision": 0.42619047619047606,
+      "relevantPerAnsweredQuestion": 0.8095238095238095
+    },
+    {
+      "maximumFalseAcceptRate": 0.3,
+      "maximumFalseRejectRate": 0.2,
+      "acceptThreshold": 0.9902894557278636,
+      "rejectThreshold": 0.0000480094759484166,
+      "acceptAttainable": true,
+      "decisions": {
+        "accept": 1,
+        "ambiguous": 83,
+        "reject": 0
+      },
+      "meanK": 1.5833333333333333,
+      "precision": 0.5466269841269841,
+      "baselinePrecision": 0.42619047619047606,
+      "relevantPerAnsweredQuestion": 0.8095238095238095
+    },
+    {
+      "maximumFalseAcceptRate": 0.3,
+      "maximumFalseRejectRate": 0.3,
+      "acceptThreshold": 0.9902894557278636,
+      "rejectThreshold": 0.00009119079173563122,
+      "acceptAttainable": true,
+      "decisions": {
+        "accept": 1,
+        "ambiguous": 83,
+        "reject": 0
+      },
+      "meanK": 1.5714285714285714,
+      "precision": 0.5486111111111112,
+      "baselinePrecision": 0.42619047619047606,
+      "relevantPerAnsweredQuestion": 0.8095238095238095
+    },
+    {
+      "maximumFalseAcceptRate": 0.3,
+      "maximumFalseRejectRate": 0.4,
+      "acceptThreshold": 0.9902894557278636,
+      "rejectThreshold": 0.00015833775036552965,
+      "acceptAttainable": true,
+      "decisions": {
+        "accept": 1,
+        "ambiguous": 82,
+        "reject": 1
+      },
+      "meanK": 1.5542168674698795,
+      "precision": 0.5672690763052209,
+      "baselinePrecision": 0.42619047619047606,
+      "relevantPerAnsweredQuestion": 0.8192771084337349
+    },
+    {
+      "maximumFalseAcceptRate": 0.4,
+      "maximumFalseRejectRate": 0.05,
+      "acceptThreshold": 0.1672767128527276,
+      "rejectThreshold": 0.000018087077066891404,
+      "acceptAttainable": true,
+      "decisions": {
+        "accept": 25,
+        "ambiguous": 59,
+        "reject": 0
+      },
+      "meanK": 1.6666666666666667,
+      "precision": 0.5565476190476192,
+      "baselinePrecision": 0.42619047619047606,
+      "relevantPerAnsweredQuestion": 0.8571428571428571
+    },
+    {
+      "maximumFalseAcceptRate": 0.4,
+      "maximumFalseRejectRate": 0.1,
+      "acceptThreshold": 0.1672767128527276,
+      "rejectThreshold": 0.000025556031051790798,
+      "acceptAttainable": true,
+      "decisions": {
+        "accept": 25,
+        "ambiguous": 59,
+        "reject": 0
+      },
+      "meanK": 1.6666666666666667,
+      "precision": 0.5565476190476192,
+      "baselinePrecision": 0.42619047619047606,
+      "relevantPerAnsweredQuestion": 0.8571428571428571
+    },
+    {
+      "maximumFalseAcceptRate": 0.4,
+      "maximumFalseRejectRate": 0.2,
+      "acceptThreshold": 0.1672767128527276,
+      "rejectThreshold": 0.0000480094759484166,
+      "acceptAttainable": true,
+      "decisions": {
+        "accept": 25,
+        "ambiguous": 59,
+        "reject": 0
+      },
+      "meanK": 1.6666666666666667,
+      "precision": 0.5565476190476192,
+      "baselinePrecision": 0.42619047619047606,
+      "relevantPerAnsweredQuestion": 0.8571428571428571
+    },
+    {
+      "maximumFalseAcceptRate": 0.4,
+      "maximumFalseRejectRate": 0.3,
+      "acceptThreshold": 0.1672767128527276,
+      "rejectThreshold": 0.00009119079173563122,
+      "acceptAttainable": true,
+      "decisions": {
+        "accept": 25,
+        "ambiguous": 59,
+        "reject": 0
+      },
+      "meanK": 1.6547619047619047,
+      "precision": 0.558531746031746,
+      "baselinePrecision": 0.42619047619047606,
+      "relevantPerAnsweredQuestion": 0.8571428571428571
+    },
+    {
+      "maximumFalseAcceptRate": 0.4,
+      "maximumFalseRejectRate": 0.4,
+      "acceptThreshold": 0.1672767128527276,
+      "rejectThreshold": 0.00015833775036552965,
+      "acceptAttainable": true,
+      "decisions": {
+        "accept": 25,
+        "ambiguous": 58,
+        "reject": 1
+      },
+      "meanK": 1.6385542168674698,
+      "precision": 0.5773092369477912,
+      "baselinePrecision": 0.42619047619047606,
+      "relevantPerAnsweredQuestion": 0.8674698795180723
+    },
+    {
+      "maximumFalseAcceptRate": 0.5,
+      "maximumFalseRejectRate": 0.05,
+      "acceptThreshold": 0.0011962303004282744,
+      "rejectThreshold": 0.000018087077066891404,
+      "acceptAttainable": true,
+      "decisions": {
+        "accept": 75,
+        "ambiguous": 9,
+        "reject": 0
+      },
+      "meanK": 1.6904761904761905,
+      "precision": 0.5466269841269841,
+      "baselinePrecision": 0.42619047619047606,
+      "relevantPerAnsweredQuestion": 0.8690476190476191
+    },
+    {
+      "maximumFalseAcceptRate": 0.5,
+      "maximumFalseRejectRate": 0.1,
+      "acceptThreshold": 0.0011962303004282744,
+      "rejectThreshold": 0.000025556031051790798,
+      "acceptAttainable": true,
+      "decisions": {
+        "accept": 75,
+        "ambiguous": 9,
+        "reject": 0
+      },
+      "meanK": 1.6904761904761905,
+      "precision": 0.5466269841269841,
+      "baselinePrecision": 0.42619047619047606,
+      "relevantPerAnsweredQuestion": 0.8690476190476191
+    },
+    {
+      "maximumFalseAcceptRate": 0.5,
+      "maximumFalseRejectRate": 0.2,
+      "acceptThreshold": 0.0011962303004282744,
+      "rejectThreshold": 0.0000480094759484166,
+      "acceptAttainable": true,
+      "decisions": {
+        "accept": 75,
+        "ambiguous": 9,
+        "reject": 0
+      },
+      "meanK": 1.6904761904761905,
+      "precision": 0.5466269841269841,
+      "baselinePrecision": 0.42619047619047606,
+      "relevantPerAnsweredQuestion": 0.8690476190476191
+    },
+    {
+      "maximumFalseAcceptRate": 0.5,
+      "maximumFalseRejectRate": 0.3,
+      "acceptThreshold": 0.0011962303004282744,
+      "rejectThreshold": 0.00009119079173563122,
+      "acceptAttainable": true,
+      "decisions": {
+        "accept": 75,
+        "ambiguous": 9,
+        "reject": 0
+      },
+      "meanK": 1.6785714285714286,
+      "precision": 0.5486111111111112,
+      "baselinePrecision": 0.42619047619047606,
+      "relevantPerAnsweredQuestion": 0.8690476190476191
+    },
+    {
+      "maximumFalseAcceptRate": 0.5,
+      "maximumFalseRejectRate": 0.4,
+      "acceptThreshold": 0.0011962303004282744,
+      "rejectThreshold": 0.00015833775036552965,
+      "acceptAttainable": true,
+      "decisions": {
+        "accept": 75,
+        "ambiguous": 8,
+        "reject": 1
+      },
+      "meanK": 1.6626506024096386,
+      "precision": 0.5672690763052209,
+      "baselinePrecision": 0.42619047619047606,
+      "relevantPerAnsweredQuestion": 0.8795180722891566
+    }
+  ]
+}

@@ -7,9 +7,13 @@ import {
   type RerankingConfiguration,
   type RetrievalConfiguration,
 } from "@/types/retrieval-types";
+import type { Ollama } from "ollama";
+
 import type { OllamaEmbedder } from "../embeddings/ollama-embedder";
 import type { SearchResult } from "../storage/storage-types";
 import type { QdrantStore } from "../storage/vector-storage";
+import { DEFAULT_RRF_K, reciprocalRankFusion } from "./fusion";
+import { listwiseRerank, pointwiseRerank } from "./llm-reranker";
 import { loadCrossEncoder } from "./reranker-helper";
 
 export class Retriever {
@@ -22,6 +26,7 @@ export class Retriever {
     private readonly retrievalConfig: RetrievalConfiguration,
     private readonly rerankingConfig: RerankingConfiguration =
       DEFAULT_RERANKING_CONFIGURATION,
+    private readonly client?: Ollama,
   ) { }
 
   private async getCrossEncoder(): Promise<CrossEncoder> {
@@ -91,6 +96,27 @@ export class Retriever {
       : this.store.sparseSearch(question, limit, documentIds);
   }
 
+  /**
+   * Runs both retrievers and fuses them by rank. Each leg pulls its own
+   * configured candidate count, because the point of hybrid is to let each
+   * side contribute chunks the other misses.
+   */
+  async hybrid(
+    question: string,
+    limit: number,
+    documentIds?: readonly string[],
+  ): Promise<SearchResult[]> {
+    const [dense, sparse] = await Promise.all([
+      this.dense(question, this.retrievalConfig.denseCandidates, documentIds),
+      this.sparse(question, this.retrievalConfig.sparseCandidates, documentIds),
+    ]);
+
+    return reciprocalRankFusion(
+      [dense, sparse],
+      this.retrievalConfig.rrfK ?? DEFAULT_RRF_K,
+    ).slice(0, limit);
+  }
+
   async retrieve(
     question: string,
     documentIds?: readonly string[],
@@ -108,18 +134,73 @@ export class Retriever {
         results = await this.sparse(question, limit, documentIds);
         break;
       case "hybrid":
-        throw new Error("Hybrid retrieval is not implemented yet.");
+        results = await this.hybrid(question, limit, documentIds);
+        break;
     }
 
     if (!this.rerankingConfig.enabled) {
       return results;
     }
 
-    if (this.rerankingConfig.strategy !== "cross_encoder") {
+    if (this.rerankingConfig.strategy === "lexical") {
       throw new Error("Lexical reranking is not implemented yet.");
     }
 
-    const reranked = await this.crossEncoderRerank(question, results);
+    const reranked =
+      this.rerankingConfig.strategy === "cross_encoder"
+        ? await this.crossEncoderRerank(question, results)
+        : await this.llmRerank(question, results);
+
     return reranked.slice(0, this.retrievalConfig.topK);
+  }
+
+  /**
+   * Reranks with a generative model rather than a cross-encoder.
+   *
+   * Pointwise ratings support empirical threshold experiments, but are not
+   * calibrated probabilities. Listwise scores encode within-query rank only.
+   */
+  async llmRerank(
+    question: string,
+    results: SearchResult[],
+  ): Promise<SearchResult[]> {
+    if (results.length === 0) return results;
+
+    if (!this.client) {
+      throw new Error(
+        "LLM reranking requires an Ollama client. Pass one to the Retriever constructor.",
+      );
+    }
+
+    const passages = results.map((result) => ({
+      id: result.chunk.chunkId,
+      text: result.chunk.text,
+    }));
+    const scored =
+      this.rerankingConfig.strategy === "llm_listwise"
+        ? await listwiseRerank(
+            this.client,
+            this.rerankingConfig.model,
+            question,
+            passages,
+            this.rerankingConfig.llmPassageWords,
+          )
+        : await pointwiseRerank(
+            this.client,
+            this.rerankingConfig.model,
+            question,
+            passages,
+            undefined,
+            this.rerankingConfig.llmPassageWords,
+          );
+    const byId = new Map(scored.map((entry) => [entry.id, entry.score]));
+
+    for (const result of results) {
+      const score = byId.get(result.chunk.chunkId) ?? 0;
+      result.rerankerScore = score;
+      result.score = score;
+    }
+
+    return [...results].sort((left, right) => right.score - left.score);
   }
 }

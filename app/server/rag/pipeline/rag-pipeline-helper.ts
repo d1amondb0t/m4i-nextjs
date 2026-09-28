@@ -5,8 +5,19 @@ import { DEFAULT_RETRIEVAL_CONFIGURATION } from "@/types/retrieval-types";
 import { DEFAULT_STORAGE_CONFIGURATION, type StorageConfiguration,} from "../storage/storage-types";
 
 const DEFAULT_COLLECTION = "rag_test";
-const DEFAULT_EMBEDDING_MODEL =
-  "hf.co/CompendiumLabs/bge-base-en-v1.5-gguf";
+
+/**
+ * Qwen performed better in the exploratory retrieval grid. Model weights,
+ * context limits, and query prefixes all changed together, so that comparison
+ * does not isolate an instruction-prefix effect.
+ *
+ * This model emits 1024-dimensional vectors, so an existing 768-dimensional
+ * collection must be re-indexed under a new QDRANT_COLLECTION name.
+ */
+const DEFAULT_EMBEDDING_MODEL = "qwen3-embedding:0.6b";
+
+export const DEFAULT_QUERY_PREFIX =
+  "Instruct: Given an analyst's question about impact evidence, retrieve passages that report a relevant outcome, indicator, measurement or finding.\nQuery: ";
 
 export const DEFAULT_RAG_PIPELINE_CONFIGURATION = {
   chunking: DEFAULT_CHUNK_CONFIG,
@@ -14,7 +25,7 @@ export const DEFAULT_RAG_PIPELINE_CONFIGURATION = {
   embeddingBatchSize: 16,
   embeddingModel: DEFAULT_EMBEDDING_MODEL,
   generation: DEFAULT_GENERATION_CONFIGURATION,
-  queryPrefix: "Represent this sentence for searching relevant passages: ",
+  queryPrefix: DEFAULT_QUERY_PREFIX,
   retrieval: DEFAULT_RETRIEVAL_CONFIGURATION,
   storage: DEFAULT_STORAGE_CONFIGURATION,
 } as const satisfies RagPipelineConfiguration;
@@ -82,9 +93,7 @@ export function ragPipelineConfigurationFromEnvironment(): RagPipelineConfigurat
       ),
     },
     ollamaHost: process.env.OLLAMA_HOST?.trim() || undefined,
-    queryPrefix:
-      process.env.OLLAMA_QUERY_PREFIX ??
-      "Represent this sentence for searching relevant passages: ",
+    queryPrefix: process.env.OLLAMA_QUERY_PREFIX ?? DEFAULT_QUERY_PREFIX,
     retrieval: DEFAULT_RETRIEVAL_CONFIGURATION,
     storage: storageFromEnvironment(),
   };

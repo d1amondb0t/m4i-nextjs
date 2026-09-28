@@ -1,0 +1,707 @@
+{
+  "generatedAt": "2026-09-08T16:21:18.983Z",
+  "recommended": {
+    "acceptThreshold": 0.1672767128527276,
+    "rejectThreshold": 0.000407202442728089,
+    "minimumK": 3,
+    "maximumK": 12,
+    "relativeDropoff": 0.01
+  },
+  "basis": {
+    "acceptFalseAcceptRate": 0.3968253968253968,
+    "rejectFalseRejectRate": 0.047619047619047616,
+    "rejectOutOfScopeRejectionRate": 0.7916666666666666
+  },
+  "decisions": {
+    "accept": 25,
+    "ambiguous": 55,
+    "reject": 4
+  },
+  "adaptiveK": {
+    "mean": 4.9625,
+    "min": 3,
+    "max": 12
+  },
+  "precision": {
+    "adaptive": 0.45320301226551224,
+    "fixedK": 0.42619047619047606
+  },
+  "chunksPerQuestion": {
+    "adaptive": 4.726190476190476,
+    "fixedK": 5
+  },
+  "perQuestion": [
+    {
+      "questionId": "advocacy_policy_influence#1",
+      "decision": "ambiguous",
+      "k": 4,
+      "relevant": 2,
+      "precision": 0.5,
+      "baselineRelevant": 2
+    },
+    {
+      "questionId": "advocacy_policy_influence#2",
+      "decision": "ambiguous",
+      "k": 6,
+      "relevant": 3,
+      "precision": 0.5,
+      "baselineRelevant": 2
+    },
+    {
+      "questionId": "advocacy_policy_influence#3",
+      "decision": "ambiguous",
+      "k": 9,
+      "relevant": 2,
+      "precision": 0.2222222222222222,
+      "baselineRelevant": 2
+    },
+    {
+      "questionId": "advocacy_policy_influence#4",
+      "decision": "ambiguous",
+      "k": 8,
+      "relevant": 3,
+      "precision": 0.375,
+      "baselineRelevant": 3
+    },
+    {
+      "questionId": "institutional_capacity#1",
+      "decision": "ambiguous",
+      "k": 4,
+      "relevant": 1,
+      "precision": 0.25,
+      "baselineRelevant": 2
+    },
+    {
+      "questionId": "institutional_capacity#2",
+      "decision": "accept",
+      "k": 3,
+      "relevant": 2,
+      "precision": 0.6666666666666666,
+      "baselineRelevant": 4
+    },
+    {
+      "questionId": "institutional_capacity#3",
+      "decision": "ambiguous",
+      "k": 6,
+      "relevant": 4,
+      "precision": 0.6666666666666666,
+      "baselineRelevant": 3
+    },
+    {
+      "questionId": "institutional_capacity#4",
+      "decision": "ambiguous",
+      "k": 3,
+      "relevant": 1,
+      "precision": 0.3333333333333333,
+      "baselineRelevant": 1
+    },
+    {
+      "questionId": "participation_representation#1",
+      "decision": "ambiguous",
+      "k": 4,
+      "relevant": 1,
+      "precision": 0.25,
+      "baselineRelevant": 1
+    },
+    {
+      "questionId": "participation_representation#2",
+      "decision": "reject",
+      "k": 0,
+      "relevant": 0,
+      "precision": null,
+      "baselineRelevant": 1
+    },
+    {
+      "questionId": "participation_representation#3",
+      "decision": "ambiguous",
+      "k": 10,
+      "relevant": 6,
+      "precision": 0.6,
+      "baselineRelevant": 3
+    },
+    {
+      "questionId": "participation_representation#4",
+      "decision": "ambiguous",
+      "k": 3,
+      "relevant": 0,
+      "precision": 0,
+      "baselineRelevant": 0
+    },
+    {
+      "questionId": "livelihoods_employment#1",
+      "decision": "ambiguous",
+      "k": 3,
+      "relevant": 1,
+      "precision": 0.3333333333333333,
+      "baselineRelevant": 1
+    },
+    {
+      "questionId": "livelihoods_employment#2",
+      "decision": "ambiguous",
+      "k": 10,
+      "relevant": 4,
+      "precision": 0.4,
+      "baselineRelevant": 1
+    },
+    {
+      "questionId": "livelihoods_employment#3",
+      "decision": "ambiguous",
+      "k": 12,
+      "relevant": 8,
+      "precision": 0.6666666666666666,
+      "baselineRelevant": 4
+    },
+    {
+      "questionId": "livelihoods_employment#4",
+      "decision": "ambiguous",
+      "k": 3,
+      "relevant": 2,
+      "precision": 0.6666666666666666,
+      "baselineRelevant": 3
+    },
+    {
+      "questionId": "macro_fiscal#1",
+      "decision": "accept",
+      "k": 3,
+      "relevant": 2,
+      "precision": 0.6666666666666666,
+      "baselineRelevant": 4
+    },
+    {
+      "questionId": "macro_fiscal#2",
+      "decision": "accept",
+      "k": 6,
+      "relevant": 4,
+      "precision": 0.6666666666666666,
+      "baselineRelevant": 4
+    },
+    {
+      "questionId": "macro_fiscal#3",
+      "decision": "ambiguous",
+      "k": 12,
+      "relevant": 8,
+      "precision": 0.6666666666666666,
+      "baselineRelevant": 3
+    },
+    {
+      "questionId": "macro_fiscal#4",
+      "decision": "ambiguous",
+      "k": 6,
+      "relevant": 4,
+      "precision": 0.6666666666666666,
+      "baselineRelevant": 3
+    },
+    {
+      "questionId": "market_access_finance#1",
+      "decision": "reject",
+      "k": 0,
+      "relevant": 0,
+      "precision": null,
+      "baselineRelevant": 1
+    },
+    {
+      "questionId": "market_access_finance#2",
+      "decision": "ambiguous",
+      "k": 3,
+      "relevant": 1,
+      "precision": 0.3333333333333333,
+      "baselineRelevant": 1
+    },
+    {
+      "questionId": "market_access_finance#3",
+      "decision": "ambiguous",
+      "k": 5,
+      "relevant": 1,
+      "precision": 0.2,
+      "baselineRelevant": 1
+    },
+    {
+      "questionId": "market_access_finance#4",
+      "decision": "ambiguous",
+      "k": 4,
+      "relevant": 1,
+      "precision": 0.25,
+      "baselineRelevant": 1
+    },
+    {
+      "questionId": "health_wellbeing#1",
+      "decision": "ambiguous",
+      "k": 6,
+      "relevant": 3,
+      "precision": 0.5,
+      "baselineRelevant": 2
+    },
+    {
+      "questionId": "health_wellbeing#2",
+      "decision": "ambiguous",
+      "k": 12,
+      "relevant": 6,
+      "precision": 0.5,
+      "baselineRelevant": 2
+    },
+    {
+      "questionId": "health_wellbeing#3",
+      "decision": "ambiguous",
+      "k": 5,
+      "relevant": 1,
+      "precision": 0.2,
+      "baselineRelevant": 1
+    },
+    {
+      "questionId": "health_wellbeing#4",
+      "decision": "accept",
+      "k": 3,
+      "relevant": 2,
+      "precision": 0.6666666666666666,
+      "baselineRelevant": 3
+    },
+    {
+      "questionId": "equity_inclusion#1",
+      "decision": "accept",
+      "k": 3,
+      "relevant": 2,
+      "precision": 0.6666666666666666,
+      "baselineRelevant": 4
+    },
+    {
+      "questionId": "equity_inclusion#2",
+      "decision": "ambiguous",
+      "k": 4,
+      "relevant": 2,
+      "precision": 0.5,
+      "baselineRelevant": 2
+    },
+    {
+      "questionId": "equity_inclusion#3",
+      "decision": "ambiguous",
+      "k": 4,
+      "relevant": 1,
+      "precision": 0.25,
+      "baselineRelevant": 1
+    },
+    {
+      "questionId": "equity_inclusion#4",
+      "decision": "ambiguous",
+      "k": 9,
+      "relevant": 2,
+      "precision": 0.2222222222222222,
+      "baselineRelevant": 2
+    },
+    {
+      "questionId": "basic_services#1",
+      "decision": "accept",
+      "k": 8,
+      "relevant": 2,
+      "precision": 0.25,
+      "baselineRelevant": 1
+    },
+    {
+      "questionId": "basic_services#2",
+      "decision": "ambiguous",
+      "k": 6,
+      "relevant": 4,
+      "precision": 0.6666666666666666,
+      "baselineRelevant": 3
+    },
+    {
+      "questionId": "basic_services#3",
+      "decision": "ambiguous",
+      "k": 7,
+      "relevant": 5,
+      "precision": 0.7142857142857143,
+      "baselineRelevant": 3
+    },
+    {
+      "questionId": "basic_services#4",
+      "decision": "ambiguous",
+      "k": 11,
+      "relevant": 8,
+      "precision": 0.7272727272727273,
+      "baselineRelevant": 4
+    },
+    {
+      "questionId": "emissions_climate#1",
+      "decision": "ambiguous",
+      "k": 3,
+      "relevant": 2,
+      "precision": 0.6666666666666666,
+      "baselineRelevant": 3
+    },
+    {
+      "questionId": "emissions_climate#2",
+      "decision": "accept",
+      "k": 5,
+      "relevant": 4,
+      "precision": 0.8,
+      "baselineRelevant": 4
+    },
+    {
+      "questionId": "emissions_climate#3",
+      "decision": "reject",
+      "k": 0,
+      "relevant": 0,
+      "precision": null,
+      "baselineRelevant": 1
+    },
+    {
+      "questionId": "emissions_climate#4",
+      "decision": "accept",
+      "k": 3,
+      "relevant": 2,
+      "precision": 0.6666666666666666,
+      "baselineRelevant": 3
+    },
+    {
+      "questionId": "resilience_adaptation#1",
+      "decision": "accept",
+      "k": 3,
+      "relevant": 2,
+      "precision": 0.6666666666666666,
+      "baselineRelevant": 3
+    },
+    {
+      "questionId": "resilience_adaptation#2",
+      "decision": "accept",
+      "k": 4,
+      "relevant": 3,
+      "precision": 0.75,
+      "baselineRelevant": 4
+    },
+    {
+      "questionId": "resilience_adaptation#3",
+      "decision": "ambiguous",
+      "k": 6,
+      "relevant": 1,
+      "precision": 0.16666666666666666,
+      "baselineRelevant": 1
+    },
+    {
+      "questionId": "resilience_adaptation#4",
+      "decision": "accept",
+      "k": 3,
+      "relevant": 2,
+      "precision": 0.6666666666666666,
+      "baselineRelevant": 3
+    },
+    {
+      "questionId": "ecosystems_resources#1",
+      "decision": "ambiguous",
+      "k": 7,
+      "relevant": 3,
+      "precision": 0.42857142857142855,
+      "baselineRelevant": 3
+    },
+    {
+      "questionId": "ecosystems_resources#2",
+      "decision": "accept",
+      "k": 3,
+      "relevant": 1,
+      "precision": 0.3333333333333333,
+      "baselineRelevant": 2
+    },
+    {
+      "questionId": "ecosystems_resources#3",
+      "decision": "accept",
+      "k": 3,
+      "relevant": 2,
+      "precision": 0.6666666666666666,
+      "baselineRelevant": 3
+    },
+    {
+      "questionId": "ecosystems_resources#4",
+      "decision": "ambiguous",
+      "k": 3,
+      "relevant": 1,
+      "precision": 0.3333333333333333,
+      "baselineRelevant": 1
+    },
+    {
+      "questionId": "mobility_access#1",
+      "decision": "ambiguous",
+      "k": 3,
+      "relevant": 2,
+      "precision": 0.6666666666666666,
+      "baselineRelevant": 4
+    },
+    {
+      "questionId": "mobility_access#2",
+      "decision": "ambiguous",
+      "k": 10,
+      "relevant": 2,
+      "precision": 0.2,
+      "baselineRelevant": 2
+    },
+    {
+      "questionId": "mobility_access#3",
+      "decision": "ambiguous",
+      "k": 3,
+      "relevant": 2,
+      "precision": 0.6666666666666666,
+      "baselineRelevant": 2
+    },
+    {
+      "questionId": "mobility_access#4",
+      "decision": "ambiguous",
+      "k": 6,
+      "relevant": 1,
+      "precision": 0.16666666666666666,
+      "baselineRelevant": 1
+    },
+    {
+      "questionId": "infrastructure_quality#1",
+      "decision": "ambiguous",
+      "k": 3,
+      "relevant": 1,
+      "precision": 0.3333333333333333,
+      "baselineRelevant": 1
+    },
+    {
+      "questionId": "infrastructure_quality#2",
+      "decision": "ambiguous",
+      "k": 3,
+      "relevant": 0,
+      "precision": 0,
+      "baselineRelevant": 0
+    },
+    {
+      "questionId": "infrastructure_quality#3",
+      "decision": "accept",
+      "k": 3,
+      "relevant": 2,
+      "precision": 0.6666666666666666,
+      "baselineRelevant": 3
+    },
+    {
+      "questionId": "infrastructure_quality#4",
+      "decision": "reject",
+      "k": 0,
+      "relevant": 0,
+      "precision": null,
+      "baselineRelevant": 3
+    },
+    {
+      "questionId": "landuse_planning#1",
+      "decision": "accept",
+      "k": 3,
+      "relevant": 0,
+      "precision": 0,
+      "baselineRelevant": 0
+    },
+    {
+      "questionId": "landuse_planning#2",
+      "decision": "ambiguous",
+      "k": 3,
+      "relevant": 2,
+      "precision": 0.6666666666666666,
+      "baselineRelevant": 2
+    },
+    {
+      "questionId": "landuse_planning#3",
+      "decision": "ambiguous",
+      "k": 3,
+      "relevant": 1,
+      "precision": 0.3333333333333333,
+      "baselineRelevant": 1
+    },
+    {
+      "questionId": "landuse_planning#4",
+      "decision": "ambiguous",
+      "k": 3,
+      "relevant": 1,
+      "precision": 0.3333333333333333,
+      "baselineRelevant": 2
+    },
+    {
+      "questionId": "protection_rights#1",
+      "decision": "accept",
+      "k": 3,
+      "relevant": 2,
+      "precision": 0.6666666666666666,
+      "baselineRelevant": 3
+    },
+    {
+      "questionId": "protection_rights#2",
+      "decision": "ambiguous",
+      "k": 6,
+      "relevant": 1,
+      "precision": 0.16666666666666666,
+      "baselineRelevant": 1
+    },
+    {
+      "questionId": "protection_rights#3",
+      "decision": "ambiguous",
+      "k": 4,
+      "relevant": 1,
+      "precision": 0.25,
+      "baselineRelevant": 1
+    },
+    {
+      "questionId": "protection_rights#4",
+      "decision": "ambiguous",
+      "k": 6,
+      "relevant": 2,
+      "precision": 0.3333333333333333,
+      "baselineRelevant": 2
+    },
+    {
+      "questionId": "humanitarian_response#1",
+      "decision": "accept",
+      "k": 3,
+      "relevant": 1,
+      "precision": 0.3333333333333333,
+      "baselineRelevant": 1
+    },
+    {
+      "questionId": "humanitarian_response#2",
+      "decision": "ambiguous",
+      "k": 6,
+      "relevant": 2,
+      "precision": 0.3333333333333333,
+      "baselineRelevant": 1
+    },
+    {
+      "questionId": "humanitarian_response#3",
+      "decision": "ambiguous",
+      "k": 3,
+      "relevant": 1,
+      "precision": 0.3333333333333333,
+      "baselineRelevant": 1
+    },
+    {
+      "questionId": "humanitarian_response#4",
+      "decision": "ambiguous",
+      "k": 8,
+      "relevant": 2,
+      "precision": 0.25,
+      "baselineRelevant": 2
+    },
+    {
+      "questionId": "legal_norms#1",
+      "decision": "ambiguous",
+      "k": 6,
+      "relevant": 2,
+      "precision": 0.3333333333333333,
+      "baselineRelevant": 2
+    },
+    {
+      "questionId": "legal_norms#2",
+      "decision": "accept",
+      "k": 3,
+      "relevant": 2,
+      "precision": 0.6666666666666666,
+      "baselineRelevant": 4
+    },
+    {
+      "questionId": "legal_norms#3",
+      "decision": "accept",
+      "k": 3,
+      "relevant": 2,
+      "precision": 0.6666666666666666,
+      "baselineRelevant": 3
+    },
+    {
+      "questionId": "legal_norms#4",
+      "decision": "ambiguous",
+      "k": 4,
+      "relevant": 1,
+      "precision": 0.25,
+      "baselineRelevant": 1
+    },
+    {
+      "questionId": "access_participation#1",
+      "decision": "ambiguous",
+      "k": 4,
+      "relevant": 2,
+      "precision": 0.5,
+      "baselineRelevant": 3
+    },
+    {
+      "questionId": "access_participation#2",
+      "decision": "accept",
+      "k": 3,
+      "relevant": 1,
+      "precision": 0.3333333333333333,
+      "baselineRelevant": 1
+    },
+    {
+      "questionId": "access_participation#3",
+      "decision": "accept",
+      "k": 3,
+      "relevant": 2,
+      "precision": 0.6666666666666666,
+      "baselineRelevant": 4
+    },
+    {
+      "questionId": "access_participation#4",
+      "decision": "ambiguous",
+      "k": 3,
+      "relevant": 1,
+      "precision": 0.3333333333333333,
+      "baselineRelevant": 1
+    },
+    {
+      "questionId": "learning_outcomes#1",
+      "decision": "accept",
+      "k": 3,
+      "relevant": 1,
+      "precision": 0.3333333333333333,
+      "baselineRelevant": 2
+    },
+    {
+      "questionId": "learning_outcomes#2",
+      "decision": "ambiguous",
+      "k": 4,
+      "relevant": 2,
+      "precision": 0.5,
+      "baselineRelevant": 2
+    },
+    {
+      "questionId": "learning_outcomes#3",
+      "decision": "accept",
+      "k": 3,
+      "relevant": 1,
+      "precision": 0.3333333333333333,
+      "baselineRelevant": 1
+    },
+    {
+      "questionId": "learning_outcomes#4",
+      "decision": "accept",
+      "k": 3,
+      "relevant": 2,
+      "precision": 0.6666666666666666,
+      "baselineRelevant": 4
+    },
+    {
+      "questionId": "teacher_system_capacity#1",
+      "decision": "ambiguous",
+      "k": 3,
+      "relevant": 2,
+      "precision": 0.6666666666666666,
+      "baselineRelevant": 2
+    },
+    {
+      "questionId": "teacher_system_capacity#2",
+      "decision": "accept",
+      "k": 12,
+      "relevant": 6,
+      "precision": 0.5,
+      "baselineRelevant": 1
+    },
+    {
+      "questionId": "teacher_system_capacity#3",
+      "decision": "ambiguous",
+      "k": 4,
+      "relevant": 3,
+      "precision": 0.75,
+      "baselineRelevant": 4
+    },
+    {
+      "questionId": "teacher_system_capacity#4",
+      "decision": "ambiguous",
+      "k": 6,
+      "relevant": 1,
+      "precision": 0.16666666666666666,
+      "baselineRelevant": 1
+    }
+  ]
+}

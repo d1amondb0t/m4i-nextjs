@@ -43,3 +43,25 @@ next-env.d.ts
 
 # qdrant
 /qdrant_storage/
+# calibration corpus PDFs (re-fetch with calibration/download-corpus.mjs);
+# the manifest and fitted results stay tracked
+/calibration/corpus/*/
+
+# calibration stage caches: regenerable, and they carry full chunk text
+/calibration/results/retrieval.json
+/calibration/results/labels.json
+/calibration/results/*.log
+
+# Keep the experiment report and compact stage results; ignore checkpoints.
+/calibration/results/experiment/*
+!/calibration/results/experiment/experiment-report.md
+!/calibration/results/experiment/stage1-metrics.json
+!/calibration/results/experiment/stage2-metrics.json
+!/calibration/results/experiment/stage3-calibration.json
+!/calibration/results/experiment/stage4-judge-agreement.json
+!/calibration/results/experiment/stage5-operating-point.json
+
+# New review inference cache contains full corpus text; compact metrics stay tracked.
+/calibration/results/review/live-cache-*.json*
+/calibration/results/review/*.log
+/calibration/results/review/depth-cache-*.json*

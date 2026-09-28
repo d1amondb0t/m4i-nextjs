@@ -5,6 +5,7 @@ import {
   type ExtractedHierarchyCandidate,
   type FrameworkCategory,
   type FrameworkDimension,
+  type CategoryQuestion,
   type FrameworkOntology,
   type HierarchyConfiguration,
   type HierarchyItemKind,
@@ -56,6 +57,7 @@ function parseCategory(value: unknown, location: string): FrameworkCategory {
     definition: requiredText(value.definition, `${location}.definition`),
     include: optionalTextList(value.include, `${location}.include`),
     exclude: optionalTextList(value.exclude, `${location}.exclude`),
+    questions: optionalTextList(value.questions, `${location}.questions`),
   };
 }
 
@@ -143,9 +145,30 @@ export function buildCategoryQuery(
 
   return [
     `Dimension: ${dimension.name}. ${dimension.definition}`,
-    `Category: ${category.name}. ${category.definition}${list("Include", category.include)}${list("Exclude", category.exclude)}`,
+    `Category: ${category.name}. ${category.definition}${list("Include", category.include)}${list("Exclude", category.exclude)}${list("Questions", category.questions)}`,
     target,
   ].join("\n");
+}
+
+export function categoryQuestions(
+  ontology: FrameworkOntology,
+): CategoryQuestion[] {
+  const questions: CategoryQuestion[] = [];
+
+  for (const dimension of ontology.dimensions) {
+    for (const category of dimension.categories) {
+      category.questions?.forEach((question, index) => {
+        questions.push({
+          questionId: `${category.id}#${index + 1}`,
+          dimensionId: dimension.id,
+          categoryId: category.id,
+          question,
+        });
+      });
+    }
+  }
+
+  return questions;
 }
 
 export function mergeSearchResults(
