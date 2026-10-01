@@ -43,3 +43,5 @@ next-env.d.ts
 
 # qdrant
 /qdrant_storage/
+# downloaded dataset PDFs (re-fetch with scripts/build_dataset.py)
+/dataset/
