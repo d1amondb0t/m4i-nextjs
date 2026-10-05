@@ -13,36 +13,11 @@ import type {
 } from "@/types/hierarchy-types";
 import type { UploadStatus } from "@/types/document-upload";
 
+import ONTOLOGY from "@/ontology.json"
+
 type SuccessfulHierarchyResponse = Extract<HierarchyPipelineResponse, { ok: true }>;
 
-const EXAMPLE_ONTOLOGY = JSON.stringify(
-  {
-    dimensions: [
-      {
-        id: "political",
-        name: "Political",
-        definition:
-          "Changes involving political institutions, policy, governance, or public decision-making.",
-        categories: [
-          {
-            id: "advocacy_policy_influence",
-            name: "Advocacy & policy influence",
-            definition:
-              "Efforts or changes intended to influence laws, policies, political agendas, or public decision-makers.",
-            include: [
-              "policy recommendations",
-              "government engagement",
-              "legislative or regulatory influence",
-            ],
-            exclude: ["general public awareness without a policy objective"],
-          },
-        ],
-      },
-    ],
-  },
-  null,
-  2,
-);
+const EXAMPLE_ONTOLOGY = JSON.stringify(ONTOLOGY, null , 2);
 
 function Assessment({ item }: { item: HierarchyItem }) {
   const scores = [
