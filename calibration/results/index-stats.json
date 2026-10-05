@@ -1,0 +1,775 @@
+{
+  "collection": "m4i_calibration",
+  "documents": [
+    {
+      "file": "political/political__IF13121.pdf",
+      "topic": "political",
+      "dimension": "political",
+      "documentId": "26652e3f78f90cfa06097cb2d3666ac8c999c171",
+      "chunks": 12
+    },
+    {
+      "file": "political/political__LSB11464.pdf",
+      "topic": "political",
+      "dimension": "political",
+      "documentId": "782ac3def479ed9485eec01127d14a60916a1c62",
+      "chunks": 20
+    },
+    {
+      "file": "political/political__R49337.pdf",
+      "topic": "political",
+      "dimension": "political",
+      "documentId": "23444c5b293897c92aef8875d9d6980f35e0e741",
+      "chunks": 38
+    },
+    {
+      "file": "political/political__RS22937.pdf",
+      "topic": "political",
+      "dimension": "political",
+      "documentId": "11bc4d9f69af74c67b981a81cf2457af91717d1e",
+      "chunks": 57
+    },
+    {
+      "file": "political/political__R49338.pdf",
+      "topic": "political",
+      "dimension": "political",
+      "documentId": "d11ee6c4f71e6bc4398c72dbf32f7b7f7a31889d",
+      "chunks": 73
+    },
+    {
+      "file": "political/political__IN12735.pdf",
+      "topic": "political",
+      "dimension": "political",
+      "documentId": "80972b630b68695ebb2066fd29bdcbf6e5b36bd4",
+      "chunks": 8
+    },
+    {
+      "file": "political/political__R49335.pdf",
+      "topic": "political",
+      "dimension": "political",
+      "documentId": "2b2bcfb5fe8ad4b0020279c16ada3851d544e6f9",
+      "chunks": 68
+    },
+    {
+      "file": "political/political__LSB11438.pdf",
+      "topic": "political",
+      "dimension": "political",
+      "documentId": "dbbcfcaffeec0782f281cf59d0b51748dd17224b",
+      "chunks": 27
+    },
+    {
+      "file": "political/political__IF13276.pdf",
+      "topic": "political",
+      "dimension": "political",
+      "documentId": "87313533fdb1d7ca868741964e396e6ca9f91214",
+      "chunks": 10
+    },
+    {
+      "file": "political/political__IF12813.pdf",
+      "topic": "political",
+      "dimension": "political",
+      "documentId": "3ff8701935c8217a3c2639ed769d1e21a95aab2d",
+      "chunks": 13
+    },
+    {
+      "file": "political/political__IF11544.pdf",
+      "topic": "political",
+      "dimension": "political",
+      "documentId": "d0afc316e07d3227e456f76ad89ec9da324a1e1c",
+      "chunks": 12
+    },
+    {
+      "file": "political/political__LSB11170.pdf",
+      "topic": "political",
+      "dimension": "political",
+      "documentId": "7000ed9312b0d532ededd148789e0e3a4404ecd1",
+      "chunks": 20
+    },
+    {
+      "file": "political/political__LSB11475.pdf",
+      "topic": "political",
+      "dimension": "political",
+      "documentId": "e7f6f1153b71cc74ab1c653ba81fd972807c803c",
+      "chunks": 23
+    },
+    {
+      "file": "political/political__R49336.pdf",
+      "topic": "political",
+      "dimension": "political",
+      "documentId": "e1deb312d37f7ac3c2971b42604fe032cc89c228",
+      "chunks": 126
+    },
+    {
+      "file": "political/political__R49023.pdf",
+      "topic": "political",
+      "dimension": "political",
+      "documentId": "1c052948199e5f4c9e805196ea06ff2f8540208e",
+      "chunks": 59
+    },
+    {
+      "file": "political/political__LSB11474.pdf",
+      "topic": "political",
+      "dimension": "political",
+      "documentId": "e941d6a6e177d7cd9a3bbecfb8115da37426e938",
+      "chunks": 27
+    },
+    {
+      "file": "political/political__R47284.pdf",
+      "topic": "political",
+      "dimension": "political",
+      "documentId": "085051a9b7f87108321df5e4b5479c6f21f60943",
+      "chunks": 55
+    },
+    {
+      "file": "economic/economic__33261131.pdf",
+      "topic": "economic",
+      "dimension": "economic",
+      "documentId": "c25112fd84b761aa3fb7cf7e69d706d6e5053739",
+      "chunks": 142
+    },
+    {
+      "file": "economic/economic__33833475.pdf",
+      "topic": "economic",
+      "dimension": "economic",
+      "documentId": "4f57b14296a4e24b107948115a4f5823574b1742",
+      "chunks": 181
+    },
+    {
+      "file": "economic/economic__31084208.pdf",
+      "topic": "economic",
+      "dimension": "economic",
+      "documentId": "139a36f8b0397de03d15a78ee66d4b915719ce5a",
+      "chunks": 157
+    },
+    {
+      "file": "economic/economic__33275555.pdf",
+      "topic": "economic",
+      "dimension": "economic",
+      "documentId": "fafc9dea8244e79e18230dd076c2e1f0aff914f6",
+      "chunks": 73
+    },
+    {
+      "file": "economic/economic__31118535.pdf",
+      "topic": "economic",
+      "dimension": "economic",
+      "documentId": "534c41d0c947d72d56c2ff4c5df020e918feebbf",
+      "chunks": 2
+    },
+    {
+      "file": "economic/economic__31248412.pdf",
+      "topic": "economic",
+      "dimension": "economic",
+      "documentId": "5e27f977669a13079d5a288fab470fe353b14e3f",
+      "chunks": 13
+    },
+    {
+      "file": "economic/economic__30999637.pdf",
+      "topic": "economic",
+      "dimension": "economic",
+      "documentId": "e1fd2bd60a95989cb0e4bb59762b0df297a009f7",
+      "chunks": 238
+    },
+    {
+      "file": "economic/economic__30985709.pdf",
+      "topic": "economic",
+      "dimension": "economic",
+      "documentId": "81ecc107565b923d8d866c119348b9f5304244da",
+      "chunks": 17
+    },
+    {
+      "file": "economic/economic__31217879.pdf",
+      "topic": "economic",
+      "dimension": "economic",
+      "documentId": "454e491c3381bcaccc247b68412a84a548895190",
+      "chunks": 13
+    },
+    {
+      "file": "economic/economic__32852254.pdf",
+      "topic": "economic",
+      "dimension": "economic",
+      "documentId": "3641c07488852edfd5b3c8a35227ca5ca5bda437",
+      "chunks": 55
+    },
+    {
+      "file": "economic/economic__31988121.pdf",
+      "topic": "economic",
+      "dimension": "economic",
+      "documentId": "83793bfb524bb67235f763910a14ee2d1e35131f",
+      "chunks": 214
+    },
+    {
+      "file": "economic/economic__26398127.pdf",
+      "topic": "economic",
+      "dimension": "economic",
+      "documentId": "ab2e413e0187644366fd2464311e44810767a7ac",
+      "chunks": 9
+    },
+    {
+      "file": "economic/economic__31201012.pdf",
+      "topic": "economic",
+      "dimension": "economic",
+      "documentId": "d87d40d6d9be14b8dbaaf418d8d625b24c3a13a2",
+      "chunks": 20
+    },
+    {
+      "file": "economic/economic__31194613.pdf",
+      "topic": "economic",
+      "dimension": "economic",
+      "documentId": "f27b2332e2a3835ab26ade6da078d383245d38d6",
+      "chunks": 146
+    },
+    {
+      "file": "economic/economic__32058017.pdf",
+      "topic": "economic",
+      "dimension": "economic",
+      "documentId": "fa972555412e90121b743b503056d2568ec74873",
+      "chunks": 18
+    },
+    {
+      "file": "economic/economic__25818617.pdf",
+      "topic": "economic",
+      "dimension": "economic",
+      "documentId": "c529bfe9f6c19528af9d80aa0c7b647593d90c64",
+      "chunks": 261
+    },
+    {
+      "file": "social/social__W3045526727.pdf",
+      "topic": "social",
+      "dimension": "social",
+      "documentId": "ba9da00f122d2be394c4d82da12ffb40373f3601",
+      "chunks": 90
+    },
+    {
+      "file": "social/social__W2109745229.pdf",
+      "topic": "social",
+      "dimension": "social",
+      "documentId": "59376875f531deadd5fd5c1c6e4c08029f6000e4",
+      "chunks": 70
+    },
+    {
+      "file": "social/social__W2159301256.pdf",
+      "topic": "social",
+      "dimension": "social",
+      "documentId": "87d6befb6a87ed1d16f64782d553e1c8be7e8a17",
+      "chunks": 59
+    },
+    {
+      "file": "social/social__W2986442453.pdf",
+      "topic": "social",
+      "dimension": "social",
+      "documentId": "2a539d4de2c45615b2887cdfe8dbca43b66d0220",
+      "chunks": 51
+    },
+    {
+      "file": "social/social__W3007246056.pdf",
+      "topic": "social",
+      "dimension": "social",
+      "documentId": "4dd806df8e899ec3d8ab1eeff104556e3c6fd97e",
+      "chunks": 81
+    },
+    {
+      "file": "social/social__W2158809385.pdf",
+      "topic": "social",
+      "dimension": "social",
+      "documentId": "07e3a4ef402d0493cfcaa1940b99ee1effa40b48",
+      "chunks": 85
+    },
+    {
+      "file": "social/social__W2617643164.pdf",
+      "topic": "social",
+      "dimension": "social",
+      "documentId": "fecbd7c93b01cd08191970e16cd81da4201f7ac5",
+      "chunks": 77
+    },
+    {
+      "file": "social/social__W3108106255.pdf",
+      "topic": "social",
+      "dimension": "social",
+      "documentId": "59ec9de32e9923b631e89b57f4933982fa0cc2a8",
+      "chunks": 84
+    },
+    {
+      "file": "social/social__W4296293246.pdf",
+      "topic": "social",
+      "dimension": "social",
+      "documentId": "fbffc91617815f27c0021bec1d28ee7be900a777",
+      "chunks": 116
+    },
+    {
+      "file": "social/social__W2020155291.pdf",
+      "topic": "social",
+      "dimension": "social",
+      "documentId": "497b1e56894bb58c5f2a577270773fc58aeab2af",
+      "chunks": 80
+    },
+    {
+      "file": "social/social__W2145071552.pdf",
+      "topic": "social",
+      "dimension": "social",
+      "documentId": "2954847d6e3eef54ceeedc55e75e9850171087f0",
+      "chunks": 133
+    },
+    {
+      "file": "social/social__W2139726867.pdf",
+      "topic": "social",
+      "dimension": "social",
+      "documentId": "5a8cce092b5b13cb6085c9ff9c91f26e54a1bb66",
+      "chunks": 44
+    },
+    {
+      "file": "social/social__W2551557417.pdf",
+      "topic": "social",
+      "dimension": "social",
+      "documentId": "d723edbad2b24ed6d2b04ad8791583fab05acc64",
+      "chunks": 68
+    },
+    {
+      "file": "environmental/environmental__30483691.pdf",
+      "topic": "environmental",
+      "dimension": "environmental",
+      "documentId": "36777198b062b5667462f614b82cbb4117075714",
+      "chunks": 9
+    },
+    {
+      "file": "environmental/environmental__30955409.pdf",
+      "topic": "environmental",
+      "dimension": "environmental",
+      "documentId": "ca0fefcc7a10181d582b6e82fb2400cb709b1947",
+      "chunks": 10
+    },
+    {
+      "file": "environmental/environmental__30786449.pdf",
+      "topic": "environmental",
+      "dimension": "environmental",
+      "documentId": "921dfc006eb16f08490555a132e57251f10dcd52",
+      "chunks": 21
+    },
+    {
+      "file": "environmental/environmental__31258998.pdf",
+      "topic": "environmental",
+      "dimension": "environmental",
+      "documentId": "6f10585638885d20f08513aeef4694120a75f57a",
+      "chunks": 12
+    },
+    {
+      "file": "environmental/environmental__30896755.pdf",
+      "topic": "environmental",
+      "dimension": "environmental",
+      "documentId": "2bf38b6dc02bc94d7647f4d14c663947b2ffa46d",
+      "chunks": 10
+    },
+    {
+      "file": "environmental/environmental__30587286.pdf",
+      "topic": "environmental",
+      "dimension": "environmental",
+      "documentId": "6290526d0ba1203f7482b7c31a112a356214672a",
+      "chunks": 9
+    },
+    {
+      "file": "environmental/environmental__31235747.pdf",
+      "topic": "environmental",
+      "dimension": "environmental",
+      "documentId": "407997f00087a2ae464cf3951d2640ba49d7ea62",
+      "chunks": 12
+    },
+    {
+      "file": "environmental/environmental__30696255.pdf",
+      "topic": "environmental",
+      "dimension": "environmental",
+      "documentId": "dfad1295a1b213d611587d330f6f2f7deb0068f4",
+      "chunks": 9
+    },
+    {
+      "file": "environmental/environmental__29916116.pdf",
+      "topic": "environmental",
+      "dimension": "environmental",
+      "documentId": "6a9c3572500cd6bca3348b3e8090947c9a50fbb8",
+      "chunks": 18
+    },
+    {
+      "file": "environmental/environmental__30238834.pdf",
+      "topic": "environmental",
+      "dimension": "environmental",
+      "documentId": "3104b6fc0911eb5ded4060d2ebeaa1770d2ea0db",
+      "chunks": 45
+    },
+    {
+      "file": "environmental/environmental__26067076.pdf",
+      "topic": "environmental",
+      "dimension": "environmental",
+      "documentId": "f3173e1b27c3347080fda753bc5efea2229b39e4",
+      "chunks": 8
+    },
+    {
+      "file": "environmental/environmental__25696446.pdf",
+      "topic": "environmental",
+      "dimension": "environmental",
+      "documentId": "d5cd625a991fcd511de6cf01bcf814a30579dbd4",
+      "chunks": 9
+    },
+    {
+      "file": "environmental/environmental__31845343.pdf",
+      "topic": "environmental",
+      "dimension": "environmental",
+      "documentId": "48cf932f37363eb077202d00c4c172543fccb701",
+      "chunks": 87
+    },
+    {
+      "file": "environmental/environmental__31207391.pdf",
+      "topic": "environmental",
+      "dimension": "environmental",
+      "documentId": "b415e9417fc2a54db0b3621739d095f935c309bd",
+      "chunks": 7
+    },
+    {
+      "file": "environmental/environmental__32843455.pdf",
+      "topic": "environmental",
+      "dimension": "environmental",
+      "documentId": "79fb177b76f442217bc4a2ed67dca4ed9a1a3c52",
+      "chunks": 19
+    },
+    {
+      "file": "environmental/environmental__32285596.pdf",
+      "topic": "environmental",
+      "dimension": "environmental",
+      "documentId": "8bb23fc94e6e84f540553c694d5955bfbd0114e9",
+      "chunks": 29
+    },
+    {
+      "file": "environmental/environmental__31634967.pdf",
+      "topic": "environmental",
+      "dimension": "environmental",
+      "documentId": "cf15b5cd04f87551515699a17efffea64225b01d",
+      "chunks": 25
+    },
+    {
+      "file": "urban_transport/urban_transport__dot-93174.pdf",
+      "topic": "urban_transport",
+      "dimension": "urban_transport",
+      "documentId": "9d9f9de0411df55868b6ef757e4d00cd105d91ea",
+      "chunks": 7
+    },
+    {
+      "file": "urban_transport/urban_transport__dot-93157.pdf",
+      "topic": "urban_transport",
+      "dimension": "urban_transport",
+      "documentId": "07d6327d44624d63154ef948c0f02e6210566cb6",
+      "chunks": 6
+    },
+    {
+      "file": "urban_transport/urban_transport__dot-93156.pdf",
+      "topic": "urban_transport",
+      "dimension": "urban_transport",
+      "documentId": "e330110aeca7f368be1a7b0935bc756a3b71c44f",
+      "chunks": 94
+    },
+    {
+      "file": "urban_transport/urban_transport__dot-93175.pdf",
+      "topic": "urban_transport",
+      "dimension": "urban_transport",
+      "documentId": "74c3d7d282a50655285e0dc07eec3870f357d3ca",
+      "chunks": 140
+    },
+    {
+      "file": "urban_transport/urban_transport__dot-93208.pdf",
+      "topic": "urban_transport",
+      "dimension": "urban_transport",
+      "documentId": "fabdc4e868ab94cddbc687bcca95990834681aaf",
+      "chunks": 218
+    },
+    {
+      "file": "urban_transport/urban_transport__dot-93152.pdf",
+      "topic": "urban_transport",
+      "dimension": "urban_transport",
+      "documentId": "e8328408f73a7353df8f0da22e2b75d63ab90a52",
+      "chunks": 4
+    },
+    {
+      "file": "urban_transport/urban_transport__dot-93209.pdf",
+      "topic": "urban_transport",
+      "dimension": "urban_transport",
+      "documentId": "b4e7763b97bf062a4e2e0edda89f9e806a1f945a",
+      "chunks": 370
+    },
+    {
+      "file": "urban_transport/urban_transport__dot-93191.pdf",
+      "topic": "urban_transport",
+      "dimension": "urban_transport",
+      "documentId": "c3b46ac01083822a29e1417cebd9d449cd51e513",
+      "chunks": 79
+    },
+    {
+      "file": "urban_transport/urban_transport__dot-93161.pdf",
+      "topic": "urban_transport",
+      "dimension": "urban_transport",
+      "documentId": "6dd6dc1b57ade1ae669911ff2caf385b54c59998",
+      "chunks": 66
+    },
+    {
+      "file": "urban_transport/urban_transport__dot-93192.pdf",
+      "topic": "urban_transport",
+      "dimension": "urban_transport",
+      "documentId": "55497877e0a5d0ecad6c650808beefe2463d8ad2",
+      "chunks": 270
+    },
+    {
+      "file": "urban_transport/urban_transport__dot-93058.pdf",
+      "topic": "urban_transport",
+      "dimension": "urban_transport",
+      "documentId": "a3ef648bccd637878323571f7da1a9f5abd01b26",
+      "chunks": 48
+    },
+    {
+      "file": "urban_transport/urban_transport__dot-93204.pdf",
+      "topic": "urban_transport",
+      "dimension": "urban_transport",
+      "documentId": "00dd718663a1932da563e71dab2977f276c881e5",
+      "chunks": 186
+    },
+    {
+      "file": "urban_transport/urban_transport__dot-92315.pdf",
+      "topic": "urban_transport",
+      "dimension": "urban_transport",
+      "documentId": "7f22849047b506e57d6c69beccb05b88f7cfd2ad",
+      "chunks": 18
+    },
+    {
+      "file": "urban_transport/urban_transport__dot-92316.pdf",
+      "topic": "urban_transport",
+      "dimension": "urban_transport",
+      "documentId": "6bdcce7cbd909b00c02b1771f39eeb4280f4ad16",
+      "chunks": 59
+    },
+    {
+      "file": "urban_transport/urban_transport__dot-92314.pdf",
+      "topic": "urban_transport",
+      "dimension": "urban_transport",
+      "documentId": "40985c3e26998c8a9060485e11294ac943b0319d",
+      "chunks": 5
+    },
+    {
+      "file": "urban_transport/urban_transport__dot-92312.pdf",
+      "topic": "urban_transport",
+      "dimension": "urban_transport",
+      "documentId": "ca9c65090c89d983f7da6cb382d337725361905b",
+      "chunks": 10
+    },
+    {
+      "file": "urban_transport/urban_transport__dot-92313.pdf",
+      "topic": "urban_transport",
+      "dimension": "urban_transport",
+      "documentId": "e97d8bcee84534a9152fa9a11c0d3497215b4694",
+      "chunks": 15
+    },
+    {
+      "file": "humanitarian_rights/humanitarian_rights__W3003640787.pdf",
+      "topic": "humanitarian_rights",
+      "dimension": "humanitarian_rights",
+      "documentId": "efc16bec98e4eb1d3404cbb1abd0657fa69d985d",
+      "chunks": 51
+    },
+    {
+      "file": "humanitarian_rights/humanitarian_rights__W2792542995.pdf",
+      "topic": "humanitarian_rights",
+      "dimension": "humanitarian_rights",
+      "documentId": "8dcf74250c9ffcb53047e67c69ea9db9401874bd",
+      "chunks": 52
+    },
+    {
+      "file": "humanitarian_rights/humanitarian_rights__W2624522361.pdf",
+      "topic": "humanitarian_rights",
+      "dimension": "humanitarian_rights",
+      "documentId": "bc6ff372b78fdc535152ca6c6603420816eee1ea",
+      "chunks": 60
+    },
+    {
+      "file": "humanitarian_rights/humanitarian_rights__W4220883946.pdf",
+      "topic": "humanitarian_rights",
+      "dimension": "humanitarian_rights",
+      "documentId": "cdf21424d4a6156556b1fed2f0d5610b218acad7",
+      "chunks": 139
+    },
+    {
+      "file": "humanitarian_rights/humanitarian_rights__W2107904961.pdf",
+      "topic": "humanitarian_rights",
+      "dimension": "humanitarian_rights",
+      "documentId": "c5354977c30a2ea4381e91605e1b714d074257ec",
+      "chunks": 110
+    },
+    {
+      "file": "humanitarian_rights/humanitarian_rights__W2125178332.pdf",
+      "topic": "humanitarian_rights",
+      "dimension": "humanitarian_rights",
+      "documentId": "d2b6f0979c435cbff6ebff9f886b436faa618932",
+      "chunks": 102
+    },
+    {
+      "file": "humanitarian_rights/humanitarian_rights__W2097415295.pdf",
+      "topic": "humanitarian_rights",
+      "dimension": "humanitarian_rights",
+      "documentId": "5d8f8c315245945448611b137ac755eecc75dca5",
+      "chunks": 76
+    },
+    {
+      "file": "humanitarian_rights/humanitarian_rights__W2914597400.pdf",
+      "topic": "humanitarian_rights",
+      "dimension": "humanitarian_rights",
+      "documentId": "bf78bdb7e385b08d9fa836d969839bfc4d352d57",
+      "chunks": 115
+    },
+    {
+      "file": "humanitarian_rights/humanitarian_rights__W80514588.pdf",
+      "topic": "humanitarian_rights",
+      "dimension": "humanitarian_rights",
+      "documentId": "32e5ed09c4d097df570faed5cba6a1d395a997fe",
+      "chunks": 107
+    },
+    {
+      "file": "humanitarian_rights/humanitarian_rights__W3038457898.pdf",
+      "topic": "humanitarian_rights",
+      "dimension": "humanitarian_rights",
+      "documentId": "339c59a59920acab9cddec8dde12088c87ee0206",
+      "chunks": 88
+    },
+    {
+      "file": "humanitarian_rights/humanitarian_rights__W2889961600.pdf",
+      "topic": "humanitarian_rights",
+      "dimension": "humanitarian_rights",
+      "documentId": "294d349e21624e7374cec836bc11c3f76793f58f",
+      "chunks": 62
+    },
+    {
+      "file": "education/education__ED495398.pdf",
+      "topic": "education",
+      "dimension": "education",
+      "documentId": "24eb3ac1e3938a50db12f90f03386fdf576bacbe",
+      "chunks": 270
+    },
+    {
+      "file": "education/education__ED482942.pdf",
+      "topic": "education",
+      "dimension": "education",
+      "documentId": "0605a4897ee6c4cbe55834e86463b959bebeea6c",
+      "chunks": 29
+    },
+    {
+      "file": "education/education__ED489141.pdf",
+      "topic": "education",
+      "dimension": "education",
+      "documentId": "10bd544ca006a3ce6909b30127bb03ae185af422",
+      "chunks": 143
+    },
+    {
+      "file": "education/education__ED474624.pdf",
+      "topic": "education",
+      "dimension": "education",
+      "documentId": "b942454a7b671b301e8fc77f0e7276cf44ba33e8",
+      "chunks": 27
+    },
+    {
+      "file": "education/education__ED228693.pdf",
+      "topic": "education",
+      "dimension": "education",
+      "documentId": "34b560f2d6cb9a120bd047202628e80da0836e00",
+      "chunks": 29
+    },
+    {
+      "file": "education/education__ED678271.pdf",
+      "topic": "education",
+      "dimension": "education",
+      "documentId": "768fe3a5bd56c8f3ed6852234e9edcd08522ed29",
+      "chunks": 36
+    },
+    {
+      "file": "education/education__ED053378.pdf",
+      "topic": "education",
+      "dimension": "education",
+      "documentId": "7a9bf32934bc6a6acd5033cf16b10d1542f3b5b6",
+      "chunks": 106
+    },
+    {
+      "file": "education/education__ED066026.pdf",
+      "topic": "education",
+      "dimension": "education",
+      "documentId": "31b000f124034b84fed35d6bfd8224ca28aac843",
+      "chunks": 62
+    },
+    {
+      "file": "education/education__ED166544.pdf",
+      "topic": "education",
+      "dimension": "education",
+      "documentId": "798bd8e48fbeec16a9f295317f6e71f3c7a0670e",
+      "chunks": 47
+    },
+    {
+      "file": "education/education__ED485171.pdf",
+      "topic": "education",
+      "dimension": "education",
+      "documentId": "169b6f11fcafdbaf43c22e0d0eedcc826045dff6",
+      "chunks": 108
+    },
+    {
+      "file": "education/education__ED489175.pdf",
+      "topic": "education",
+      "dimension": "education",
+      "documentId": "01d626f0b506f3504f3fa35e77d9da56f49e4dd8",
+      "chunks": 45
+    },
+    {
+      "file": "education/education__ED568097.pdf",
+      "topic": "education",
+      "dimension": "education",
+      "documentId": "d09aa9efcdd839e56e93642df6e8233d2494dd2b",
+      "chunks": 20
+    },
+    {
+      "file": "education/education__ED485430.pdf",
+      "topic": "education",
+      "dimension": "education",
+      "documentId": "6074d0ed16c99ae458c6540fe1cb4be9e19df1f0",
+      "chunks": 252
+    },
+    {
+      "file": "education/education__ED485740.pdf",
+      "topic": "education",
+      "dimension": "education",
+      "documentId": "2f2e9c38feb4277d8e1747d44454e290c29f1038",
+      "chunks": 168
+    },
+    {
+      "file": "education/education__ED611649.pdf",
+      "topic": "education",
+      "dimension": "education",
+      "documentId": "3e9556e308de9834a14d55d3e2c8cbdbc58500e2",
+      "chunks": 15
+    },
+    {
+      "file": "education/education__ED607679.pdf",
+      "topic": "education",
+      "dimension": "education",
+      "documentId": "2b236cd30bf338066b795dc72e2716216846a874",
+      "chunks": 3
+    },
+    {
+      "file": "education/education__ED482959.pdf",
+      "topic": "education",
+      "dimension": "education",
+      "documentId": "1715b676f549cd2343e0bba928b42f1622deb3af",
+      "chunks": 281
+    },
+    {
+      "file": "humanitarian_rights/humanitarian_rights__W2116395961.pdf",
+      "topic": "humanitarian_rights",
+      "dimension": "humanitarian_rights",
+      "documentId": "33510fa11c6802be9f5f4b488d70b5995463e940",
+      "chunks": 79
+    }
+  ],
+  "totalChunks": 7861,
+  "failures": [
+    {
+      "file": "economic/economic__31584085.pdf",
+      "reason": "Post \"http://127.0.0.1:59682/tokenize\": dial tcp 127.0.0.1:59682: bind: An operation on a socket could not be performed because the system lacked sufficient buffer space or because a queue was full."
+    }
+  ]
+}

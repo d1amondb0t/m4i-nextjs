@@ -39,7 +39,7 @@ export class RagPipeline {
     this.store = dependencies.store ?? concreteStore;
     this.retriever =
       dependencies.retriever ??
-      new Retriever(concreteStore, concreteEmbedder, config.retrieval);
+      new Retriever(concreteStore, concreteEmbedder, config.retrieval, undefined, ollamaClient);
     this.generator =
       dependencies.generator ??
       new OllamaGenerator(

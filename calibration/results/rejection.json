@@ -1,0 +1,49 @@
+{
+  "generatedAt": "2026-09-08T16:21:18.969Z",
+  "inScopeQuestions": 84,
+  "outOfScopeQuestions": 24,
+  "inScopeTopScoreMedian": 0.040934169612582096,
+  "outOfScopeTopScoreMedian": 0.00013450861550989854,
+  "fits": [
+    {
+      "maximumFalseRejectRate": 0.01,
+      "threshold": 0.00013227915222750397,
+      "falseRejectRate": 0,
+      "outOfScopeRejectionRate": 0.5,
+      "inScopeRejected": 0,
+      "outOfScopeRejected": 12
+    },
+    {
+      "maximumFalseRejectRate": 0.02,
+      "threshold": 0.00017323926937994156,
+      "falseRejectRate": 0.011904761904761904,
+      "outOfScopeRejectionRate": 0.5833333333333334,
+      "inScopeRejected": 1,
+      "outOfScopeRejected": 14
+    },
+    {
+      "maximumFalseRejectRate": 0.05,
+      "threshold": 0.000407202442728089,
+      "falseRejectRate": 0.047619047619047616,
+      "outOfScopeRejectionRate": 0.7916666666666666,
+      "inScopeRejected": 4,
+      "outOfScopeRejected": 19
+    },
+    {
+      "maximumFalseRejectRate": 0.1,
+      "threshold": 0.0011062198044754566,
+      "falseRejectRate": 0.09523809523809523,
+      "outOfScopeRejectionRate": 0.875,
+      "inScopeRejected": 8,
+      "outOfScopeRejected": 21
+    },
+    {
+      "maximumFalseRejectRate": 0.2,
+      "threshold": 0.003543868776604858,
+      "falseRejectRate": 0.19047619047619047,
+      "outOfScopeRejectionRate": 0.875,
+      "inScopeRejected": 16,
+      "outOfScopeRejected": 21
+    }
+  ]
+}

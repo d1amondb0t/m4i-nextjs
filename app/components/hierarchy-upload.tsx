@@ -35,6 +35,10 @@ const EXAMPLE_ONTOLOGY = JSON.stringify(
               "legislative or regulatory influence",
             ],
             exclude: ["general public awareness without a policy objective"],
+            questions: [
+              "What policy or legislative change did this work seek to bring about, and was it adopted?",
+              "Which government bodies or decision-makers were engaged, and what did they commit to?",
+            ],
           },
         ],
       },
@@ -202,6 +206,9 @@ export function HierarchyUpload() {
           </label>
           <p className="mt-1 text-sm text-zinc-500">
             Define dimensions and leaf categories. IDs must be unique across the ontology.
+            Optional per-category <code>questions</code> state what the category is meant to
+            answer and are added to its retrieval query. The full seven-dimension impact
+            ontology is in <code>calibration/ontology.json</code>.
           </p>
           <textarea
             id="ontology"

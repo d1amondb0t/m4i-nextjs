@@ -39,8 +39,8 @@ export type DocumentChunk =  DocumentIdentity & {
 };
 
 export const DEFAULT_CHUNK_CONFIG: ChunkConfiguration = {
-  overlapWords: 50,
-  wordSize: 200
+  overlapWords: 80,
+  wordSize: 400
 } as const;
 
 

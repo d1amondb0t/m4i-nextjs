@@ -9,6 +9,7 @@ export type FrameworkCategory = {
   definition: string;
   include?: string[];
   exclude?: string[];
+  questions?: string[];
 };
 
 export type FrameworkDimension = {
@@ -16,6 +17,13 @@ export type FrameworkDimension = {
   name: string;
   definition: string;
   categories: FrameworkCategory[];
+};
+
+export type CategoryQuestion = {
+  questionId: string;
+  dimensionId: string;
+  categoryId: string;
+  question: string;
 };
 
 export type FrameworkOntology = {

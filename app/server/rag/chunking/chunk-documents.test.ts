@@ -394,10 +394,10 @@ describe("chunk configuration", () => {
     ).rejects.toThrow("overlapWords must be strictly smaller than wordSize");
   });
 
-  it("V13 applies the default 200-word size and 50-word overlap", async () => {
-    const chunks = await chunkDocument(textFile(words(201).join(" ")));
-    expect(chunks.map((chunk) => chunk.metadata.wordStart)).toEqual([0, 150]);
-    expect(chunks.map((chunk) => chunk.metadata.wordCount)).toEqual([200, 51]);
+  it("V13 applies the default 400-word size and 80-word overlap", async () => {
+    const chunks = await chunkDocument(textFile(words(401).join(" ")));
+    expect(chunks.map((chunk) => chunk.metadata.wordStart)).toEqual([0, 320]);
+    expect(chunks.map((chunk) => chunk.metadata.wordCount)).toEqual([400, 81]);
   });
 });
 

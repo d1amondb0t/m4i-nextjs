@@ -1,0 +1,1818 @@
+{
+  "generatedAt": "2026-09-08T16:21:18.708Z",
+  "corpus": {
+    "documents": 109,
+    "chunks": 7861,
+    "failures": 1
+  },
+  "questions": 84,
+  "candidatesPerQuestion": 20,
+  "targets": {
+    "maximumFalseAcceptRate": 0.4,
+    "maximumFalseRejectRate": 0.05
+  },
+  "fitted": {
+    "acceptThreshold": 0.1672767128527276,
+    "rejectThreshold": 0.000018087077066891404,
+    "minimumK": 3,
+    "maximumK": 12,
+    "relativeDropoff": 0.01
+  },
+  "global": {
+    "accept": {
+      "threshold": 0.1672767128527276,
+      "observedRate": 0.3968253968253968,
+      "attainable": true
+    },
+    "reject": {
+      "threshold": 0.000018087077066891404,
+      "observedRate": 0.0486322188449848,
+      "attainable": true
+    },
+    "observations": 1680,
+    "relevantObservations": 658,
+    "bands": {
+      "accept": 0.0375,
+      "ambiguous": 0.8690476190476191,
+      "reject": 0.09345238095238095
+    }
+  },
+  "perDimension": [
+    {
+      "dimensionId": "political",
+      "questions": 12,
+      "accept": {
+        "threshold": 0.003463499138940929,
+        "observedRate": 0.391304347826087,
+        "attainable": true
+      },
+      "reject": {
+        "threshold": 0.000016120275612313023,
+        "observedRate": 0.0425531914893617,
+        "attainable": true
+      },
+      "observations": 240,
+      "relevantObservations": 94,
+      "bands": {
+        "accept": 0.09583333333333334,
+        "ambiguous": 0.8125,
+        "reject": 0.09166666666666666
+      }
+    },
+    {
+      "dimensionId": "economic",
+      "questions": 12,
+      "accept": {
+        "threshold": 0.002174107412670992,
+        "observedRate": 0.39436619718309857,
+        "attainable": true
+      },
+      "reject": {
+        "threshold": 0.000022802866711156342,
+        "observedRate": 0.04807692307692308,
+        "attainable": true
+      },
+      "observations": 240,
+      "relevantObservations": 104,
+      "bands": {
+        "accept": 0.29583333333333334,
+        "ambiguous": 0.5583333333333333,
+        "reject": 0.14583333333333334
+      }
+    },
+    {
+      "dimensionId": "social",
+      "questions": 12,
+      "accept": {
+        "threshold": 0.8926596299494649,
+        "observedRate": 0,
+        "attainable": true
+      },
+      "reject": {
+        "threshold": 0.000024063222313682186,
+        "observedRate": 0.04854368932038835,
+        "attainable": true
+      },
+      "observations": 240,
+      "relevantObservations": 103,
+      "bands": {
+        "accept": 0.004166666666666667,
+        "ambiguous": 0.9083333333333333,
+        "reject": 0.0875
+      }
+    },
+    {
+      "dimensionId": "environmental",
+      "questions": 12,
+      "accept": {
+        "threshold": 0.0005497641747309746,
+        "observedRate": 0.3977272727272727,
+        "attainable": true
+      },
+      "reject": {
+        "threshold": 0.000018439462131296847,
+        "observedRate": 0.041666666666666664,
+        "attainable": true
+      },
+      "observations": 240,
+      "relevantObservations": 96,
+      "bands": {
+        "accept": 0.36666666666666664,
+        "ambiguous": 0.5625,
+        "reject": 0.07083333333333333
+      }
+    },
+    {
+      "dimensionId": "urban_transport",
+      "questions": 12,
+      "accept": {
+        "threshold": 0.9082136677774105,
+        "observedRate": 1,
+        "attainable": false
+      },
+      "reject": {
+        "threshold": 0.000011970907489955087,
+        "observedRate": 0.043478260869565216,
+        "attainable": true
+      },
+      "observations": 240,
+      "relevantObservations": 69,
+      "bands": {
+        "accept": 0,
+        "ambiguous": 0.95,
+        "reject": 0.05
+      }
+    },
+    {
+      "dimensionId": "humanitarian_rights",
+      "questions": 12,
+      "accept": {
+        "threshold": 0.09108541555931206,
+        "observedRate": 0.4,
+        "attainable": true
+      },
+      "reject": {
+        "threshold": 0.00002358280298868644,
+        "observedRate": 0.043010752688172046,
+        "attainable": true
+      },
+      "observations": 240,
+      "relevantObservations": 93,
+      "bands": {
+        "accept": 0.041666666666666664,
+        "ambiguous": 0.8916666666666667,
+        "reject": 0.06666666666666667
+      }
+    },
+    {
+      "dimensionId": "education",
+      "questions": 12,
+      "accept": {
+        "threshold": 0.9902894557278636,
+        "observedRate": 0,
+        "attainable": true
+      },
+      "reject": {
+        "threshold": 0.000024297390514306474,
+        "observedRate": 0.04040404040404041,
+        "attainable": true
+      },
+      "observations": 240,
+      "relevantObservations": 99,
+      "bands": {
+        "accept": 0.004166666666666667,
+        "ambiguous": 0.8333333333333334,
+        "reject": 0.1625
+      }
+    }
+  ],
+  "decisions": {
+    "accept": 25,
+    "ambiguous": 59,
+    "reject": 0
+  },
+  "adaptiveK": {
+    "mean": 7.440476190476191,
+    "min": 3,
+    "max": 12,
+    "distribution": {
+      "3": 22,
+      "4": 6,
+      "5": 5,
+      "6": 8,
+      "7": 4,
+      "8": 4,
+      "9": 3,
+      "10": 4,
+      "11": 1,
+      "12": 27
+    }
+  },
+  "comparison": {
+    "baselineK": 5,
+    "adaptivePrecision": 0.4363146773861059,
+    "baselinePrecision": 0.42619047619047606,
+    "adaptiveRelevantPerQuestion": 3.0952380952380953,
+    "baselineRelevantPerQuestion": 2.130952380952381,
+    "adaptiveChunksPerQuestion": 7.440476190476191,
+    "baselineChunksPerQuestion": 5
+  },
+  "perQuestion": [
+    {
+      "questionId": "advocacy_policy_influence#1",
+      "dimensionId": "political",
+      "categoryId": "advocacy_policy_influence",
+      "decision": "ambiguous",
+      "k": 12,
+      "topScore": 0.0025486664376487187,
+      "totalRelevant": 10,
+      "adaptive": {
+        "selected": 12,
+        "relevant": 6,
+        "precision": 0.5
+      },
+      "baseline": {
+        "selected": 5,
+        "relevant": 2,
+        "precision": 0.4
+      }
+    },
+    {
+      "questionId": "advocacy_policy_influence#2",
+      "dimensionId": "political",
+      "categoryId": "advocacy_policy_influence",
+      "decision": "ambiguous",
+      "k": 12,
+      "topScore": 0.0032918245688975016,
+      "totalRelevant": 7,
+      "adaptive": {
+        "selected": 12,
+        "relevant": 6,
+        "precision": 0.5
+      },
+      "baseline": {
+        "selected": 5,
+        "relevant": 2,
+        "precision": 0.4
+      }
+    },
+    {
+      "questionId": "advocacy_policy_influence#3",
+      "dimensionId": "political",
+      "categoryId": "advocacy_policy_influence",
+      "decision": "ambiguous",
+      "k": 12,
+      "topScore": 0.007581322922323852,
+      "totalRelevant": 7,
+      "adaptive": {
+        "selected": 12,
+        "relevant": 4,
+        "precision": 0.3333333333333333
+      },
+      "baseline": {
+        "selected": 5,
+        "relevant": 2,
+        "precision": 0.4
+      }
+    },
+    {
+      "questionId": "advocacy_policy_influence#4",
+      "dimensionId": "political",
+      "categoryId": "advocacy_policy_influence",
+      "decision": "ambiguous",
+      "k": 8,
+      "topScore": 0.10343196734002234,
+      "totalRelevant": 8,
+      "adaptive": {
+        "selected": 8,
+        "relevant": 3,
+        "precision": 0.375
+      },
+      "baseline": {
+        "selected": 5,
+        "relevant": 3,
+        "precision": 0.6
+      }
+    },
+    {
+      "questionId": "institutional_capacity#1",
+      "dimensionId": "political",
+      "categoryId": "institutional_capacity",
+      "decision": "ambiguous",
+      "k": 12,
+      "topScore": 0.003847681618307072,
+      "totalRelevant": 6,
+      "adaptive": {
+        "selected": 12,
+        "relevant": 3,
+        "precision": 0.25
+      },
+      "baseline": {
+        "selected": 5,
+        "relevant": 2,
+        "precision": 0.4
+      }
+    },
+    {
+      "questionId": "institutional_capacity#2",
+      "dimensionId": "political",
+      "categoryId": "institutional_capacity",
+      "decision": "accept",
+      "k": 3,
+      "topScore": 0.7588636506620975,
+      "totalRelevant": 16,
+      "adaptive": {
+        "selected": 3,
+        "relevant": 2,
+        "precision": 0.6666666666666666
+      },
+      "baseline": {
+        "selected": 5,
+        "relevant": 4,
+        "precision": 0.8
+      }
+    },
+    {
+      "questionId": "institutional_capacity#3",
+      "dimensionId": "political",
+      "categoryId": "institutional_capacity",
+      "decision": "ambiguous",
+      "k": 12,
+      "topScore": 0.004318758240311748,
+      "totalRelevant": 10,
+      "adaptive": {
+        "selected": 12,
+        "relevant": 6,
+        "precision": 0.5
+      },
+      "baseline": {
+        "selected": 5,
+        "relevant": 3,
+        "precision": 0.6
+      }
+    },
+    {
+      "questionId": "institutional_capacity#4",
+      "dimensionId": "political",
+      "categoryId": "institutional_capacity",
+      "decision": "ambiguous",
+      "k": 6,
+      "topScore": 0.014311070285929069,
+      "totalRelevant": 6,
+      "adaptive": {
+        "selected": 6,
+        "relevant": 2,
+        "precision": 0.3333333333333333
+      },
+      "baseline": {
+        "selected": 5,
+        "relevant": 1,
+        "precision": 0.2
+      }
+    },
+    {
+      "questionId": "participation_representation#1",
+      "dimensionId": "political",
+      "categoryId": "participation_representation",
+      "decision": "ambiguous",
+      "k": 10,
+      "topScore": 0.004446703282297853,
+      "totalRelevant": 3,
+      "adaptive": {
+        "selected": 10,
+        "relevant": 1,
+        "precision": 0.1
+      },
+      "baseline": {
+        "selected": 5,
+        "relevant": 1,
+        "precision": 0.2
+      }
+    },
+    {
+      "questionId": "participation_representation#2",
+      "dimensionId": "political",
+      "categoryId": "participation_representation",
+      "decision": "ambiguous",
+      "k": 9,
+      "topScore": 0.00013227915222750397,
+      "totalRelevant": 3,
+      "adaptive": {
+        "selected": 9,
+        "relevant": 1,
+        "precision": 0.1111111111111111
+      },
+      "baseline": {
+        "selected": 5,
+        "relevant": 1,
+        "precision": 0.2
+      }
+    },
+    {
+      "questionId": "participation_representation#3",
+      "dimensionId": "political",
+      "categoryId": "participation_representation",
+      "decision": "ambiguous",
+      "k": 10,
+      "topScore": 0.040934169612582096,
+      "totalRelevant": 13,
+      "adaptive": {
+        "selected": 10,
+        "relevant": 6,
+        "precision": 0.6
+      },
+      "baseline": {
+        "selected": 5,
+        "relevant": 3,
+        "precision": 0.6
+      }
+    },
+    {
+      "questionId": "participation_representation#4",
+      "dimensionId": "political",
+      "categoryId": "participation_representation",
+      "decision": "ambiguous",
+      "k": 11,
+      "topScore": 0.0008933809168035462,
+      "totalRelevant": 5,
+      "adaptive": {
+        "selected": 11,
+        "relevant": 1,
+        "precision": 0.09090909090909091
+      },
+      "baseline": {
+        "selected": 5,
+        "relevant": 0,
+        "precision": 0
+      }
+    },
+    {
+      "questionId": "livelihoods_employment#1",
+      "dimensionId": "economic",
+      "categoryId": "livelihoods_employment",
+      "decision": "ambiguous",
+      "k": 12,
+      "topScore": 0.0007891117938907598,
+      "totalRelevant": 5,
+      "adaptive": {
+        "selected": 12,
+        "relevant": 4,
+        "precision": 0.3333333333333333
+      },
+      "baseline": {
+        "selected": 5,
+        "relevant": 1,
+        "precision": 0.2
+      }
+    },
+    {
+      "questionId": "livelihoods_employment#2",
+      "dimensionId": "economic",
+      "categoryId": "livelihoods_employment",
+      "decision": "ambiguous",
+      "k": 10,
+      "topScore": 0.1490432167841293,
+      "totalRelevant": 8,
+      "adaptive": {
+        "selected": 10,
+        "relevant": 4,
+        "precision": 0.4
+      },
+      "baseline": {
+        "selected": 5,
+        "relevant": 1,
+        "precision": 0.2
+      }
+    },
+    {
+      "questionId": "livelihoods_employment#3",
+      "dimensionId": "economic",
+      "categoryId": "livelihoods_employment",
+      "decision": "ambiguous",
+      "k": 12,
+      "topScore": 0.11047663634029886,
+      "totalRelevant": 12,
+      "adaptive": {
+        "selected": 12,
+        "relevant": 8,
+        "precision": 0.6666666666666666
+      },
+      "baseline": {
+        "selected": 5,
+        "relevant": 4,
+        "precision": 0.8
+      }
+    },
+    {
+      "questionId": "livelihoods_employment#4",
+      "dimensionId": "economic",
+      "categoryId": "livelihoods_employment",
+      "decision": "ambiguous",
+      "k": 12,
+      "topScore": 0.006026965871187098,
+      "totalRelevant": 7,
+      "adaptive": {
+        "selected": 12,
+        "relevant": 4,
+        "precision": 0.3333333333333333
+      },
+      "baseline": {
+        "selected": 5,
+        "relevant": 3,
+        "precision": 0.6
+      }
+    },
+    {
+      "questionId": "macro_fiscal#1",
+      "dimensionId": "economic",
+      "categoryId": "macro_fiscal",
+      "decision": "accept",
+      "k": 3,
+      "topScore": 0.17875601807755853,
+      "totalRelevant": 16,
+      "adaptive": {
+        "selected": 3,
+        "relevant": 2,
+        "precision": 0.6666666666666666
+      },
+      "baseline": {
+        "selected": 5,
+        "relevant": 4,
+        "precision": 0.8
+      }
+    },
+    {
+      "questionId": "macro_fiscal#2",
+      "dimensionId": "economic",
+      "categoryId": "macro_fiscal",
+      "decision": "accept",
+      "k": 6,
+      "topScore": 0.9441836819785425,
+      "totalRelevant": 10,
+      "adaptive": {
+        "selected": 6,
+        "relevant": 4,
+        "precision": 0.6666666666666666
+      },
+      "baseline": {
+        "selected": 5,
+        "relevant": 4,
+        "precision": 0.8
+      }
+    },
+    {
+      "questionId": "macro_fiscal#3",
+      "dimensionId": "economic",
+      "categoryId": "macro_fiscal",
+      "decision": "ambiguous",
+      "k": 12,
+      "topScore": 0.05407439939324759,
+      "totalRelevant": 13,
+      "adaptive": {
+        "selected": 12,
+        "relevant": 8,
+        "precision": 0.6666666666666666
+      },
+      "baseline": {
+        "selected": 5,
+        "relevant": 3,
+        "precision": 0.6
+      }
+    },
+    {
+      "questionId": "macro_fiscal#4",
+      "dimensionId": "economic",
+      "categoryId": "macro_fiscal",
+      "decision": "ambiguous",
+      "k": 12,
+      "topScore": 0.003543868776604858,
+      "totalRelevant": 9,
+      "adaptive": {
+        "selected": 12,
+        "relevant": 6,
+        "precision": 0.5
+      },
+      "baseline": {
+        "selected": 5,
+        "relevant": 3,
+        "precision": 0.6
+      }
+    },
+    {
+      "questionId": "market_access_finance#1",
+      "dimensionId": "economic",
+      "categoryId": "market_access_finance",
+      "decision": "ambiguous",
+      "k": 12,
+      "topScore": 0.00031011045286140424,
+      "totalRelevant": 6,
+      "adaptive": {
+        "selected": 12,
+        "relevant": 4,
+        "precision": 0.3333333333333333
+      },
+      "baseline": {
+        "selected": 5,
+        "relevant": 1,
+        "precision": 0.2
+      }
+    },
+    {
+      "questionId": "market_access_finance#2",
+      "dimensionId": "economic",
+      "categoryId": "market_access_finance",
+      "decision": "ambiguous",
+      "k": 12,
+      "topScore": 0.0014403899778804646,
+      "totalRelevant": 6,
+      "adaptive": {
+        "selected": 12,
+        "relevant": 4,
+        "precision": 0.3333333333333333
+      },
+      "baseline": {
+        "selected": 5,
+        "relevant": 1,
+        "precision": 0.2
+      }
+    },
+    {
+      "questionId": "market_access_finance#3",
+      "dimensionId": "economic",
+      "categoryId": "market_access_finance",
+      "decision": "ambiguous",
+      "k": 8,
+      "topScore": 0.015430013163435933,
+      "totalRelevant": 5,
+      "adaptive": {
+        "selected": 8,
+        "relevant": 3,
+        "precision": 0.375
+      },
+      "baseline": {
+        "selected": 5,
+        "relevant": 1,
+        "precision": 0.2
+      }
+    },
+    {
+      "questionId": "market_access_finance#4",
+      "dimensionId": "economic",
+      "categoryId": "market_access_finance",
+      "decision": "ambiguous",
+      "k": 4,
+      "topScore": 0.13881717300145144,
+      "totalRelevant": 7,
+      "adaptive": {
+        "selected": 4,
+        "relevant": 1,
+        "precision": 0.25
+      },
+      "baseline": {
+        "selected": 5,
+        "relevant": 1,
+        "precision": 0.2
+      }
+    },
+    {
+      "questionId": "health_wellbeing#1",
+      "dimensionId": "social",
+      "categoryId": "health_wellbeing",
+      "decision": "ambiguous",
+      "k": 6,
+      "topScore": 0.08968614211680344,
+      "totalRelevant": 8,
+      "adaptive": {
+        "selected": 6,
+        "relevant": 3,
+        "precision": 0.5
+      },
+      "baseline": {
+        "selected": 5,
+        "relevant": 2,
+        "precision": 0.4
+      }
+    },
+    {
+      "questionId": "health_wellbeing#2",
+      "dimensionId": "social",
+      "categoryId": "health_wellbeing",
+      "decision": "ambiguous",
+      "k": 12,
+      "topScore": 0.06997202789902227,
+      "totalRelevant": 10,
+      "adaptive": {
+        "selected": 12,
+        "relevant": 6,
+        "precision": 0.5
+      },
+      "baseline": {
+        "selected": 5,
+        "relevant": 2,
+        "precision": 0.4
+      }
+    },
+    {
+      "questionId": "health_wellbeing#3",
+      "dimensionId": "social",
+      "categoryId": "health_wellbeing",
+      "decision": "ambiguous",
+      "k": 7,
+      "topScore": 0.024055506279851775,
+      "totalRelevant": 3,
+      "adaptive": {
+        "selected": 7,
+        "relevant": 1,
+        "precision": 0.14285714285714285
+      },
+      "baseline": {
+        "selected": 5,
+        "relevant": 1,
+        "precision": 0.2
+      }
+    },
+    {
+      "questionId": "health_wellbeing#4",
+      "dimensionId": "social",
+      "categoryId": "health_wellbeing",
+      "decision": "accept",
+      "k": 3,
+      "topScore": 0.18127828045410319,
+      "totalRelevant": 8,
+      "adaptive": {
+        "selected": 3,
+        "relevant": 2,
+        "precision": 0.6666666666666666
+      },
+      "baseline": {
+        "selected": 5,
+        "relevant": 3,
+        "precision": 0.6
+      }
+    },
+    {
+      "questionId": "equity_inclusion#1",
+      "dimensionId": "social",
+      "categoryId": "equity_inclusion",
+      "decision": "accept",
+      "k": 3,
+      "topScore": 0.21739049113791023,
+      "totalRelevant": 13,
+      "adaptive": {
+        "selected": 3,
+        "relevant": 2,
+        "precision": 0.6666666666666666
+      },
+      "baseline": {
+        "selected": 5,
+        "relevant": 4,
+        "precision": 0.8
+      }
+    },
+    {
+      "questionId": "equity_inclusion#2",
+      "dimensionId": "social",
+      "categoryId": "equity_inclusion",
+      "decision": "ambiguous",
+      "k": 4,
+      "topScore": 0.11986062233796631,
+      "totalRelevant": 7,
+      "adaptive": {
+        "selected": 4,
+        "relevant": 2,
+        "precision": 0.5
+      },
+      "baseline": {
+        "selected": 5,
+        "relevant": 2,
+        "precision": 0.4
+      }
+    },
+    {
+      "questionId": "equity_inclusion#3",
+      "dimensionId": "social",
+      "categoryId": "equity_inclusion",
+      "decision": "ambiguous",
+      "k": 4,
+      "topScore": 0.08088977766652372,
+      "totalRelevant": 9,
+      "adaptive": {
+        "selected": 4,
+        "relevant": 1,
+        "precision": 0.25
+      },
+      "baseline": {
+        "selected": 5,
+        "relevant": 1,
+        "precision": 0.2
+      }
+    },
+    {
+      "questionId": "equity_inclusion#4",
+      "dimensionId": "social",
+      "categoryId": "equity_inclusion",
+      "decision": "ambiguous",
+      "k": 12,
+      "topScore": 0.025090219871937047,
+      "totalRelevant": 7,
+      "adaptive": {
+        "selected": 12,
+        "relevant": 4,
+        "precision": 0.3333333333333333
+      },
+      "baseline": {
+        "selected": 5,
+        "relevant": 2,
+        "precision": 0.4
+      }
+    },
+    {
+      "questionId": "basic_services#1",
+      "dimensionId": "social",
+      "categoryId": "basic_services",
+      "decision": "accept",
+      "k": 8,
+      "topScore": 0.8926596299494649,
+      "totalRelevant": 5,
+      "adaptive": {
+        "selected": 8,
+        "relevant": 2,
+        "precision": 0.25
+      },
+      "baseline": {
+        "selected": 5,
+        "relevant": 1,
+        "precision": 0.2
+      }
+    },
+    {
+      "questionId": "basic_services#2",
+      "dimensionId": "social",
+      "categoryId": "basic_services",
+      "decision": "ambiguous",
+      "k": 6,
+      "topScore": 0.048742459775019426,
+      "totalRelevant": 11,
+      "adaptive": {
+        "selected": 6,
+        "relevant": 4,
+        "precision": 0.6666666666666666
+      },
+      "baseline": {
+        "selected": 5,
+        "relevant": 3,
+        "precision": 0.6
+      }
+    },
+    {
+      "questionId": "basic_services#3",
+      "dimensionId": "social",
+      "categoryId": "basic_services",
+      "decision": "ambiguous",
+      "k": 7,
+      "topScore": 0.05559617651531729,
+      "totalRelevant": 12,
+      "adaptive": {
+        "selected": 7,
+        "relevant": 5,
+        "precision": 0.7142857142857143
+      },
+      "baseline": {
+        "selected": 5,
+        "relevant": 3,
+        "precision": 0.6
+      }
+    },
+    {
+      "questionId": "basic_services#4",
+      "dimensionId": "social",
+      "categoryId": "basic_services",
+      "decision": "ambiguous",
+      "k": 12,
+      "topScore": 0.01589455796235084,
+      "totalRelevant": 10,
+      "adaptive": {
+        "selected": 12,
+        "relevant": 8,
+        "precision": 0.6666666666666666
+      },
+      "baseline": {
+        "selected": 5,
+        "relevant": 4,
+        "precision": 0.8
+      }
+    },
+    {
+      "questionId": "emissions_climate#1",
+      "dimensionId": "environmental",
+      "categoryId": "emissions_climate",
+      "decision": "ambiguous",
+      "k": 7,
+      "topScore": 0.005367517724287404,
+      "totalRelevant": 5,
+      "adaptive": {
+        "selected": 7,
+        "relevant": 5,
+        "precision": 0.7142857142857143
+      },
+      "baseline": {
+        "selected": 5,
+        "relevant": 3,
+        "precision": 0.6
+      }
+    },
+    {
+      "questionId": "emissions_climate#2",
+      "dimensionId": "environmental",
+      "categoryId": "emissions_climate",
+      "decision": "accept",
+      "k": 5,
+      "topScore": 0.458280276159919,
+      "totalRelevant": 12,
+      "adaptive": {
+        "selected": 5,
+        "relevant": 4,
+        "precision": 0.8
+      },
+      "baseline": {
+        "selected": 5,
+        "relevant": 4,
+        "precision": 0.8
+      }
+    },
+    {
+      "questionId": "emissions_climate#3",
+      "dimensionId": "environmental",
+      "categoryId": "emissions_climate",
+      "decision": "ambiguous",
+      "k": 12,
+      "topScore": 0.00017323926937994156,
+      "totalRelevant": 5,
+      "adaptive": {
+        "selected": 12,
+        "relevant": 4,
+        "precision": 0.3333333333333333
+      },
+      "baseline": {
+        "selected": 5,
+        "relevant": 1,
+        "precision": 0.2
+      }
+    },
+    {
+      "questionId": "emissions_climate#4",
+      "dimensionId": "environmental",
+      "categoryId": "emissions_climate",
+      "decision": "accept",
+      "k": 3,
+      "topScore": 0.237234073133164,
+      "totalRelevant": 13,
+      "adaptive": {
+        "selected": 3,
+        "relevant": 2,
+        "precision": 0.6666666666666666
+      },
+      "baseline": {
+        "selected": 5,
+        "relevant": 3,
+        "precision": 0.6
+      }
+    },
+    {
+      "questionId": "resilience_adaptation#1",
+      "dimensionId": "environmental",
+      "categoryId": "resilience_adaptation",
+      "decision": "accept",
+      "k": 3,
+      "topScore": 0.639019594707221,
+      "totalRelevant": 8,
+      "adaptive": {
+        "selected": 3,
+        "relevant": 2,
+        "precision": 0.6666666666666666
+      },
+      "baseline": {
+        "selected": 5,
+        "relevant": 3,
+        "precision": 0.6
+      }
+    },
+    {
+      "questionId": "resilience_adaptation#2",
+      "dimensionId": "environmental",
+      "categoryId": "resilience_adaptation",
+      "decision": "accept",
+      "k": 4,
+      "topScore": 0.9438318825091196,
+      "totalRelevant": 9,
+      "adaptive": {
+        "selected": 4,
+        "relevant": 3,
+        "precision": 0.75
+      },
+      "baseline": {
+        "selected": 5,
+        "relevant": 4,
+        "precision": 0.8
+      }
+    },
+    {
+      "questionId": "resilience_adaptation#3",
+      "dimensionId": "environmental",
+      "categoryId": "resilience_adaptation",
+      "decision": "ambiguous",
+      "k": 12,
+      "topScore": 0.007948782213699958,
+      "totalRelevant": 6,
+      "adaptive": {
+        "selected": 12,
+        "relevant": 4,
+        "precision": 0.3333333333333333
+      },
+      "baseline": {
+        "selected": 5,
+        "relevant": 1,
+        "precision": 0.2
+      }
+    },
+    {
+      "questionId": "resilience_adaptation#4",
+      "dimensionId": "environmental",
+      "categoryId": "resilience_adaptation",
+      "decision": "accept",
+      "k": 3,
+      "topScore": 0.21291737086145798,
+      "totalRelevant": 10,
+      "adaptive": {
+        "selected": 3,
+        "relevant": 2,
+        "precision": 0.6666666666666666
+      },
+      "baseline": {
+        "selected": 5,
+        "relevant": 3,
+        "precision": 0.6
+      }
+    },
+    {
+      "questionId": "ecosystems_resources#1",
+      "dimensionId": "environmental",
+      "categoryId": "ecosystems_resources",
+      "decision": "ambiguous",
+      "k": 8,
+      "topScore": 0.026141326597039518,
+      "totalRelevant": 7,
+      "adaptive": {
+        "selected": 8,
+        "relevant": 4,
+        "precision": 0.5
+      },
+      "baseline": {
+        "selected": 5,
+        "relevant": 3,
+        "precision": 0.6
+      }
+    },
+    {
+      "questionId": "ecosystems_resources#2",
+      "dimensionId": "environmental",
+      "categoryId": "ecosystems_resources",
+      "decision": "accept",
+      "k": 3,
+      "topScore": 0.18407624358505834,
+      "totalRelevant": 9,
+      "adaptive": {
+        "selected": 3,
+        "relevant": 1,
+        "precision": 0.3333333333333333
+      },
+      "baseline": {
+        "selected": 5,
+        "relevant": 2,
+        "precision": 0.4
+      }
+    },
+    {
+      "questionId": "ecosystems_resources#3",
+      "dimensionId": "environmental",
+      "categoryId": "ecosystems_resources",
+      "decision": "accept",
+      "k": 3,
+      "topScore": 0.21536149973097707,
+      "totalRelevant": 10,
+      "adaptive": {
+        "selected": 3,
+        "relevant": 2,
+        "precision": 0.6666666666666666
+      },
+      "baseline": {
+        "selected": 5,
+        "relevant": 3,
+        "precision": 0.6
+      }
+    },
+    {
+      "questionId": "ecosystems_resources#4",
+      "dimensionId": "environmental",
+      "categoryId": "ecosystems_resources",
+      "decision": "ambiguous",
+      "k": 4,
+      "topScore": 0.017649373540947436,
+      "totalRelevant": 2,
+      "adaptive": {
+        "selected": 4,
+        "relevant": 1,
+        "precision": 0.25
+      },
+      "baseline": {
+        "selected": 5,
+        "relevant": 1,
+        "precision": 0.2
+      }
+    },
+    {
+      "questionId": "mobility_access#1",
+      "dimensionId": "urban_transport",
+      "categoryId": "mobility_access",
+      "decision": "ambiguous",
+      "k": 12,
+      "topScore": 0.000407202442728089,
+      "totalRelevant": 5,
+      "adaptive": {
+        "selected": 12,
+        "relevant": 4,
+        "precision": 0.3333333333333333
+      },
+      "baseline": {
+        "selected": 5,
+        "relevant": 4,
+        "precision": 0.8
+      }
+    },
+    {
+      "questionId": "mobility_access#2",
+      "dimensionId": "urban_transport",
+      "categoryId": "mobility_access",
+      "decision": "ambiguous",
+      "k": 10,
+      "topScore": 0.055354731630640086,
+      "totalRelevant": 6,
+      "adaptive": {
+        "selected": 10,
+        "relevant": 2,
+        "precision": 0.2
+      },
+      "baseline": {
+        "selected": 5,
+        "relevant": 2,
+        "precision": 0.4
+      }
+    },
+    {
+      "questionId": "mobility_access#3",
+      "dimensionId": "urban_transport",
+      "categoryId": "mobility_access",
+      "decision": "ambiguous",
+      "k": 12,
+      "topScore": 0.0018555031780997158,
+      "totalRelevant": 6,
+      "adaptive": {
+        "selected": 12,
+        "relevant": 6,
+        "precision": 0.5
+      },
+      "baseline": {
+        "selected": 5,
+        "relevant": 2,
+        "precision": 0.4
+      }
+    },
+    {
+      "questionId": "mobility_access#4",
+      "dimensionId": "urban_transport",
+      "categoryId": "mobility_access",
+      "decision": "ambiguous",
+      "k": 6,
+      "topScore": 0.04011657996729094,
+      "totalRelevant": 5,
+      "adaptive": {
+        "selected": 6,
+        "relevant": 1,
+        "precision": 0.16666666666666666
+      },
+      "baseline": {
+        "selected": 5,
+        "relevant": 1,
+        "precision": 0.2
+      }
+    },
+    {
+      "questionId": "infrastructure_quality#1",
+      "dimensionId": "urban_transport",
+      "categoryId": "infrastructure_quality",
+      "decision": "ambiguous",
+      "k": 3,
+      "topScore": 0.06391663110772645,
+      "totalRelevant": 6,
+      "adaptive": {
+        "selected": 3,
+        "relevant": 1,
+        "precision": 0.3333333333333333
+      },
+      "baseline": {
+        "selected": 5,
+        "relevant": 1,
+        "precision": 0.2
+      }
+    },
+    {
+      "questionId": "infrastructure_quality#2",
+      "dimensionId": "urban_transport",
+      "categoryId": "infrastructure_quality",
+      "decision": "ambiguous",
+      "k": 5,
+      "topScore": 0.006254220476039208,
+      "totalRelevant": 1,
+      "adaptive": {
+        "selected": 5,
+        "relevant": 0,
+        "precision": 0
+      },
+      "baseline": {
+        "selected": 5,
+        "relevant": 0,
+        "precision": 0
+      }
+    },
+    {
+      "questionId": "infrastructure_quality#3",
+      "dimensionId": "urban_transport",
+      "categoryId": "infrastructure_quality",
+      "decision": "accept",
+      "k": 3,
+      "topScore": 0.40991214096755774,
+      "totalRelevant": 11,
+      "adaptive": {
+        "selected": 3,
+        "relevant": 2,
+        "precision": 0.6666666666666666
+      },
+      "baseline": {
+        "selected": 5,
+        "relevant": 3,
+        "precision": 0.6
+      }
+    },
+    {
+      "questionId": "infrastructure_quality#4",
+      "dimensionId": "urban_transport",
+      "categoryId": "infrastructure_quality",
+      "decision": "ambiguous",
+      "k": 9,
+      "topScore": 0.00022234744010654178,
+      "totalRelevant": 11,
+      "adaptive": {
+        "selected": 9,
+        "relevant": 5,
+        "precision": 0.5555555555555556
+      },
+      "baseline": {
+        "selected": 5,
+        "relevant": 3,
+        "precision": 0.6
+      }
+    },
+    {
+      "questionId": "landuse_planning#1",
+      "dimensionId": "urban_transport",
+      "categoryId": "landuse_planning",
+      "decision": "accept",
+      "k": 3,
+      "topScore": 0.9082136677774103,
+      "totalRelevant": 2,
+      "adaptive": {
+        "selected": 3,
+        "relevant": 0,
+        "precision": 0
+      },
+      "baseline": {
+        "selected": 5,
+        "relevant": 0,
+        "precision": 0
+      }
+    },
+    {
+      "questionId": "landuse_planning#2",
+      "dimensionId": "urban_transport",
+      "categoryId": "landuse_planning",
+      "decision": "ambiguous",
+      "k": 6,
+      "topScore": 0.009185023802378282,
+      "totalRelevant": 2,
+      "adaptive": {
+        "selected": 6,
+        "relevant": 2,
+        "precision": 0.3333333333333333
+      },
+      "baseline": {
+        "selected": 5,
+        "relevant": 2,
+        "precision": 0.4
+      }
+    },
+    {
+      "questionId": "landuse_planning#3",
+      "dimensionId": "urban_transport",
+      "categoryId": "landuse_planning",
+      "decision": "ambiguous",
+      "k": 12,
+      "topScore": 0.0011062198044754566,
+      "totalRelevant": 8,
+      "adaptive": {
+        "selected": 12,
+        "relevant": 5,
+        "precision": 0.4166666666666667
+      },
+      "baseline": {
+        "selected": 5,
+        "relevant": 1,
+        "precision": 0.2
+      }
+    },
+    {
+      "questionId": "landuse_planning#4",
+      "dimensionId": "urban_transport",
+      "categoryId": "landuse_planning",
+      "decision": "ambiguous",
+      "k": 12,
+      "topScore": 0.00130334981553764,
+      "totalRelevant": 6,
+      "adaptive": {
+        "selected": 12,
+        "relevant": 4,
+        "precision": 0.3333333333333333
+      },
+      "baseline": {
+        "selected": 5,
+        "relevant": 2,
+        "precision": 0.4
+      }
+    },
+    {
+      "questionId": "protection_rights#1",
+      "dimensionId": "humanitarian_rights",
+      "categoryId": "protection_rights",
+      "decision": "accept",
+      "k": 3,
+      "topScore": 0.2446088081931464,
+      "totalRelevant": 11,
+      "adaptive": {
+        "selected": 3,
+        "relevant": 2,
+        "precision": 0.6666666666666666
+      },
+      "baseline": {
+        "selected": 5,
+        "relevant": 3,
+        "precision": 0.6
+      }
+    },
+    {
+      "questionId": "protection_rights#2",
+      "dimensionId": "humanitarian_rights",
+      "categoryId": "protection_rights",
+      "decision": "ambiguous",
+      "k": 12,
+      "topScore": 0.003358113228404886,
+      "totalRelevant": 8,
+      "adaptive": {
+        "selected": 12,
+        "relevant": 4,
+        "precision": 0.3333333333333333
+      },
+      "baseline": {
+        "selected": 5,
+        "relevant": 1,
+        "precision": 0.2
+      }
+    },
+    {
+      "questionId": "protection_rights#3",
+      "dimensionId": "humanitarian_rights",
+      "categoryId": "protection_rights",
+      "decision": "ambiguous",
+      "k": 4,
+      "topScore": 0.1271026541499308,
+      "totalRelevant": 6,
+      "adaptive": {
+        "selected": 4,
+        "relevant": 1,
+        "precision": 0.25
+      },
+      "baseline": {
+        "selected": 5,
+        "relevant": 1,
+        "precision": 0.2
+      }
+    },
+    {
+      "questionId": "protection_rights#4",
+      "dimensionId": "humanitarian_rights",
+      "categoryId": "protection_rights",
+      "decision": "ambiguous",
+      "k": 9,
+      "topScore": 0.012233828321085539,
+      "totalRelevant": 10,
+      "adaptive": {
+        "selected": 9,
+        "relevant": 3,
+        "precision": 0.3333333333333333
+      },
+      "baseline": {
+        "selected": 5,
+        "relevant": 2,
+        "precision": 0.4
+      }
+    },
+    {
+      "questionId": "humanitarian_response#1",
+      "dimensionId": "humanitarian_rights",
+      "categoryId": "humanitarian_response",
+      "decision": "accept",
+      "k": 3,
+      "topScore": 0.2283563320899339,
+      "totalRelevant": 4,
+      "adaptive": {
+        "selected": 3,
+        "relevant": 1,
+        "precision": 0.3333333333333333
+      },
+      "baseline": {
+        "selected": 5,
+        "relevant": 1,
+        "precision": 0.2
+      }
+    },
+    {
+      "questionId": "humanitarian_response#2",
+      "dimensionId": "humanitarian_rights",
+      "categoryId": "humanitarian_response",
+      "decision": "ambiguous",
+      "k": 6,
+      "topScore": 0.1366883567166406,
+      "totalRelevant": 4,
+      "adaptive": {
+        "selected": 6,
+        "relevant": 2,
+        "precision": 0.3333333333333333
+      },
+      "baseline": {
+        "selected": 5,
+        "relevant": 1,
+        "precision": 0.2
+      }
+    },
+    {
+      "questionId": "humanitarian_response#3",
+      "dimensionId": "humanitarian_rights",
+      "categoryId": "humanitarian_response",
+      "decision": "ambiguous",
+      "k": 12,
+      "topScore": 0.0028012919164061463,
+      "totalRelevant": 5,
+      "adaptive": {
+        "selected": 12,
+        "relevant": 4,
+        "precision": 0.3333333333333333
+      },
+      "baseline": {
+        "selected": 5,
+        "relevant": 1,
+        "precision": 0.2
+      }
+    },
+    {
+      "questionId": "humanitarian_response#4",
+      "dimensionId": "humanitarian_rights",
+      "categoryId": "humanitarian_response",
+      "decision": "ambiguous",
+      "k": 12,
+      "topScore": 0.010058382553678772,
+      "totalRelevant": 4,
+      "adaptive": {
+        "selected": 12,
+        "relevant": 4,
+        "precision": 0.3333333333333333
+      },
+      "baseline": {
+        "selected": 5,
+        "relevant": 2,
+        "precision": 0.4
+      }
+    },
+    {
+      "questionId": "legal_norms#1",
+      "dimensionId": "humanitarian_rights",
+      "categoryId": "legal_norms",
+      "decision": "ambiguous",
+      "k": 12,
+      "topScore": 0.006096675083420652,
+      "totalRelevant": 12,
+      "adaptive": {
+        "selected": 12,
+        "relevant": 6,
+        "precision": 0.5
+      },
+      "baseline": {
+        "selected": 5,
+        "relevant": 2,
+        "precision": 0.4
+      }
+    },
+    {
+      "questionId": "legal_norms#2",
+      "dimensionId": "humanitarian_rights",
+      "categoryId": "legal_norms",
+      "decision": "accept",
+      "k": 3,
+      "topScore": 0.2348412949403464,
+      "totalRelevant": 13,
+      "adaptive": {
+        "selected": 3,
+        "relevant": 2,
+        "precision": 0.6666666666666666
+      },
+      "baseline": {
+        "selected": 5,
+        "relevant": 4,
+        "precision": 0.8
+      }
+    },
+    {
+      "questionId": "legal_norms#3",
+      "dimensionId": "humanitarian_rights",
+      "categoryId": "legal_norms",
+      "decision": "accept",
+      "k": 3,
+      "topScore": 0.1672767128527276,
+      "totalRelevant": 10,
+      "adaptive": {
+        "selected": 3,
+        "relevant": 2,
+        "precision": 0.6666666666666666
+      },
+      "baseline": {
+        "selected": 5,
+        "relevant": 3,
+        "precision": 0.6
+      }
+    },
+    {
+      "questionId": "legal_norms#4",
+      "dimensionId": "humanitarian_rights",
+      "categoryId": "legal_norms",
+      "decision": "ambiguous",
+      "k": 5,
+      "topScore": 0.013965109917126241,
+      "totalRelevant": 6,
+      "adaptive": {
+        "selected": 5,
+        "relevant": 1,
+        "precision": 0.2
+      },
+      "baseline": {
+        "selected": 5,
+        "relevant": 1,
+        "precision": 0.2
+      }
+    },
+    {
+      "questionId": "access_participation#1",
+      "dimensionId": "education",
+      "categoryId": "access_participation",
+      "decision": "ambiguous",
+      "k": 7,
+      "topScore": 0.01035349870956408,
+      "totalRelevant": 8,
+      "adaptive": {
+        "selected": 7,
+        "relevant": 4,
+        "precision": 0.5714285714285714
+      },
+      "baseline": {
+        "selected": 5,
+        "relevant": 3,
+        "precision": 0.6
+      }
+    },
+    {
+      "questionId": "access_participation#2",
+      "dimensionId": "education",
+      "categoryId": "access_participation",
+      "decision": "accept",
+      "k": 3,
+      "topScore": 0.5947340877286913,
+      "totalRelevant": 7,
+      "adaptive": {
+        "selected": 3,
+        "relevant": 1,
+        "precision": 0.3333333333333333
+      },
+      "baseline": {
+        "selected": 5,
+        "relevant": 1,
+        "precision": 0.2
+      }
+    },
+    {
+      "questionId": "access_participation#3",
+      "dimensionId": "education",
+      "categoryId": "access_participation",
+      "decision": "accept",
+      "k": 3,
+      "topScore": 0.31577527863586546,
+      "totalRelevant": 9,
+      "adaptive": {
+        "selected": 3,
+        "relevant": 2,
+        "precision": 0.6666666666666666
+      },
+      "baseline": {
+        "selected": 5,
+        "relevant": 4,
+        "precision": 0.8
+      }
+    },
+    {
+      "questionId": "access_participation#4",
+      "dimensionId": "education",
+      "categoryId": "access_participation",
+      "decision": "ambiguous",
+      "k": 3,
+      "topScore": 0.018284514421174375,
+      "totalRelevant": 2,
+      "adaptive": {
+        "selected": 3,
+        "relevant": 1,
+        "precision": 0.3333333333333333
+      },
+      "baseline": {
+        "selected": 5,
+        "relevant": 1,
+        "precision": 0.2
+      }
+    },
+    {
+      "questionId": "learning_outcomes#1",
+      "dimensionId": "education",
+      "categoryId": "learning_outcomes",
+      "decision": "accept",
+      "k": 3,
+      "topScore": 0.2501623050326802,
+      "totalRelevant": 10,
+      "adaptive": {
+        "selected": 3,
+        "relevant": 1,
+        "precision": 0.3333333333333333
+      },
+      "baseline": {
+        "selected": 5,
+        "relevant": 2,
+        "precision": 0.4
+      }
+    },
+    {
+      "questionId": "learning_outcomes#2",
+      "dimensionId": "education",
+      "categoryId": "learning_outcomes",
+      "decision": "ambiguous",
+      "k": 5,
+      "topScore": 0.006567984823414909,
+      "totalRelevant": 7,
+      "adaptive": {
+        "selected": 5,
+        "relevant": 2,
+        "precision": 0.4
+      },
+      "baseline": {
+        "selected": 5,
+        "relevant": 2,
+        "precision": 0.4
+      }
+    },
+    {
+      "questionId": "learning_outcomes#3",
+      "dimensionId": "education",
+      "categoryId": "learning_outcomes",
+      "decision": "accept",
+      "k": 3,
+      "topScore": 0.5087617876414463,
+      "totalRelevant": 11,
+      "adaptive": {
+        "selected": 3,
+        "relevant": 1,
+        "precision": 0.3333333333333333
+      },
+      "baseline": {
+        "selected": 5,
+        "relevant": 1,
+        "precision": 0.2
+      }
+    },
+    {
+      "questionId": "learning_outcomes#4",
+      "dimensionId": "education",
+      "categoryId": "learning_outcomes",
+      "decision": "accept",
+      "k": 3,
+      "topScore": 0.2527867054817457,
+      "totalRelevant": 12,
+      "adaptive": {
+        "selected": 3,
+        "relevant": 2,
+        "precision": 0.6666666666666666
+      },
+      "baseline": {
+        "selected": 5,
+        "relevant": 4,
+        "precision": 0.8
+      }
+    },
+    {
+      "questionId": "teacher_system_capacity#1",
+      "dimensionId": "education",
+      "categoryId": "teacher_system_capacity",
+      "decision": "ambiguous",
+      "k": 12,
+      "topScore": 0.0007934073603665066,
+      "totalRelevant": 4,
+      "adaptive": {
+        "selected": 12,
+        "relevant": 4,
+        "precision": 0.3333333333333333
+      },
+      "baseline": {
+        "selected": 5,
+        "relevant": 2,
+        "precision": 0.4
+      }
+    },
+    {
+      "questionId": "teacher_system_capacity#2",
+      "dimensionId": "education",
+      "categoryId": "teacher_system_capacity",
+      "decision": "accept",
+      "k": 12,
+      "topScore": 0.9902894557278636,
+      "totalRelevant": 9,
+      "adaptive": {
+        "selected": 12,
+        "relevant": 6,
+        "precision": 0.5
+      },
+      "baseline": {
+        "selected": 5,
+        "relevant": 1,
+        "precision": 0.2
+      }
+    },
+    {
+      "questionId": "teacher_system_capacity#3",
+      "dimensionId": "education",
+      "categoryId": "teacher_system_capacity",
+      "decision": "ambiguous",
+      "k": 5,
+      "topScore": 0.028410296199136466,
+      "totalRelevant": 14,
+      "adaptive": {
+        "selected": 5,
+        "relevant": 4,
+        "precision": 0.8
+      },
+      "baseline": {
+        "selected": 5,
+        "relevant": 4,
+        "precision": 0.8
+      }
+    },
+    {
+      "questionId": "teacher_system_capacity#4",
+      "dimensionId": "education",
+      "categoryId": "teacher_system_capacity",
+      "decision": "ambiguous",
+      "k": 6,
+      "topScore": 0.08727780709743253,
+      "totalRelevant": 6,
+      "adaptive": {
+        "selected": 6,
+        "relevant": 1,
+        "precision": 0.16666666666666666
+      },
+      "baseline": {
+        "selected": 5,
+        "relevant": 1,
+        "precision": 0.2
+      }
+    }
+  ]
+}
