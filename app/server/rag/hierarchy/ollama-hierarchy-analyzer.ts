@@ -2,95 +2,49 @@ import { readFileSync } from "node:fs";
 import type { Ollama } from "ollama";
 
 import type {
-  ExtractedHierarchyCandidate,
+  ExtractedHierarchyMatch,
   FrameworkCategory,
-  HierarchyValidation,
 } from "@/types/hierarchy-types";
 import type { SearchResult } from "../storage/storage-types";
 import { buildHierarchyContext } from "./hierarchy-helper";
 
-const EXTRACTION_SCHEMA = {
+const MATCH_SCHEMA = {
   type: "object",
   additionalProperties: false,
-  required: ["candidates"],
+  required: ["match"],
   properties: {
-    candidates: {
-      type: "array",
-      maxItems: 20,
-      items: {
-        type: "object",
-        additionalProperties: false,
-        required: ["kind", "text", "explicitness", "evidence"],
-        properties: {
-          kind: { type: "string", enum: ["outcome", "indicator"] },
-          text: { type: "string" },
-          explicitness: { type: "string", enum: ["explicit", "derived"] },
-          evidence: {
-            type: "array",
-            minItems: 1,
-            items: {
-              type: "object",
-              additionalProperties: false,
-              required: ["chunkId", "quote"],
-              properties: {
-                chunkId: { type: "string" },
-                quote: { type: "string" },
+    match: {
+      anyOf: [
+        { type: "null" },
+        {
+          type: "object",
+          additionalProperties: false,
+          required: ["explicitness", "reason", "evidence"],
+          properties: {
+            explicitness: { type: "string", enum: ["explicit", "implicit"] },
+            reason: { type: "string" },
+            evidence: {
+              type: "array",
+              minItems: 1,
+              items: {
+                type: "object",
+                additionalProperties: false,
+                required: ["chunkId", "quote"],
+                properties: {
+                  chunkId: { type: "string" },
+                  quote: { type: "string" },
+                },
               },
             },
           },
         },
-      },
-    },
-  },
-} as const;
-
-const VALIDATION_SCHEMA = {
-  type: "object",
-  additionalProperties: false,
-  required: ["assessments"],
-  properties: {
-    assessments: {
-      type: "array",
-      items: {
-        type: "object",
-        additionalProperties: false,
-        required: [
-          "categoryFit",
-          "typeFit",
-          "evidenceSupport",
-          "specificity",
-          "reason",
-        ],
-        properties: {
-          categoryFit: { type: "number", minimum: 0, maximum: 1 },
-          typeFit: { type: "number", minimum: 0, maximum: 1 },
-          evidenceSupport: { type: "number", minimum: 0, maximum: 1 },
-          specificity: { type: "number", minimum: 0, maximum: 1 },
-          reason: { type: "string" },
-        },
-      },
+      ],
     },
   },
 } as const;
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
-}
-
-function parseJsonObject(content: string, stage: string): Record<string, unknown> {
-  let value: unknown;
-
-  try {
-    value = JSON.parse(content);
-  } catch {
-    throw new Error(`The hierarchy ${stage} model returned invalid JSON.`);
-  }
-
-  if (!isRecord(value)) {
-    throw new Error(`The hierarchy ${stage} model returned a non-object response.`);
-  }
-
-  return value;
 }
 
 function text(value: unknown, location: string): string {
@@ -101,147 +55,82 @@ function text(value: unknown, location: string): string {
   return value.trim();
 }
 
-function score(value: unknown, location: string): number {
-  if (typeof value !== "number" || !Number.isFinite(value) || value < 0 || value > 1) {
-    throw new Error(`The hierarchy model returned an invalid ${location} score.`);
+export function parseMatchResponse(content: string): ExtractedHierarchyMatch | null {
+  let value: unknown;
+
+  try {
+    value = JSON.parse(content);
+  } catch {
+    throw new Error("The hierarchy model returned invalid JSON.");
   }
 
-  return value;
-}
-
-export function parseExtractionResponse(content: string): ExtractedHierarchyCandidate[] {
-  const value = parseJsonObject(content, "extraction");
-
-  if (!Array.isArray(value.candidates)) {
-    throw new Error("The hierarchy extraction model omitted candidates.");
+  if (!isRecord(value) || !("match" in value)) {
+    throw new Error("The hierarchy model omitted match.");
   }
 
-  if (value.candidates.length > 20) {
-    throw new Error("The hierarchy extraction model returned more than 20 candidates.");
+  if (value.match === null) return null;
+  const match = value.match;
+
+  if (!isRecord(match) || !Array.isArray(match.evidence) || match.evidence.length === 0) {
+    throw new Error("The hierarchy model returned a match without evidence.");
   }
 
-  return value.candidates.map((candidate, candidateIndex) => {
-    if (!isRecord(candidate) || !Array.isArray(candidate.evidence)) {
-      throw new Error(`The hierarchy model returned an invalid candidate ${candidateIndex}.`);
-    }
-
-    const id = `candidate-${candidateIndex + 1}`;
-    const kind = candidate.kind;
-    const explicitness = candidate.explicitness;
-
-    if (kind !== "outcome" && kind !== "indicator") {
-      throw new Error(`The hierarchy model returned an invalid candidate ${id} kind.`);
-    }
-
-    if (explicitness !== "explicit" && explicitness !== "derived") {
-      throw new Error(
-        `The hierarchy model returned an invalid candidate ${id} explicitness.`,
-      );
-    }
-
-    return {
-      id,
-      kind,
-      explicitness,
-      text: text(candidate.text, `candidate ${id} text`),
-      evidence: candidate.evidence.map((evidence, evidenceIndex) => {
-        if (!isRecord(evidence)) {
-          throw new Error(
-            `The hierarchy model returned invalid evidence ${evidenceIndex} for ${id}.`,
-          );
-        }
-
-        return {
-          chunkId: text(evidence.chunkId, `candidate ${id} evidence chunkId`),
-          quote: text(evidence.quote, `candidate ${id} evidence quote`),
-        };
-      }),
-    };
-  });
-}
-
-export function parseValidationResponse(
-  content: string,
-  candidateIds: readonly string[],
-): HierarchyValidation[] {
-  const value = parseJsonObject(content, "validation");
-
-  if (!Array.isArray(value.assessments)) {
-    throw new Error("The hierarchy validation model omitted assessments.");
+  if (match.explicitness !== "explicit" && match.explicitness !== "implicit") {
+    throw new Error("The hierarchy model returned an invalid match explicitness.");
   }
 
-  if (value.assessments.length !== candidateIds.length) {
-    throw new Error(
-      `The hierarchy validation model returned ${value.assessments.length} assessments for ${candidateIds.length} candidates.`,
-    );
-  }
+  return {
+    explicitness: match.explicitness,
+    reason: text(match.reason, "match reason"),
+    evidence: match.evidence.map((evidence) => {
+      if (!isRecord(evidence)) {
+        throw new Error("The hierarchy model returned invalid match evidence.");
+      }
 
-  return value.assessments.map((assessment, index) => {
-    if (!isRecord(assessment)) {
-      throw new Error(`The hierarchy model returned an invalid assessment ${index}.`);
-    }
-
-    const candidateId = candidateIds[index];
-
-    if (!candidateId) {
-      throw new Error(`No server candidate ID exists for assessment ${index}.`);
-    }
-
-    return {
-      candidateId,
-      categoryFit: score(assessment.categoryFit, `${candidateId} categoryFit`),
-      typeFit: score(assessment.typeFit, `${candidateId} typeFit`),
-      evidenceSupport: score(
-        assessment.evidenceSupport,
-        `${candidateId} evidenceSupport`,
-      ),
-      specificity: score(assessment.specificity, `${candidateId} specificity`),
-      reason: text(assessment.reason, `${candidateId} reason`),
-    };
-  });
+      return {
+        chunkId: text(evidence.chunkId, "evidence chunkId"),
+        quote: text(evidence.quote, "evidence quote"),
+      };
+    }),
+  };
 }
 
 export type HierarchyAnalyzer = {
-  extract(
+  match(
     category: FrameworkCategory,
+    question: string,
     results: readonly SearchResult[],
-  ): Promise<ExtractedHierarchyCandidate[]>;
-  validate(
-    category: FrameworkCategory,
-    candidates: readonly ExtractedHierarchyCandidate[],
-    results: readonly SearchResult[],
-  ): Promise<HierarchyValidation[]>;
+  ): Promise<ExtractedHierarchyMatch | null>;
 };
 
 export class OllamaHierarchyAnalyzer implements HierarchyAnalyzer {
-  private readonly extractionPrompt: string;
-  private readonly validationPrompt: string;
+  private readonly matchingPrompt: string;
 
   constructor(
     private readonly model: string,
-    extractionPromptPath: string,
-    validationPromptPath: string,
+    promptPath: string,
     private readonly maximumContextWords: number,
     private readonly client: Ollama,
   ) {
-    this.extractionPrompt = readFileSync(extractionPromptPath, "utf8");
-    this.validationPrompt = readFileSync(validationPromptPath, "utf8");
+    this.matchingPrompt = readFileSync(promptPath, "utf8");
   }
 
-  async extract(
+  async match(
     category: FrameworkCategory,
+    question: string,
     results: readonly SearchResult[],
-  ): Promise<ExtractedHierarchyCandidate[]> {
+  ): Promise<ExtractedHierarchyMatch | null> {
     const response = await this.client.chat({
       model: this.model,
       think: false,
-      format: EXTRACTION_SCHEMA,
+      format: MATCH_SCHEMA,
       messages: [
-        { role: "system", content: this.extractionPrompt },
+        { role: "system", content: this.matchingPrompt },
         {
           role: "user",
           content: [
             `Category:\n${JSON.stringify(category, null, 2)}`,
+            `Question:\n${question}`,
             `Context:\n${buildHierarchyContext(results, this.maximumContextWords)}`,
           ].join("\n\n"),
         },
@@ -249,43 +138,6 @@ export class OllamaHierarchyAnalyzer implements HierarchyAnalyzer {
       options: { temperature: 0 },
     });
 
-    return parseExtractionResponse(response.message.content);
-  }
-
-  async validate(
-    category: FrameworkCategory,
-    candidates: readonly ExtractedHierarchyCandidate[],
-    results: readonly SearchResult[],
-  ): Promise<HierarchyValidation[]> {
-    if (candidates.length === 0) return [];
-
-    const candidatesWithoutIds = candidates.map((candidate) => ({
-      kind: candidate.kind,
-      text: candidate.text,
-      explicitness: candidate.explicitness,
-      evidence: candidate.evidence,
-    }));
-    const response = await this.client.chat({
-      model: this.model,
-      think: false,
-      format: VALIDATION_SCHEMA,
-      messages: [
-        { role: "system", content: this.validationPrompt },
-        {
-          role: "user",
-          content: [
-            `Category:\n${JSON.stringify(category, null, 2)}`,
-            `Candidates (return assessments in this exact order):\n${JSON.stringify(candidatesWithoutIds, null, 2)}`,
-            `Context:\n${buildHierarchyContext(results, this.maximumContextWords)}`,
-          ].join("\n\n"),
-        },
-      ],
-      options: { temperature: 0 },
-    });
-
-    return parseValidationResponse(
-      response.message.content,
-      candidates.map((candidate) => candidate.id),
-    );
+    return parseMatchResponse(response.message.content);
   }
 }

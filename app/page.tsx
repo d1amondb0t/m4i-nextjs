@@ -20,7 +20,7 @@ export default function Home() {
             href="/hierarchy"
             className="mt-5 inline-flex text-sm font-medium text-blue-700 hover:text-blue-900"
           >
-            Try the hierarchy extraction experiment →
+            Try the hierarchy matching experiment →
           </Link>
         </header>
 
