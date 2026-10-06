@@ -127,6 +127,8 @@ export class HierarchyPipeline {
       categoryId: category.id,
       retrievedChunks: 0,
       matchedQuestions: 0,
+      matchedCandidates: 0,
+      questions: [],
       rejected: [],
     };
 
@@ -136,42 +138,63 @@ export class HierarchyPipeline {
         (result) => result.score >= this.configuration.minimumRetrievalScore,
       );
       for (const result of results) retrievedChunkIds.add(result.chunk.chunkId);
+      const questionDiagnostics = {
+        question,
+        retrievedChunks: results.length,
+        generatedCandidates: 0,
+        acceptedCandidates: 0,
+      };
+      diagnostics.questions.push(questionDiagnostics);
       if (results.length === 0) continue;
 
-      const match = await this.analyzer.match(category, question, results);
-      if (!match) continue;
+      const candidates = await this.analyzer.match(category, question, results);
+      questionDiagnostics.generatedCandidates = candidates.length;
 
       const resultsByChunkId = new Map(
         results.map((result) => [result.chunk.chunkId, result]),
       );
-      if (!evidenceIsGrounded(match, resultsByChunkId)) {
-        diagnostics.rejected.push({
-          question,
-          reason: "A cited chunk or verbatim evidence quote was not present in retrieval.",
-        });
-        continue;
-      }
+      const seenPassages = new Set<string>();
+      for (const match of candidates) {
+        if (!evidenceIsGrounded(match, resultsByChunkId)) {
+          diagnostics.rejected.push({
+            question,
+            reason: "A cited chunk or verbatim evidence quote was not present in retrieval.",
+          });
+          continue;
+        }
+        const passageKey = match.evidence
+          .map((evidence) => `${evidence.chunkId}:${evidence.quote.replace(/\s+/g, " ").trim().toLowerCase()}`)
+          .sort()
+          .join("|");
+        if (seenPassages.has(passageKey)) {
+          diagnostics.rejected.push({ question, reason: "Duplicate quoted passage for this question." });
+          continue;
+        }
+        seenPassages.add(passageKey);
 
-      matches.push({
-        question,
-        explicitness: match.explicitness,
-        reason: match.reason,
-        evidence: match.evidence.map((evidence) => {
-          const result = resultsByChunkId.get(evidence.chunkId)!;
-          return {
-            chunkId: evidence.chunkId,
-            source: result.chunk.source,
-            page: result.chunk.page,
-            chunk: result.chunk.number,
-            retrievalScore: result.score,
-            quote: evidence.quote,
-          };
-        }),
-      });
+        matches.push({
+          question,
+          explicitness: match.explicitness,
+          reason: match.reason,
+          evidence: match.evidence.map((evidence) => {
+            const result = resultsByChunkId.get(evidence.chunkId)!;
+            return {
+              chunkId: evidence.chunkId,
+              source: result.chunk.source,
+              page: result.chunk.page,
+              chunk: result.chunk.number,
+              retrievalScore: result.score,
+              quote: evidence.quote,
+            };
+          }),
+        });
+        questionDiagnostics.acceptedCandidates += 1;
+      }
     }
 
     diagnostics.retrievedChunks = retrievedChunkIds.size;
-    diagnostics.matchedQuestions = matches.length;
+    diagnostics.matchedQuestions = new Set(matches.map((match) => match.question)).size;
+    diagnostics.matchedCandidates = matches.length;
     return { category: { ...category, matches }, diagnostics };
   }
 

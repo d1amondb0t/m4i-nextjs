@@ -10,23 +10,23 @@ const match = {
 
 describe("hierarchy model response parsing", () => {
   it.each(["explicit", "implicit"])("preserves %s question matches", (explicitness) => {
-    expect(parseMatchResponse(JSON.stringify({ match: { ...match, explicitness } })))
-      .toEqual({ ...match, explicitness });
+    expect(parseMatchResponse(JSON.stringify({ matches: [{ ...match, explicitness }] })))
+      .toEqual([{ ...match, explicitness }]);
   });
 
   it("allows no match when the question is unsupported", () => {
-    expect(parseMatchResponse('{"match":null}')).toBeNull();
+    expect(parseMatchResponse('{"matches":[]}')).toEqual([]);
   });
 
   it("rejects the old derived-indicator classification", () => {
     expect(() => parseMatchResponse(JSON.stringify({
-      match: { ...match, explicitness: "derived" },
+      matches: [{ ...match, explicitness: "derived" }],
     }))).toThrow("invalid match explicitness");
   });
 
   it("requires evidence for a match", () => {
     expect(() => parseMatchResponse(JSON.stringify({
-      match: { ...match, evidence: [] },
+      matches: [{ ...match, evidence: [] }],
     }))).toThrow("match without evidence");
   });
 

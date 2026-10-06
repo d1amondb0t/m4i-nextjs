@@ -60,6 +60,13 @@ export type HierarchyCategoryDiagnostics = {
   categoryId: string;
   retrievedChunks: number;
   matchedQuestions: number;
+  matchedCandidates: number;
+  questions: {
+    question: string;
+    retrievedChunks: number;
+    generatedCandidates: number;
+    acceptedCandidates: number;
+  }[];
   rejected: { question: string; reason: string }[];
 };
 

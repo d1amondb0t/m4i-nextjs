@@ -21,7 +21,7 @@ const EXAMPLE_ONTOLOGY = JSON.stringify(ONTOLOGY, null , 2);
 
 function MatchList({ matches }: { matches: HierarchyMatch[] }) {
   if (matches.length === 0) {
-    return <p className="mt-3 text-sm text-zinc-500">No question matched the retrieved evidence.</p>;
+    return <p className="mt-3 text-sm text-zinc-500">No relevant candidate passages were found.</p>;
   }
 
   return (
@@ -111,9 +111,13 @@ export function HierarchyUpload() {
         (count, diagnostic) => count + diagnostic.matchedQuestions,
         0,
       );
+      const candidates = body.diagnostics.reduce(
+        (count, diagnostic) => count + diagnostic.matchedCandidates,
+        0,
+      );
       setStatus({
         type: "success",
-        message: `${body.indexedChunks} chunks indexed; ${matched} questions matched.`,
+        message: `${body.indexedChunks} chunks indexed; ${candidates} candidate passages across ${matched} questions.`,
       });
     } catch (error) {
       setStatus({
@@ -224,8 +228,15 @@ export function HierarchyUpload() {
                 <div key={diagnostic.categoryId} className="rounded-xl border border-zinc-200 p-4 text-sm">
                   <p className="font-medium text-zinc-900">{diagnostic.categoryId}</p>
                   <p className="mt-1 text-zinc-500">
-                    {diagnostic.retrievedChunks} chunks retrieved · {diagnostic.matchedQuestions} questions matched
+                    {diagnostic.retrievedChunks} chunks retrieved · {diagnostic.matchedCandidates} candidate passages · {diagnostic.matchedQuestions} questions matched
                   </p>
+                  <ul className="mt-3 space-y-1 text-xs leading-5 text-zinc-600">
+                    {diagnostic.questions.map((question, index) => (
+                      <li key={`${question.question}-${index}`}>
+                        {question.question}: {question.retrievedChunks} chunks · {question.generatedCandidates} proposed · {question.acceptedCandidates} retained
+                      </li>
+                    ))}
+                  </ul>
                   {diagnostic.rejected.length > 0 ? (
                     <ul className="mt-3 space-y-2 text-xs leading-5 text-zinc-600">
                       {diagnostic.rejected.map((rejection, index) => (

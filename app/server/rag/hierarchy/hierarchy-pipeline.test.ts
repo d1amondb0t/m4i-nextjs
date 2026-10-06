@@ -60,7 +60,7 @@ describe("HierarchyPipeline", () => {
       embedder: { embed: vi.fn(async () => [[0.1, 0.2]]) },
       store: { upsert: vi.fn(async () => undefined) },
       retriever: { retrieve: vi.fn(async () => [searchResult()]) },
-      analyzer: { match: vi.fn(async () => match) },
+      analyzer: { match: vi.fn(async () => [match]) },
     };
   });
 
@@ -74,9 +74,9 @@ describe("HierarchyPipeline", () => {
 
   it("matches every supplied question, preserving explicit and implicit support", async () => {
     vi.mocked(dependencies.analyzer.match)
-      .mockResolvedValueOnce(match)
-      .mockResolvedValueOnce({ ...match, explicitness: "implicit", reason: "Adoption implies policy influence." })
-      .mockResolvedValueOnce(null);
+      .mockResolvedValueOnce([match])
+      .mockResolvedValueOnce([{ ...match, explicitness: "implicit", reason: "Adoption implies policy influence." }])
+      .mockResolvedValueOnce([]);
 
     const result = await pipeline().run([new File(["content"], "report.txt")], ontology);
     const category = result.framework.dimensions[0].categories[0];
@@ -117,7 +117,7 @@ describe("HierarchyPipeline", () => {
     { chunkId: "chunk-1", quote: "invented evidence" },
     { chunkId: "unknown-chunk", quote: "ministry adopted three policy recommendations" },
   ])("rejects ungrounded evidence: $chunkId / $quote", async (evidence) => {
-    vi.mocked(dependencies.analyzer.match).mockResolvedValue({ ...match, evidence: [evidence] });
+    vi.mocked(dependencies.analyzer.match).mockResolvedValue([{ ...match, evidence: [evidence] }]);
     const result = await pipeline().run([new File(["content"], "report.txt")], ontology);
 
     expect(result.framework.dimensions[0].categories[0].matches).toEqual([]);
@@ -137,5 +137,41 @@ describe("HierarchyPipeline", () => {
     expect(result.framework.dimensions.map(({ categories }) => categories[0].matches.length))
       .toEqual([3, 3]);
     expect(result.diagnostics.map(({ matchedQuestions }) => matchedQuestions)).toEqual([3, 3]);
+  });
+
+  it("retains multiple passages per question and rejects an invalid passage independently", async () => {
+    const partial = {
+      ...match,
+      explicitness: "implicit" as const,
+      reason: "The proposed adoption criterion is relevant without demonstrating an achieved result.",
+      evidence: [{ chunkId: "chunk-1", quote: "three policy recommendations" }],
+    };
+    vi.mocked(dependencies.analyzer.match).mockResolvedValue([
+      match,
+      { ...match, evidence: [{ chunkId: "chunk-1", quote: "invented quote" }] },
+      partial,
+    ]);
+
+    const result = await pipeline().run([new File(["content"], "report.txt")], ontology);
+
+    expect(result.framework.dimensions[0].categories[0].matches).toHaveLength(6);
+    expect(result.diagnostics[0]).toMatchObject({ matchedQuestions: 3, matchedCandidates: 6 });
+    expect(result.diagnostics[0].questions).toEqual(questions.map((question) => ({
+      question, retrievedChunks: 1, generatedCandidates: 3, acceptedCandidates: 2,
+    })));
+    expect(result.diagnostics[0].rejected).toHaveLength(3);
+  });
+
+  it("removes repeated passages within a question while retaining reuse across questions", async () => {
+    vi.mocked(dependencies.analyzer.match).mockResolvedValue([
+      match,
+      { ...match, reason: "Another explanation of the same passage." },
+    ]);
+    const result = await pipeline().run([new File(["content"], "report.txt")], ontology);
+
+    expect(result.framework.dimensions[0].categories[0].matches).toHaveLength(3);
+    expect(result.diagnostics[0].rejected).toEqual(questions.map((question) => ({
+      question, reason: "Duplicate quoted passage for this question.",
+    })));
   });
 });
