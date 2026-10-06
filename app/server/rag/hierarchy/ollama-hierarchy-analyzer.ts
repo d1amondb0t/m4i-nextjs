@@ -268,7 +268,16 @@ export class OllamaHierarchyAnalyzer implements HierarchyAnalyzer {
     const response = await this.client.chat({
       model: this.model,
       think: false,
-      format: VALIDATION_SCHEMA,
+      format: {
+        ...VALIDATION_SCHEMA,
+        properties: {
+          assessments: {
+            ...VALIDATION_SCHEMA.properties.assessments,
+            minItems: candidates.length,
+            maxItems: candidates.length,
+          },
+        },
+      },
       messages: [
         { role: "system", content: this.validationPrompt },
         {
