@@ -8,7 +8,7 @@ import {
   validateRagDocumentSelection,
 } from "@/app/server/documents/upload-policy";
 import type {
-  HierarchyItem,
+  HierarchyMatch,
   HierarchyPipelineResponse,
 } from "@/types/hierarchy-types";
 import type { UploadStatus } from "@/types/document-upload";
@@ -19,49 +19,24 @@ type SuccessfulHierarchyResponse = Extract<HierarchyPipelineResponse, { ok: true
 
 const EXAMPLE_ONTOLOGY = JSON.stringify(ONTOLOGY, null , 2);
 
-function Assessment({ item }: { item: HierarchyItem }) {
-  const scores = [
-    ["Category", item.assessment.categoryFit],
-    ["Type", item.assessment.typeFit],
-    ["Evidence", item.assessment.evidenceSupport],
-    ["Specificity", item.assessment.specificity],
-  ] as const;
-
-  return (
-    <div className="mt-3">
-      <dl className="grid grid-cols-2 gap-2 text-xs sm:grid-cols-4">
-        {scores.map(([label, value]) => (
-          <div key={label} className="rounded-lg bg-zinc-100 px-2 py-1.5">
-            <dt className="text-zinc-500">{label}</dt>
-            <dd className="font-semibold text-zinc-900">{value.toFixed(2)}</dd>
-          </div>
-        ))}
-      </dl>
-      <p className="mt-2 text-xs leading-5 text-zinc-500">
-        {item.assessment.reason}
-      </p>
-    </div>
-  );
-}
-
-function ItemList({ items, empty }: { items: HierarchyItem[]; empty: string }) {
-  if (items.length === 0) {
-    return <p className="mt-3 text-sm text-zinc-500">{empty}</p>;
+function MatchList({ matches }: { matches: HierarchyMatch[] }) {
+  if (matches.length === 0) {
+    return <p className="mt-3 text-sm text-zinc-500">No relevant candidate passages were found.</p>;
   }
 
   return (
     <ul className="mt-3 space-y-3">
-      {items.map((item, index) => (
-        <li key={`${item.text}-${index}`} className="rounded-xl border border-zinc-200 p-4">
+      {matches.map((match, index) => (
+        <li key={`${match.question}-${index}`} className="rounded-xl border border-zinc-200 p-4">
           <div className="flex items-start justify-between gap-3">
-            <p className="text-sm font-medium leading-6 text-zinc-900">{item.text}</p>
+            <p className="text-sm font-medium leading-6 text-zinc-900">{match.question}</p>
             <span className="rounded-full bg-blue-50 px-2 py-1 text-[11px] font-medium text-blue-700">
-              {item.explicitness}
+              {match.explicitness}
             </span>
           </div>
-          <Assessment item={item} />
+          <p className="mt-2 text-xs leading-5 text-zinc-500">{match.reason}</p>
           <ul className="mt-3 space-y-2 border-t border-zinc-100 pt-3">
-            {item.evidence.map((evidence) => (
+            {match.evidence.map((evidence) => (
               <li key={`${evidence.chunkId}-${evidence.quote}`} className="text-xs leading-5 text-zinc-600">
                 <p>&ldquo;{evidence.quote}&rdquo;</p>
                 <p className="mt-1 text-zinc-400">
@@ -132,13 +107,17 @@ export function HierarchyUpload() {
       }
 
       setResult(body);
-      const accepted = body.diagnostics.reduce(
-        (count, diagnostic) => count + diagnostic.acceptedCandidates,
+      const matched = body.diagnostics.reduce(
+        (count, diagnostic) => count + diagnostic.matchedQuestions,
+        0,
+      );
+      const candidates = body.diagnostics.reduce(
+        (count, diagnostic) => count + diagnostic.matchedCandidates,
         0,
       );
       setStatus({
         type: "success",
-        message: `${body.indexedChunks} chunks indexed; ${accepted} candidates accepted.`,
+        message: `${body.indexedChunks} chunks indexed; ${candidates} candidate passages across ${matched} questions.`,
       });
     } catch (error) {
       setStatus({
@@ -176,7 +155,7 @@ export function HierarchyUpload() {
             Framework ontology
           </label>
           <p className="mt-1 text-sm text-zinc-500">
-            Define dimensions and leaf categories. IDs must be unique across the ontology.
+            Define dimensions, categories, and their questions. IDs must be unique across the ontology.
           </p>
           <textarea
             id="ontology"
@@ -191,13 +170,11 @@ export function HierarchyUpload() {
             className="mt-3 w-full resize-y rounded-xl border border-zinc-300 bg-zinc-950 px-4 py-3 font-mono text-xs leading-5 text-zinc-100 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
           />
 
-          <ol className="mt-6 grid gap-2 text-xs text-zinc-600 sm:grid-cols-5">
+          <ol className="mt-6 grid gap-2 text-xs text-zinc-600 sm:grid-cols-3">
             {[
               "Index once",
-              "Query each leaf",
-              "Extract JSON",
-              "Validate evidence",
-              "Consolidate",
+              "Match each question",
+              "Inspect explicit / implicit evidence",
             ].map((step, index) => (
               <li key={step} className="rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-2">
                 <span className="mr-1 font-semibold text-blue-700">{index + 1}.</span>
@@ -218,7 +195,7 @@ export function HierarchyUpload() {
               disabled={files.length === 0 || !ontology.trim() || isSubmitting}
               className="rounded-xl bg-zinc-950 px-5 py-3 text-sm font-medium text-white transition hover:bg-zinc-800 disabled:cursor-not-allowed disabled:bg-zinc-300"
             >
-              {isSubmitting ? "Running category passes…" : "Run hierarchy experiment"}
+              {isSubmitting ? "Running category passes…" : "Run hierarchy matching"}
             </button>
           </div>
         </form>
@@ -237,16 +214,7 @@ export function HierarchyUpload() {
                   <section key={category.id} className="rounded-2xl border border-zinc-200 p-5">
                     <h3 className="font-semibold text-zinc-950">{category.name}</h3>
                     <p className="mt-1 text-sm leading-6 text-zinc-500">{category.definition}</p>
-                    <div className="mt-5 grid gap-6 lg:grid-cols-2">
-                      <div>
-                        <h4 className="text-sm font-semibold text-zinc-900">Outcomes</h4>
-                        <ItemList items={category.outcomes} empty="No outcome met every threshold." />
-                      </div>
-                      <div>
-                        <h4 className="text-sm font-semibold text-zinc-900">Indicators</h4>
-                        <ItemList items={category.indicators} empty="No indicator met every threshold." />
-                      </div>
-                    </div>
+                    <MatchList matches={category.matches} />
                   </section>
                 ))}
               </div>
@@ -260,13 +228,20 @@ export function HierarchyUpload() {
                 <div key={diagnostic.categoryId} className="rounded-xl border border-zinc-200 p-4 text-sm">
                   <p className="font-medium text-zinc-900">{diagnostic.categoryId}</p>
                   <p className="mt-1 text-zinc-500">
-                    {diagnostic.retrievedChunks} retrieved · {diagnostic.extractedCandidates} extracted · {diagnostic.acceptedCandidates} accepted
+                    {diagnostic.retrievedChunks} chunks retrieved · {diagnostic.matchedCandidates} candidate passages · {diagnostic.matchedQuestions} questions matched
                   </p>
+                  <ul className="mt-3 space-y-1 text-xs leading-5 text-zinc-600">
+                    {diagnostic.questions.map((question, index) => (
+                      <li key={`${question.question}-${index}`}>
+                        {question.question}: {question.retrievedChunks} chunks · {question.generatedCandidates} proposed · {question.acceptedCandidates} retained
+                      </li>
+                    ))}
+                  </ul>
                   {diagnostic.rejected.length > 0 ? (
                     <ul className="mt-3 space-y-2 text-xs leading-5 text-zinc-600">
                       {diagnostic.rejected.map((rejection, index) => (
-                        <li key={`${rejection.candidateId}-${index}`}>
-                          <span className="font-medium text-zinc-800">{rejection.text}:</span>{" "}
+                        <li key={`${rejection.question}-${index}`}>
+                          <span className="font-medium text-zinc-800">{rejection.question}:</span>{" "}
                           {rejection.reason}
                         </li>
                       ))}

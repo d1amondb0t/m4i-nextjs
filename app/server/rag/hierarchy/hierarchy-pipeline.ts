@@ -11,26 +11,25 @@ import type {
 import { DEFAULT_RERANKING_CONFIGURATION } from "@/types/retrieval-types";
 import {
   DEFAULT_HIERARCHY_CONFIGURATION,
-  type ExtractedHierarchyCandidate,
   type FrameworkCategory,
   type FrameworkDimension,
   type FrameworkOntology,
   type HierarchyCategoryDiagnostics,
   type HierarchyCategoryResult,
   type HierarchyConfiguration,
-  type HierarchyItem,
-  type HierarchyItemKind,
   type HierarchyPipelineResult,
-  type HierarchyValidation,
 } from "@/types/hierarchy-types";
 import { DocumentChunker } from "../chunking/chunk-documents";
 import { OllamaEmbedder } from "../embeddings/ollama-embedder";
 import { ragPipelineConfigurationFromEnvironment } from "../pipeline/rag-pipeline-helper";
 import { Retriever } from "../retrieval/retrieval";
-import type { SearchResult } from "../storage/storage-types";
 import { QdrantStore } from "../storage/vector-storage";
-import { buildCategoryQuery, evidenceIsGrounded, mergeSearchResults, normalizedCandidateText, parseFrameworkOntology, validationPasses, } from "./hierarchy-helper";
-import { type HierarchyAnalyzer, OllamaHierarchyAnalyzer, } from "./ollama-hierarchy-analyzer";
+import {
+  buildCategoryQuery,
+  evidenceIsGrounded,
+  parseFrameworkOntology,
+} from "./hierarchy-helper";
+import { type HierarchyAnalyzer, OllamaHierarchyAnalyzer } from "./ollama-hierarchy-analyzer";
 
 export type HierarchyPipelineDependencies = {
   chunker?: Chunker;
@@ -38,19 +37,6 @@ export type HierarchyPipelineDependencies = {
   store?: Store;
   retriever?: PipelineRetriever;
   analyzer?: HierarchyAnalyzer;
-};
-
-type AcceptedCandidate = {
-  id: string;
-  kind: HierarchyItemKind;
-  item: HierarchyItem;
-};
-
-type CategoryDraft = {
-  dimension: FrameworkDimension;
-  category: FrameworkCategory;
-  accepted: AcceptedCandidate[];
-  diagnostics: HierarchyCategoryDiagnostics;
 };
 
 function validateConfiguration(configuration: HierarchyConfiguration): void {
@@ -68,134 +54,8 @@ function validateConfiguration(configuration: HierarchyConfiguration): void {
     throw new Error("maxContextWords must be a positive integer.");
   }
 
-  for (const [name, value] of Object.entries(configuration)) {
-    if (name.startsWith("minimum") && (value < 0 || value > 1)) {
-      throw new Error(`${name} must be between 0 and 1.`);
-    }
-  }
-}
-
-function evidenceKey(evidence: HierarchyItem["evidence"][number]): string {
-  return `${evidence.chunkId}:${evidence.quote}`;
-}
-
-function mergeEvidence(
-  left: HierarchyItem["evidence"],
-  right: HierarchyItem["evidence"],
-): HierarchyItem["evidence"] {
-  const merged = new Map(left.map((evidence) => [evidenceKey(evidence), evidence]));
-
-  for (const evidence of right) {
-    merged.set(evidenceKey(evidence), evidence);
-  }
-
-  return [...merged.values()];
-}
-
-function itemFromCandidate(
-  candidate: ExtractedHierarchyCandidate,
-  validation: HierarchyValidation,
-  resultsByChunkId: ReadonlyMap<string, SearchResult>,
-  accepted: boolean,
-): HierarchyItem {
-  return {
-    text: candidate.text,
-    explicitness: candidate.explicitness,
-    evidence: candidate.evidence.map((evidence) => {
-      const result = resultsByChunkId.get(evidence.chunkId);
-
-      if (!result) {
-        throw new Error(`Validated evidence chunk ${evidence.chunkId} was not retrieved.`);
-      }
-
-      return {
-        chunkId: result.chunk.chunkId,
-        source: result.chunk.source,
-        page: result.chunk.page,
-        chunk: result.chunk.number,
-        retrievalScore: result.score,
-        quote: evidence.quote,
-      };
-    }),
-    assessment: {
-      accepted,
-      categoryFit: validation.categoryFit,
-      typeFit: validation.typeFit,
-      evidenceSupport: validation.evidenceSupport,
-      specificity: validation.specificity,
-      reason: validation.reason,
-    },
-  };
-}
-
-function consolidateCandidates(drafts: CategoryDraft[]): void {
-  const owners = new Map<string, { draft: CategoryDraft; candidate: AcceptedCandidate }>();
-
-  for (const draft of drafts) {
-    const categoryCandidates = new Map<string, AcceptedCandidate>();
-
-    for (const candidate of draft.accepted) {
-      const key = `${candidate.kind}:${normalizedCandidateText(candidate.item.text)}`;
-      const existing = categoryCandidates.get(key);
-
-      if (!existing) {
-        categoryCandidates.set(key, candidate);
-        continue;
-      }
-
-      const preferred =
-        candidate.item.assessment.evidenceSupport >
-          existing.item.assessment.evidenceSupport
-          ? candidate
-          : existing;
-      preferred.item.evidence = mergeEvidence(
-        existing.item.evidence,
-        candidate.item.evidence,
-      );
-      categoryCandidates.set(key, preferred);
-      draft.diagnostics.rejected.push({
-        candidateId: preferred === candidate ? existing.id : candidate.id,
-        text: preferred === candidate ? existing.item.text : candidate.item.text,
-        reason: "Consolidated with an equivalent candidate in the same category.",
-      });
-    }
-
-    draft.accepted = [...categoryCandidates.values()];
-  }
-
-  for (const draft of drafts) {
-    for (const candidate of [...draft.accepted]) {
-      const key = `${candidate.kind}:${normalizedCandidateText(candidate.item.text)}`;
-      const owner = owners.get(key);
-
-      if (!owner) {
-        owners.set(key, { draft, candidate });
-        continue;
-      }
-
-      const candidateFit = candidate.item.assessment.categoryFit;
-      const ownerFit = owner.candidate.item.assessment.categoryFit;
-      const winner = candidateFit > ownerFit ? { draft, candidate } : owner;
-      const loser = winner.candidate === candidate ? owner : { draft, candidate };
-
-      loser.draft.accepted = loser.draft.accepted.filter(
-        (entry) => entry !== loser.candidate,
-      );
-      winner.candidate.item.evidence = mergeEvidence(
-        winner.candidate.item.evidence,
-        loser.candidate.item.evidence,
-      );
-      loser.draft.diagnostics.rejected.push({
-        candidateId: loser.candidate.id,
-        text: loser.candidate.item.text,
-        reason: `Assigned to the better-fitting category "${winner.draft.category.name}".`,
-      });
-      owners.set(key, winner);
-    }
-  }
-
-  for (const draft of drafts) {
-    draft.diagnostics.acceptedCandidates = draft.accepted.length;
+  if (configuration.minimumRetrievalScore < 0 || configuration.minimumRetrievalScore > 1) {
+    throw new Error("minimumRetrievalScore must be between 0 and 1.");
   }
 }
 
@@ -234,20 +94,23 @@ export class HierarchyPipeline {
     this.store = dependencies.store ?? concreteStore;
     this.retriever =
       dependencies.retriever ??
-      new Retriever(concreteStore, concreteEmbedder, {
+      new Retriever(
+        concreteStore,
+        concreteEmbedder,
+        {
           ...ragConfiguration.retrieval,
           topK: configuration.topKPerQuery,
         },
         {
           ...DEFAULT_RERANKING_CONFIGURATION,
           enabled: true,
-        });
+        },
+      );
     this.analyzer =
       dependencies.analyzer ??
       new OllamaHierarchyAnalyzer(
         ragConfiguration.generation.model,
         resolve("prompts/hierarchy-extract.txt"),
-        resolve("prompts/hierarchy-validate.txt"),
         configuration.maxContextWords,
         client,
       );
@@ -257,87 +120,82 @@ export class HierarchyPipeline {
     dimension: FrameworkDimension,
     category: FrameworkCategory,
     documentIds: readonly string[],
-  ): Promise<CategoryDraft> {
-    const outcomeQuery = buildCategoryQuery(dimension, category, "outcome");
-    const indicatorQuery = buildCategoryQuery(dimension, category, "indicator");
-    const [outcomeResults, indicatorResults] = await Promise.all([
-      this.retriever.retrieve(outcomeQuery, documentIds),
-      this.retriever.retrieve(indicatorQuery, documentIds),
-    ]);
-    const results = mergeSearchResults(
-      [outcomeResults, indicatorResults],
-      this.configuration.minimumRetrievalScore,
-    );
+  ): Promise<{ category: HierarchyCategoryResult; diagnostics: HierarchyCategoryDiagnostics }> {
+    const matches: HierarchyCategoryResult["matches"] = [];
+    const retrievedChunkIds = new Set<string>();
     const diagnostics: HierarchyCategoryDiagnostics = {
       categoryId: category.id,
-      outcomeQuery,
-      indicatorQuery,
-      retrievedChunks: results.length,
-      extractedCandidates: 0,
-      acceptedCandidates: 0,
+      retrievedChunks: 0,
+      matchedQuestions: 0,
+      matchedCandidates: 0,
+      questions: [],
       rejected: [],
     };
 
-    if (results.length === 0) {
-      return { dimension, category, accepted: [], diagnostics };
+    for (const question of category.questions) {
+      const query = buildCategoryQuery(dimension, category, question);
+      const results = (await this.retriever.retrieve(query, documentIds)).filter(
+        (result) => result.score >= this.configuration.minimumRetrievalScore,
+      );
+      for (const result of results) retrievedChunkIds.add(result.chunk.chunkId);
+      const questionDiagnostics = {
+        question,
+        retrievedChunks: results.length,
+        generatedCandidates: 0,
+        acceptedCandidates: 0,
+      };
+      diagnostics.questions.push(questionDiagnostics);
+      if (results.length === 0) continue;
+
+      const candidates = await this.analyzer.match(category, question, results);
+      questionDiagnostics.generatedCandidates = candidates.length;
+
+      const resultsByChunkId = new Map(
+        results.map((result) => [result.chunk.chunkId, result]),
+      );
+      const seenPassages = new Set<string>();
+      for (const match of candidates) {
+        if (!evidenceIsGrounded(match, resultsByChunkId)) {
+          diagnostics.rejected.push({
+            question,
+            reason: "A cited chunk or verbatim evidence quote was not present in retrieval.",
+          });
+          continue;
+        }
+        const passageKey = match.evidence
+          .map((evidence) => `${evidence.chunkId}:${evidence.quote.replace(/\s+/g, " ").trim().toLowerCase()}`)
+          .sort()
+          .join("|");
+        if (seenPassages.has(passageKey)) {
+          diagnostics.rejected.push({ question, reason: "Duplicate quoted passage for this question." });
+          continue;
+        }
+        seenPassages.add(passageKey);
+
+        matches.push({
+          question,
+          explicitness: match.explicitness,
+          reason: match.reason,
+          evidence: match.evidence.map((evidence) => {
+            const result = resultsByChunkId.get(evidence.chunkId)!;
+            return {
+              chunkId: evidence.chunkId,
+              source: result.chunk.source,
+              page: result.chunk.page,
+              chunk: result.chunk.number,
+              retrievalScore: result.score,
+              quote: evidence.quote,
+            };
+          }),
+        });
+        questionDiagnostics.acceptedCandidates += 1;
+      }
     }
 
-    const extracted = await this.analyzer.extract(category, results);
-    diagnostics.extractedCandidates = extracted.length;
-    const resultsByChunkId = new Map(
-      results.map((result) => [result.chunk.chunkId, result]),
-    );
-    const grounded = extracted.filter((candidate) => {
-      const valid = evidenceIsGrounded(candidate, resultsByChunkId);
-
-      if (!valid) {
-        diagnostics.rejected.push({
-          candidateId: candidate.id,
-          text: candidate.text,
-          reason: "A cited chunk or verbatim evidence quote was not present in retrieval.",
-        });
-      }
-
-      return valid;
-    });
-    const validations = await this.analyzer.validate(category, grounded, results);
-    const validationByCandidateId = new Map(
-      validations.map((validation) => [validation.candidateId, validation]),
-    );
-    const accepted: AcceptedCandidate[] = [];
-
-    for (const candidate of grounded) {
-      const validation = validationByCandidateId.get(candidate.id);
-
-      if (!validation) {
-        diagnostics.rejected.push({
-          candidateId: candidate.id,
-          text: candidate.text,
-          reason: "The validation stage did not assess this candidate.",
-        });
-        continue;
-      }
-
-      const passes = validationPasses(validation, this.configuration);
-
-      if (!passes) {
-        diagnostics.rejected.push({
-          candidateId: candidate.id,
-          text: candidate.text,
-          reason: `Below validation threshold: ${validation.reason}`,
-        });
-        continue;
-      }
-
-      accepted.push({
-        id: candidate.id,
-        kind: candidate.kind,
-        item: itemFromCandidate(candidate, validation, resultsByChunkId, true),
-      });
-    }
-
-    diagnostics.acceptedCandidates = accepted.length;
-    return { dimension, category, accepted, diagnostics };
+    diagnostics.retrievedChunks = retrievedChunkIds.size;
+    diagnostics.matchedQuestions = new Set(matches.map((match) => match.question)).size;
+    diagnostics.matchedCandidates = matches.length;
+    return { category: { ...category, matches }, diagnostics };
   }
 
   async run(
@@ -354,43 +212,19 @@ export class HierarchyPipeline {
     await this.store.upsert(chunks, vectors);
     const documentIds = [...new Set(chunks.map((chunk) => chunk.documentId))];
 
-    const drafts: CategoryDraft[] = [];
+    const dimensions: HierarchyPipelineResult["framework"]["dimensions"] = [];
+    const diagnostics: HierarchyCategoryDiagnostics[] = [];
 
     for (const dimension of ontology.dimensions) {
+      const categories: HierarchyCategoryResult[] = [];
       for (const category of dimension.categories) {
-        drafts.push(await this.processCategory(dimension, category, documentIds));
+        const result = await this.processCategory(dimension, category, documentIds);
+        categories.push(result.category);
+        diagnostics.push(result.diagnostics);
       }
+      dimensions.push({ ...dimension, categories });
     }
 
-    consolidateCandidates(drafts);
-    const draftByCategoryId = new Map(
-      drafts.map((draft) => [draft.category.id, draft]),
-    );
-
-    return {
-      chunks,
-      diagnostics: drafts.map((draft) => draft.diagnostics),
-      framework: {
-        dimensions: ontology.dimensions.map((dimension) => ({
-          id: dimension.id,
-          name: dimension.name,
-          definition: dimension.definition,
-          categories: dimension.categories.map((category): HierarchyCategoryResult => {
-            const draft = draftByCategoryId.get(category.id);
-            const accepted = draft?.accepted ?? [];
-
-            return {
-              ...category,
-              outcomes: accepted
-                .filter((candidate) => candidate.kind === "outcome")
-                .map((candidate) => candidate.item),
-              indicators: accepted
-                .filter((candidate) => candidate.kind === "indicator")
-                .map((candidate) => candidate.item),
-            };
-          }),
-        })),
-      },
-    };
+    return { chunks, diagnostics, framework: { dimensions } };
   }
 }
