@@ -14,10 +14,10 @@ export default function HierarchyPage() {
             M4I experiment
           </p>
           <h1 className="mt-4 text-4xl font-semibold tracking-tight text-zinc-950 sm:text-5xl">
-            Test hierarchy-grounded extraction
+            Test hierarchy question matching
           </h1>
           <p className="mt-5 text-base leading-7 text-zinc-600 sm:text-lg">
-            Retrieve evidence for every leaf category, extract outcomes and indicators, independently validate them, and inspect why candidates passed or failed.
+            Match document evidence to each category’s questions and inspect whether the support is explicit or implicit.
           </p>
         </header>
 

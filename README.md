@@ -62,35 +62,34 @@ docker compose down
 The named Docker volume preserves the test collection between runs. Use
 `docker compose down --volumes` only when you intentionally want to delete it.
 
-## Hierarchy extraction experiment
+## Hierarchy question matching
 
-The `/hierarchy` route tests ontology-guided framework extraction without
-changing the behavior of the standard `/api/rag` pipeline. Supply the same
-document types plus a JSON ontology containing dimensions and leaf categories.
-The page includes an editable example.
+The `/hierarchy` route matches document evidence to the supplied framework’s
+questions. Supply evidence documents plus a JSON ontology containing dimensions,
+categories, and a non-empty `questions` array for each category.
 
-For every category the experiment:
+The pipeline indexes the documents once, then visits every category and question.
+For each question it:
 
-1. Builds separate outcome and indicator queries from the dimension and
-   category definitions, inclusion criteria, and exclusion criteria.
-2. Retrieves up to 12 chunks per query and discards cosine scores below `0.45`.
-   Searches are filtered to the documents uploaded in the current run, even
-   when the Qdrant collection also contains earlier documents.
-3. Merges duplicate chunks and asks Ollama for structured candidate evidence.
-4. Rejects citations whose chunk IDs or verbatim quotes are absent from the
-   retrieved context.
-5. Independently scores category fit, type fit, evidence support, and
-   specificity, applying the thresholds in
-   `DEFAULT_HIERARCHY_CONFIGURATION`.
-6. Consolidates exact equivalent candidates, assigning a cross-category
-   duplicate to the category with the stronger category-fit score.
+1. Retrieves up to 12 chunks using the dimension, category, and question, keeping
+   scores of at least `0.45`. Searches are restricted to the uploaded documents.
+2. Asks Ollama for up to 20 distinct candidate passages relevant to the question, with
+   a brief explanation and supporting quotes. Partial answers, proposed outcomes,
+   indicators, and measurement criteria can qualify; a complete answer or an
+   achieved intervention is not required. A question can return multiple candidates.
+3. Checks each candidate's cited chunk and quote independently against retrieval,
+   removing repeated citations within the same question. Short quotes and one-sentence
+   explanations keep the response within the model's context budget.
 
-The result view keeps outcomes and indicators separate and shows retrieval
-scores, validation scores, citations, and rejection reasons. Empty categories
-are preserved as explicit abstentions.
+Outcomes and indicators are supplied by the final measuring framework’s question
+associations; this pipeline does not extract or generate them. Results return the
+original questions, match classifications, explanations, and citations. Matches
+are preserved independently in each category, including empty categories.
+Diagnostics distinguish candidate count from matched-question count and report
+retrieved, proposed, and retained counts for every question, including empty results.
 
-These defaults are experimental rather than calibrated confidence
-probabilities. Adjust the values in `types/hierarchy-types.ts` against a
-labelled evaluation set before treating them as production thresholds. Each
-leaf category currently makes two embedding queries, one extraction model call,
-and one validation model call, so runtime grows linearly with category count.
+There are no model-generated validation scores, acceptance thresholds, or
+cross-category winner assignments. Retrieval still uses the limits in
+`DEFAULT_HIERARCHY_CONFIGURATION`, including a 4,000-word context budget. Each
+question makes one retrieval call and, when evidence is retrieved, one matching
+model call. This does not change the standard `/api/rag` pipeline.

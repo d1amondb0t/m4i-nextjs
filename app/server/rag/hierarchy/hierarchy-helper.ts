@@ -2,13 +2,10 @@ import type { SearchResult } from "../storage/storage-types";
 import {
   MAX_HIERARCHY_CATEGORIES,
   MAX_HIERARCHY_DIMENSIONS,
-  type ExtractedHierarchyCandidate,
+  type ExtractedHierarchyMatch,
   type FrameworkCategory,
   type FrameworkDimension,
   type FrameworkOntology,
-  type HierarchyConfiguration,
-  type HierarchyItemKind,
-  type HierarchyValidation,
 } from "@/types/hierarchy-types";
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -50,10 +47,17 @@ function parseCategory(value: unknown, location: string): FrameworkCategory {
     throw new Error(`${location} must be an object.`);
   }
 
+  if (!Array.isArray(value.questions) || value.questions.length === 0) {
+    throw new Error(`${location}.questions must contain at least one question.`);
+  }
+
   return {
     id: requiredText(value.id, `${location}.id`, 100),
     name: requiredText(value.name, `${location}.name`, 200),
     definition: requiredText(value.definition, `${location}.definition`),
+    questions: value.questions.map((question, index) =>
+      requiredText(question, `${location}.questions[${index}]`),
+    ),
     include: optionalTextList(value.include, `${location}.include`),
     exclude: optionalTextList(value.exclude, `${location}.exclude`),
   };
@@ -134,37 +138,13 @@ function list(label: string, values: readonly string[] | undefined): string {
 export function buildCategoryQuery(
   dimension: FrameworkDimension,
   category: FrameworkCategory,
-  kind: HierarchyItemKind,
+  question: string,
 ): string {
-  const target =
-    kind === "outcome"
-      ? "Find evidence of an achieved or intended change resulting from the work. Do not return activities or counts of activities as outcomes."
-      : "Find evidence for an observable, specific measure that can assess change. It may be an explicitly named indicator or a measure directly derivable from the evidence.";
-
   return [
     `Dimension: ${dimension.name}. ${dimension.definition}`,
     `Category: ${category.name}. ${category.definition}${list("Include", category.include)}${list("Exclude", category.exclude)}`,
-    target,
+    `Question: ${question}`,
   ].join("\n");
-}
-
-export function mergeSearchResults(
-  resultGroups: readonly (readonly SearchResult[])[],
-  minimumScore: number,
-): SearchResult[] {
-  const merged = new Map<string, SearchResult>();
-
-  for (const result of resultGroups.flat()) {
-    if (result.score < minimumScore) continue;
-
-    const current = merged.get(result.chunk.chunkId);
-
-    if (!current || result.score > current.score) {
-      merged.set(result.chunk.chunkId, result);
-    }
-  }
-
-  return [...merged.values()].sort((left, right) => right.score - left.score);
 }
 
 export function buildHierarchyContext(
@@ -197,12 +177,12 @@ function normalizedEvidenceText(value: string): string {
 }
 
 export function evidenceIsGrounded(
-  candidate: ExtractedHierarchyCandidate,
+  match: ExtractedHierarchyMatch,
   resultsByChunkId: ReadonlyMap<string, SearchResult>,
 ): boolean {
   return (
-    candidate.evidence.length > 0 &&
-    candidate.evidence.every((evidence) => {
+    match.evidence.length > 0 &&
+    match.evidence.every((evidence) => {
       const result = resultsByChunkId.get(evidence.chunkId);
       const quote = normalizedEvidenceText(evidence.quote);
 
@@ -213,23 +193,4 @@ export function evidenceIsGrounded(
       );
     })
   );
-}
-
-export function validationPasses(
-  validation: HierarchyValidation,
-  configuration: HierarchyConfiguration,
-): boolean {
-  return (
-    validation.categoryFit >= configuration.minimumCategoryFit &&
-    validation.typeFit >= configuration.minimumTypeFit &&
-    validation.evidenceSupport >= configuration.minimumEvidenceSupport &&
-    validation.specificity >= configuration.minimumSpecificity
-  );
-}
-
-export function normalizedCandidateText(text: string): string {
-  return text
-    .toLocaleLowerCase("en-US")
-    .replace(/[^\p{L}\p{N}]+/gu, " ")
-    .trim();
 }
