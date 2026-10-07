@@ -17,8 +17,8 @@ export const DOCUMENT_INPUT_ACCEPT = ACCEPTED_EXTENSIONS.map(
   (extension) => `.${extension}`,
 ).join(",");
 
-export const DOCUMENT_TYPE_LABEL = ACCEPTED_EXTENSIONS.map(
-  (extension) => extension.toUpperCase(),
+export const DOCUMENT_TYPE_LABEL = ACCEPTED_EXTENSIONS.map((extension) =>
+  extension.toUpperCase(),
 ).join(", ");
 
 export const RAG_ACCEPTED_EXTENSIONS = ["pdf", "txt", "md"] as const;

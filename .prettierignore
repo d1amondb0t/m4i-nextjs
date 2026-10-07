@@ -1,0 +1,12 @@
+# Generated files and local data
+node_modules/
+.next/
+out/
+build/
+coverage/
+next-env.d.ts
+package-lock.json
+dataset/
+qdrant_storage/
+calibration/corpus/
+calibration/results/

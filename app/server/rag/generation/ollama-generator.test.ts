@@ -42,9 +42,9 @@ describe("OllamaGenerator.buildContext", () => {
       {} as Ollama,
     );
 
-    expect(generator.buildContext("question", [result("one two three")])).toContain(
-      "one two three",
-    );
+    expect(
+      generator.buildContext("question", [result("one two three")]),
+    ).toContain("one two three");
   });
 
   it("truncates a result to the remaining context budget", () => {
@@ -88,9 +88,9 @@ describe("OllamaGenerator.generate", () => {
       { chat } as unknown as Ollama,
     );
 
-    await expect(generator.generate("question", [result("context")])).resolves.toBe(
-      "Grounded answer.",
-    );
+    await expect(
+      generator.generate("question", [result("context")]),
+    ).resolves.toBe("Grounded answer.");
     expect(chat).toHaveBeenCalledWith(
       expect.objectContaining({ think: false }),
     );

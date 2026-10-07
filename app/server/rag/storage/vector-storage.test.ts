@@ -36,11 +36,11 @@ function collectionInfo(vectorSize?: number) {
           vectorSize === undefined
             ? {}
             : {
-              dense: {
-                size: vectorSize,
-                distance: "Cosine",
+                dense: {
+                  size: vectorSize,
+                  distance: "Cosine",
+                },
               },
-            },
       },
     },
   };
@@ -325,9 +325,9 @@ describe("QdrantStore", () => {
       const error = new Error("Invalid collection");
       vi.spyOn(store, "ensureCollection").mockRejectedValue(error);
 
-      await expect(
-        store.upsert([chunk(0, "text")], [[0.1, 0.2]]),
-      ).rejects.toBe(error);
+      await expect(store.upsert([chunk(0, "text")], [[0.1, 0.2]])).rejects.toBe(
+        error,
+      );
       expect(client.upsert).not.toHaveBeenCalled();
     });
 
@@ -336,9 +336,9 @@ describe("QdrantStore", () => {
       vi.spyOn(store, "ensureCollection").mockResolvedValue();
       client.upsert.mockRejectedValue(error);
 
-      await expect(
-        store.upsert([chunk(0, "text")], [[0.1, 0.2]]),
-      ).rejects.toBe(error);
+      await expect(store.upsert([chunk(0, "text")], [[0.1, 0.2]])).rejects.toBe(
+        error,
+      );
     });
   });
 
@@ -353,6 +353,33 @@ describe("QdrantStore", () => {
         expect.objectContaining({
           limit: 5,
           with_payload: true,
+        }),
+      );
+    });
+
+    it("can scope dense retrieval to the current document IDs", async () => {
+      client.query.mockResolvedValue({ points: [] });
+
+      await store.denseSearch([0.1, 0.2], 5, {
+        documentIds: ["document-1", "document-2"],
+        indexFingerprints: ["current-index"],
+      });
+
+      expect(client.query).toHaveBeenCalledWith(
+        COLLECTION,
+        expect.objectContaining({
+          filter: {
+            must: [
+              {
+                key: "documentId",
+                match: { any: ["document-1", "document-2"] },
+              },
+              {
+                key: "metadata.indexFingerprint",
+                match: { any: ["current-index"] },
+              },
+            ],
+          },
         }),
       );
     });
@@ -425,6 +452,30 @@ describe("QdrantStore", () => {
         limit: 8,
         with_payload: true,
       });
+    });
+
+    it("can scope sparse retrieval to the current document IDs", async () => {
+      client.query.mockResolvedValue({ points: [] });
+
+      await store.sparseSearch("search terms", 8, {
+        documentIds: ["document-1"],
+        indexFingerprints: ["current-index"],
+      });
+
+      expect(client.query).toHaveBeenCalledWith(
+        COLLECTION,
+        expect.objectContaining({
+          filter: {
+            must: [
+              { key: "documentId", match: { any: ["document-1"] } },
+              {
+                key: "metadata.indexFingerprint",
+                match: { any: ["current-index"] },
+              },
+            ],
+          },
+        }),
+      );
     });
 
     it("maps sparse results and preserves their order", async () => {

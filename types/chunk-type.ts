@@ -1,15 +1,14 @@
 import { AcceptedExtension } from "@/app/server/documents/upload-policy";
 
-
 export type ExtractedPage = {
-  page: number,
-  text: string
+  page: number;
+  text: string;
 };
 
 export type ChunkConfiguration = {
   overlapWords: number;
   wordSize: number;
-}
+};
 
 export type DocumentChunkMetadata = {
   contentType: AcceptedExtension;
@@ -22,15 +21,15 @@ export type DocumentChunkMetadata = {
   columns?: string[];
   delimiter?: string;
   encoding?: string;
-}
+};
 
 export type DocumentIdentity = {
   documentId: string;
   source: string;
   sourceHash: string;
-}
+};
 
-export type DocumentChunk =  DocumentIdentity & {
+export type DocumentChunk = DocumentIdentity & {
   chunkId: string;
   page: number;
   number: number;
@@ -40,23 +39,20 @@ export type DocumentChunk =  DocumentIdentity & {
 
 export const DEFAULT_CHUNK_CONFIG: ChunkConfiguration = {
   overlapWords: 50,
-  wordSize: 200
+  wordSize: 200,
 } as const;
 
-
 export function getContextLabel(chunk: DocumentChunk): string {
-  const safeSource = chunk.source
-    .replaceAll("]", "")
-    .replaceAll("\n", " ");
+  const safeSource = chunk.source.replaceAll("]", "").replaceAll("\n", " ");
 
   if (chunk.metadata.contentType == "csv") {
     const rowStart = chunk.metadata.rowStart ?? 1;
     const rowEnd = chunk.metadata.rowEnd ?? rowStart;
-    const location = rowStart === rowEnd ? `Row ${rowStart}` : `Row ${rowStart}-${rowEnd}`;
+    const location =
+      rowStart === rowEnd ? `Row ${rowStart}` : `Row ${rowStart}-${rowEnd}`;
 
     return `${location} | Source: ${safeSource}`;
   }
 
   return `[Page ${chunk.page}] [Source: ${safeSource}]`;
-
 }

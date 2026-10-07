@@ -94,8 +94,9 @@ describe("cleanText", () => {
 
 describe("text extraction", () => {
   it("T1 extracts TXT as one page", async () => {
-    await expect(extractFile(new File(["plain text"], "sample.txt"), "txt"))
-      .resolves.toEqual([{ page: 1, text: "plain text" }]);
+    await expect(
+      extractFile(new File(["plain text"], "sample.txt"), "txt"),
+    ).resolves.toEqual([{ page: 1, text: "plain text" }]);
   });
 
   it("T2 cleans extracted TXT", async () => {
@@ -142,23 +143,23 @@ describe("text extraction", () => {
   });
 
   it("T7 cleans whitespace-only TXT to empty text", async () => {
-    await expect(extractFile(new File([" \t\n "], "blank.txt"), "txt"))
-      .resolves.toEqual([{ page: 1, text: "" }]);
+    await expect(
+      extractFile(new File([" \t\n "], "blank.txt"), "txt"),
+    ).resolves.toEqual([{ page: 1, text: "" }]);
   });
 });
 
 describe("Markdown extraction", () => {
   it("MD1 extracts Markdown as one page", async () => {
-    await expect(extractFile(new File(["# Title"], "README.md"), "md"))
-      .resolves.toEqual([{ page: 1, text: "# Title" }]);
+    await expect(
+      extractFile(new File(["# Title"], "README.md"), "md"),
+    ).resolves.toEqual([{ page: 1, text: "# Title" }]);
   });
 
   it("MD2 preserves Markdown syntax", async () => {
     const markdown = "# Title\n- item\n[link](https://example.com)\n`code`";
     const [page] = await extractFile(new File([markdown], "README.md"), "md");
-    expect(page.text).toBe(
-      "# Title - item [link](https://example.com) `code`",
-    );
+    expect(page.text).toBe("# Title - item [link](https://example.com) `code`");
   });
 
   it("MD3 normalizes whitespace without deleting content", async () => {
@@ -211,7 +212,10 @@ describe("PDF extraction", () => {
   });
 
   it("P3 preserves PDF page numbers", async () => {
-    const pages = await extractFile(await createPdf(["one", "two", "three"]), "pdf");
+    const pages = await extractFile(
+      await createPdf(["one", "two", "three"]),
+      "pdf",
+    );
     expect(pages.map((page) => page.page)).toEqual([1, 2, 3]);
   });
 
@@ -257,10 +261,7 @@ describe("PDF extraction", () => {
   });
 
   it("P9 preserves accented PDF text", async () => {
-    const [page] = await extractFile(
-      await createPdf(["café déjà vu"]),
-      "pdf",
-    );
+    const [page] = await extractFile(await createPdf(["café déjà vu"]), "pdf");
     expect(page.text).toContain("café déjà vu");
   });
 });

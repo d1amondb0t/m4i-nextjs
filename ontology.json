@@ -1,0 +1,477 @@
+{
+  "$comment": "Impact-dimension ontology for M4I. Dimensions mirror the topical buckets of docs/calibration-corpus-sources.md. Each leaf category carries the questions that touch that impact dimension; the calibration harness uses them as retrieval probes.",
+  "dimensions": [
+    {
+      "id": "political",
+      "name": "Political & governance",
+      "definition": "Changes involving political institutions, policy, governance, regulation, or public decision-making.",
+      "categories": [
+        {
+          "id": "advocacy_policy_influence",
+          "name": "Advocacy & policy influence",
+          "definition": "Efforts or changes intended to influence laws, policies, political agendas, or public decision-makers.",
+          "include": [
+            "policy recommendations",
+            "government engagement",
+            "legislative or regulatory influence",
+            "adoption of a standard or guideline"
+          ],
+          "exclude": [
+            "general public awareness without a policy objective",
+            "internal organisational strategy"
+          ],
+          "questions": [
+            "What policy or legislative change did this work seek to bring about, and was it adopted?",
+            "Which government bodies or decision-makers were engaged, and what did they commit to?",
+            "What evidence shows a recommendation was taken up in law, regulation, or official guidance?",
+            "How is the influence of this work on the policy agenda measured or reported?"
+          ]
+        },
+        {
+          "id": "institutional_capacity",
+          "name": "Governance & institutional capacity",
+          "definition": "Changes in the capability, accountability, transparency, or integrity of public institutions.",
+          "include": [
+            "public administration reform",
+            "anti-corruption measures",
+            "transparency and audit",
+            "civil service capability"
+          ],
+          "exclude": [
+            "private-sector corporate governance",
+            "purely financial performance of an institution"
+          ],
+          "questions": [
+            "How did the capacity of the responsible public institution change as a result of the intervention?",
+            "What accountability, audit, or transparency mechanisms were introduced or strengthened?",
+            "Which indicators track improvements in governance quality or institutional performance?",
+            "What evidence is reported on corruption, integrity, or misuse of public resources?"
+          ]
+        },
+        {
+          "id": "participation_representation",
+          "name": "Civic participation & representation",
+          "definition": "Changes in how citizens participate in, or are represented within, public decision-making.",
+          "include": [
+            "electoral participation",
+            "public consultation",
+            "civil society space",
+            "representation of under-represented groups"
+          ],
+          "exclude": [
+            "consumer market behaviour",
+            "employee engagement inside an organisation"
+          ],
+          "questions": [
+            "How did citizen or community participation in decision-making change?",
+            "Which groups gained or lost representation in governing or consultative bodies?",
+            "What consultation processes were run, and how were their results used?",
+            "How is civic space or freedom of association reported to have changed?"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "economic",
+      "name": "Economy & finance",
+      "definition": "Changes in economic activity, incomes, employment, fiscal conditions, or access to finance and markets.",
+      "categories": [
+        {
+          "id": "livelihoods_employment",
+          "name": "Livelihoods, employment & income",
+          "definition": "Changes in jobs, earnings, productivity, or the security of household livelihoods.",
+          "include": [
+            "job creation",
+            "wage or income change",
+            "labour productivity",
+            "informal or precarious work"
+          ],
+          "exclude": [
+            "macro-level GDP aggregates",
+            "public budget allocations"
+          ],
+          "questions": [
+            "How many jobs were created, sustained, or lost, and for whom?",
+            "What change in household income or earnings is reported, and over what period?",
+            "How did labour productivity or business performance change among participants?",
+            "Which indicators measure the quality or security of employment, not just its quantity?"
+          ]
+        },
+        {
+          "id": "macro_fiscal",
+          "name": "Macroeconomic & fiscal conditions",
+          "definition": "Changes in aggregate economic conditions, public finances, debt, inflation, or monetary policy.",
+          "include": [
+            "GDP growth",
+            "fiscal deficit and public debt",
+            "inflation and monetary stance",
+            "trade and current account"
+          ],
+          "exclude": [
+            "individual household income",
+            "single firm financial results"
+          ],
+          "questions": [
+            "What change in growth, inflation, or the fiscal balance is projected or observed?",
+            "How is the sustainability of public debt assessed, and against which thresholds?",
+            "Which macroeconomic indicators are used to judge whether the reform succeeded?",
+            "What fiscal cost or saving is attributed to the measure described?"
+          ]
+        },
+        {
+          "id": "market_access_finance",
+          "name": "Market access & financial inclusion",
+          "definition": "Changes in the ability of people or firms to reach markets, credit, insurance, or payment systems.",
+          "include": [
+            "access to credit",
+            "financial inclusion",
+            "value chain or market linkage",
+            "insurance coverage"
+          ],
+          "exclude": [
+            "central bank monetary operations",
+            "sovereign borrowing"
+          ],
+          "questions": [
+            "How did access to credit, savings, or insurance change for the target population?",
+            "What barriers to market participation were removed, and with what measured effect?",
+            "Which indicators track financial inclusion, and how are they disaggregated?",
+            "What evidence shows small enterprises reaching new buyers or markets?"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "social",
+      "name": "Social impact",
+      "definition": "Changes in wellbeing, equity, social relations, and access to essential services.",
+      "categories": [
+        {
+          "id": "health_wellbeing",
+          "name": "Health & wellbeing",
+          "definition": "Changes in physical or mental health, nutrition, mortality, or subjective wellbeing.",
+          "include": [
+            "morbidity and mortality",
+            "nutrition and food security",
+            "mental health",
+            "health service utilisation"
+          ],
+          "exclude": [
+            "health sector budget lines without a health outcome",
+            "occupational safety compliance paperwork"
+          ],
+          "questions": [
+            "What change in health status, mortality, or morbidity is reported?",
+            "How did nutrition or food security outcomes change for the affected population?",
+            "Which health indicators are tracked, and at what frequency?",
+            "What evidence links the intervention to a measured wellbeing outcome rather than service delivery alone?"
+          ]
+        },
+        {
+          "id": "equity_inclusion",
+          "name": "Equity, inclusion & social cohesion",
+          "definition": "Changes in the distribution of benefits across groups, in discrimination, or in relations between groups.",
+          "include": [
+            "gender equality",
+            "disability inclusion",
+            "inequality measures",
+            "social cohesion and trust"
+          ],
+          "exclude": [
+            "formal legal rights without evidence of practice",
+            "generic diversity statements"
+          ],
+          "questions": [
+            "How were benefits or harms distributed across gender, age, disability, or ethnic groups?",
+            "What change in an inequality or disparity measure is reported?",
+            "Which indicators capture inclusion of marginalised groups, and how are they disaggregated?",
+            "What evidence describes changes in trust or relations between communities?"
+          ]
+        },
+        {
+          "id": "basic_services",
+          "name": "Access to basic services",
+          "definition": "Changes in the availability, affordability, or quality of essential services such as water, sanitation, energy, and social protection.",
+          "include": [
+            "water and sanitation access",
+            "electricity and clean cooking",
+            "social protection coverage",
+            "service affordability"
+          ],
+          "exclude": ["education-specific access", "transport-specific access"],
+          "questions": [
+            "How many people gained access to the service, and how was access defined?",
+            "What change in service reliability, quality, or affordability is documented?",
+            "Which coverage indicators are used, and what is the baseline against which they are compared?",
+            "What evidence shows the service reached the poorest or hardest-to-reach households?"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "environmental",
+      "name": "Environment & climate",
+      "definition": "Changes in emissions, climate risk, ecosystems, pollution, or the use of natural resources.",
+      "categories": [
+        {
+          "id": "emissions_climate",
+          "name": "Emissions & climate mitigation",
+          "definition": "Changes in greenhouse gas emissions or in the activities and commitments that drive them.",
+          "include": [
+            "emission reductions",
+            "renewable energy deployment",
+            "energy efficiency",
+            "mitigation targets and NDCs"
+          ],
+          "exclude": [
+            "adaptation and resilience measures",
+            "biodiversity outcomes"
+          ],
+          "questions": [
+            "What greenhouse gas emission reduction is claimed, and how was it calculated?",
+            "Which mitigation target or commitment does this document set or report against?",
+            "How much renewable capacity or energy saving is attributed to the intervention?",
+            "What indicators are used to monitor progress towards the emissions goal?"
+          ]
+        },
+        {
+          "id": "resilience_adaptation",
+          "name": "Climate resilience & adaptation",
+          "definition": "Changes in exposure or vulnerability to climate hazards, and in the capacity to adapt to them.",
+          "include": [
+            "disaster risk reduction",
+            "adaptation planning",
+            "early warning systems",
+            "vulnerability assessment"
+          ],
+          "exclude": [
+            "emission reduction measures",
+            "general infrastructure maintenance"
+          ],
+          "questions": [
+            "Which climate hazards are identified, and how is vulnerability to them measured?",
+            "What adaptation measures were implemented, and what risk reduction is claimed?",
+            "How is the resilience of communities or assets assessed before and after?",
+            "What early warning or preparedness capability was established?"
+          ]
+        },
+        {
+          "id": "ecosystems_resources",
+          "name": "Ecosystems, pollution & natural resources",
+          "definition": "Changes in biodiversity, land, water, air quality, or the sustainable use of natural resources.",
+          "include": [
+            "biodiversity and habitat",
+            "land degradation and restoration",
+            "water and air quality",
+            "waste and circularity"
+          ],
+          "exclude": ["greenhouse gas accounting", "climate hazard exposure"],
+          "questions": [
+            "What change in habitat area, biodiversity, or ecosystem condition is reported?",
+            "How did pollutant concentrations or water quality change, and against which standard?",
+            "Which natural resource indicators are monitored, and by whom?",
+            "What evidence documents land restoration or degradation attributable to the project?"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "urban_transport",
+      "name": "Urban structures & transport",
+      "definition": "Changes in mobility, infrastructure, land use, housing, and the built environment of cities and regions.",
+      "categories": [
+        {
+          "id": "mobility_access",
+          "name": "Mobility & transport access",
+          "definition": "Changes in how people and goods move, and in who can reach destinations and services.",
+          "include": [
+            "transit ridership",
+            "travel time and reliability",
+            "modal shift",
+            "accessibility to jobs and services"
+          ],
+          "exclude": [
+            "pavement or bridge condition",
+            "zoning and land use rules"
+          ],
+          "questions": [
+            "What change in travel time, ridership, or mode share is reported?",
+            "How did access to jobs, schools, or health facilities change for residents?",
+            "Which mobility indicators are measured, and over what network or corridor?",
+            "What evidence shows the change in service benefited transport-disadvantaged groups?"
+          ]
+        },
+        {
+          "id": "infrastructure_quality",
+          "name": "Infrastructure condition & investment",
+          "definition": "Changes in the physical state, safety, or capital funding of transport and urban infrastructure.",
+          "include": [
+            "asset condition and state of good repair",
+            "road safety outcomes",
+            "capital investment and maintenance",
+            "network capacity"
+          ],
+          "exclude": ["ridership and demand outcomes", "housing affordability"],
+          "questions": [
+            "What change in asset condition or state of good repair is documented?",
+            "How did crash, injury, or fatality counts change after the intervention?",
+            "Which performance targets govern the infrastructure investment described?",
+            "What maintenance backlog or capital need is quantified?"
+          ]
+        },
+        {
+          "id": "landuse_planning",
+          "name": "Land use, housing & urban planning",
+          "definition": "Changes in spatial planning, housing supply and affordability, and the organisation of urban development.",
+          "include": [
+            "zoning and land use change",
+            "housing supply and affordability",
+            "urban densification",
+            "public space provision"
+          ],
+          "exclude": [
+            "transport network operations",
+            "environmental permitting alone"
+          ],
+          "questions": [
+            "What land use or zoning change is proposed, and what development does it enable?",
+            "How did housing supply or affordability change in the area studied?",
+            "Which planning indicators are used to evaluate the spatial strategy?",
+            "What evidence addresses displacement or the distributional effects of redevelopment?"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "humanitarian_rights",
+      "name": "Humanitarian concerns, law & rights",
+      "definition": "Changes in protection of people in crisis, in human rights, and in compliance with legal and normative frameworks.",
+      "categories": [
+        {
+          "id": "protection_rights",
+          "name": "Protection & human rights",
+          "definition": "Changes in the safety, dignity, and rights of people, particularly those exposed to violence, displacement, or discrimination.",
+          "include": [
+            "civilian protection",
+            "refugee and displacement rights",
+            "freedom from violence",
+            "access to justice and remedy"
+          ],
+          "exclude": [
+            "material relief logistics",
+            "treaty text without an application"
+          ],
+          "questions": [
+            "Which rights or protection risks are identified, and for which population?",
+            "What change in the safety or legal status of affected people is reported?",
+            "How is access to justice, remedy, or redress measured?",
+            "What evidence documents violations and the response to them?"
+          ]
+        },
+        {
+          "id": "humanitarian_response",
+          "name": "Humanitarian needs & response",
+          "definition": "Assessment of needs arising from crisis, and the reach, quality, and accountability of assistance provided.",
+          "include": [
+            "needs assessment",
+            "assistance coverage and reach",
+            "accountability to affected populations",
+            "response evaluation"
+          ],
+          "exclude": ["long-term development programming", "legal doctrine"],
+          "questions": [
+            "What humanitarian needs were assessed, and how severe are they judged to be?",
+            "How many affected people were reached with assistance, and with what gap remaining?",
+            "Which indicators measure the timeliness or adequacy of the response?",
+            "What feedback from affected populations is reported, and how was it acted on?"
+          ]
+        },
+        {
+          "id": "legal_norms",
+          "name": "Legal frameworks & normative compliance",
+          "definition": "Changes in law, treaty obligation, or normative standards, and in the degree to which actors comply with them.",
+          "include": [
+            "treaty ratification and implementation",
+            "national implementing legislation",
+            "compliance monitoring",
+            "judicial decisions and jurisprudence"
+          ],
+          "exclude": [
+            "operational programme delivery",
+            "political advocacy without a legal instrument"
+          ],
+          "questions": [
+            "Which legal instrument or normative standard applies, and what does it require?",
+            "What change in national law or its implementation is documented?",
+            "How is compliance with the obligation monitored and reported?",
+            "What judicial or quasi-judicial findings are cited, and what remedy did they order?"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "education",
+      "name": "Education",
+      "definition": "Changes in access to education, in learning, and in the capacity of education systems.",
+      "categories": [
+        {
+          "id": "access_participation",
+          "name": "Access & participation",
+          "definition": "Changes in enrolment, attendance, retention, and completion across education levels.",
+          "include": [
+            "enrolment and attendance",
+            "dropout and retention",
+            "completion and transition rates",
+            "barriers to schooling"
+          ],
+          "exclude": [
+            "measured learning achievement",
+            "teacher workforce policy"
+          ],
+          "questions": [
+            "What change in enrolment, attendance, or completion is reported, and for which cohort?",
+            "Which groups remain excluded from education, and what barriers are identified?",
+            "How are participation indicators defined and disaggregated?",
+            "What evidence shows dropout was reduced rather than merely delayed?"
+          ]
+        },
+        {
+          "id": "learning_outcomes",
+          "name": "Learning outcomes & quality",
+          "definition": "Changes in what learners know and can do, and in the instructional quality that produces it.",
+          "include": [
+            "assessment and test results",
+            "literacy and numeracy",
+            "curriculum and pedagogy quality",
+            "learning gain measurement"
+          ],
+          "exclude": ["enrolment counts", "school construction"],
+          "questions": [
+            "What change in learning achievement is measured, and with which assessment?",
+            "How large is the reported learning gain, and how was it estimated?",
+            "Which indicators of instructional quality are collected?",
+            "What evidence connects the curriculum or pedagogy change to a learning outcome?"
+          ]
+        },
+        {
+          "id": "teacher_system_capacity",
+          "name": "Teachers & system capacity",
+          "definition": "Changes in the education workforce, in school management, and in the financing and administration of education systems.",
+          "include": [
+            "teacher training and retention",
+            "school leadership and management",
+            "education financing",
+            "data and monitoring systems"
+          ],
+          "exclude": ["student learning results", "student enrolment"],
+          "questions": [
+            "What change in teacher supply, qualification, or retention is reported?",
+            "How did professional development alter classroom practice, and how was that verified?",
+            "Which system-level indicators track education financing or administration?",
+            "What evidence describes the capacity of the ministry or district to monitor schools?"
+          ]
+        }
+      ]
+    }
+  ]
+}

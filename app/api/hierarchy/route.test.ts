@@ -2,19 +2,19 @@ import { describe, expect, it } from "vitest";
 
 import { POST } from "./route";
 
-async function submit(entries: { documents?: File[]; question?: string }) {
+async function submit(entries: { documents?: File[]; ontology?: string }) {
   const formData = new FormData();
 
   for (const document of entries.documents ?? []) {
     formData.append("documents", document);
   }
 
-  if (entries.question !== undefined) {
-    formData.append("question", entries.question);
+  if (entries.ontology !== undefined) {
+    formData.append("ontology", entries.ontology);
   }
 
   const response = await POST(
-    new Request("http://localhost/api/rag", {
+    new Request("http://localhost/api/hierarchy", {
       method: "POST",
       body: formData,
     }),
@@ -26,9 +26,9 @@ async function submit(entries: { documents?: File[]; question?: string }) {
   };
 }
 
-describe("POST /api/rag input validation", () => {
+describe("POST /api/hierarchy input validation", () => {
   it("requires at least one document", async () => {
-    const { body, response } = await submit({ question: "What is this?" });
+    const { body, response } = await submit({ ontology: "{}" });
 
     expect(response.status).toBe(400);
     expect(body).toEqual({
@@ -37,7 +37,7 @@ describe("POST /api/rag input validation", () => {
     });
   });
 
-  it("requires a question", async () => {
+  it("requires an ontology", async () => {
     const { body, response } = await submit({
       documents: [new File(["content"], "notes.txt")],
     });
@@ -45,21 +45,20 @@ describe("POST /api/rag input validation", () => {
     expect(response.status).toBe(400);
     expect(body).toEqual({
       ok: false,
-      message: "Enter a question about the selected documents.",
+      message: "Provide a framework ontology as JSON.",
     });
   });
 
-  it("rejects formats not implemented by the chunker", async () => {
+  it("rejects malformed ontology JSON", async () => {
     const { body, response } = await submit({
-      documents: [new File(["a,b"], "data.csv")],
-      question: "What is in the data?",
+      documents: [new File(["content"], "notes.txt")],
+      ontology: "{not-json}",
     });
 
     expect(response.status).toBe(400);
     expect(body).toEqual({
       ok: false,
-      message:
-        "data.csv is accepted for upload, but is not implemented in the RAG chunker yet.",
+      message: "Framework ontology must be valid JSON.",
     });
   });
 });

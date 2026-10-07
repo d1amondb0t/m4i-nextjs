@@ -1,7 +1,17 @@
 import { Ollama } from "ollama";
 import { resolve } from "node:path";
 
-import { type Chunker, type Embedder, type Generator, type PipelineRetriever, type RagPipelineConfiguration, type RagPipelineDependencies, type RagPipelineResult, type Store, validateQuestion, } from "@/types/rag-pipeline-type";
+import {
+  type Chunker,
+  type Embedder,
+  type Generator,
+  type PipelineRetriever,
+  type RagPipelineConfiguration,
+  type RagPipelineDependencies,
+  type RagPipelineResult,
+  type Store,
+  validateQuestion,
+} from "@/types/rag-pipeline-type";
 import { DocumentChunker } from "../chunking/chunk-documents";
 import { OllamaEmbedder } from "../embeddings/ollama-embedder";
 import { OllamaGenerator } from "../generation/ollama-generator";
@@ -9,8 +19,17 @@ import { Retriever } from "../retrieval/retrieval";
 import { QdrantStore } from "../storage/vector-storage";
 import { ragPipelineConfigurationFromEnvironment } from "./rag-pipeline-helper";
 
-export { DEFAULT_RAG_PIPELINE_CONFIGURATION, positiveInteger, ragPipelineConfigurationFromEnvironment, storageFromEnvironment } from "./rag-pipeline-helper";
-export type { RagPipelineConfiguration, RagPipelineDependencies, RagPipelineResult, } from "@/types/rag-pipeline-type";
+export {
+  DEFAULT_RAG_PIPELINE_CONFIGURATION,
+  positiveInteger,
+  ragPipelineConfigurationFromEnvironment,
+  storageFromEnvironment,
+} from "./rag-pipeline-helper";
+export type {
+  RagPipelineConfiguration,
+  RagPipelineDependencies,
+  RagPipelineResult,
+} from "@/types/rag-pipeline-type";
 
 export class RagPipeline {
   private readonly chunker: Chunker;
@@ -50,7 +69,10 @@ export class RagPipeline {
       );
   }
 
-  async run(documents: readonly File[], question: string): Promise<RagPipelineResult> {
+  async run(
+    documents: readonly File[],
+    question: string,
+  ): Promise<RagPipelineResult> {
     if (documents.length === 0) {
       throw new Error("At least one document is required.");
     }
@@ -63,7 +85,9 @@ export class RagPipeline {
 
     const normalizedQuestion = question.trim();
     const chunks = await this.chunker.chunkDocuments(documents);
-    const vectors = await this.embedder.embed(chunks.map((chunk) => chunk.text));
+    const vectors = await this.embedder.embed(
+      chunks.map((chunk) => chunk.text),
+    );
 
     await this.store.upsert(chunks, vectors);
 

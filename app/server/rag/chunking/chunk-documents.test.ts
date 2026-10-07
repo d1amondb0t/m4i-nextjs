@@ -46,11 +46,15 @@ describe("extension routing", () => {
   });
 
   it("E3 accepts PDF", async () => {
-    await expect(chunkDocument(await createPdf(["content"]))).resolves.toHaveLength(1);
+    await expect(
+      chunkDocument(await createPdf(["content"])),
+    ).resolves.toHaveLength(1);
   });
 
   it.each(["TXT", "MD"])("E4 accepts uppercase .%s", async (extension) => {
-    const [chunk] = await chunkDocument(textFile("content", `sample.${extension}`));
+    const [chunk] = await chunkDocument(
+      textFile("content", `sample.${extension}`),
+    );
     expect(chunk.metadata.contentType).toBe(extension.toLowerCase());
   });
 
@@ -71,7 +75,7 @@ describe("extension routing", () => {
 
   it("E9 rejects a filename without an extension", async () => {
     await expect(chunkDocument(textFile("content", "README"))).rejects.toThrow(
-      "Document type \".readme\" is not implemented",
+      'Document type ".readme" is not implemented',
     );
   });
 
@@ -101,7 +105,10 @@ describe("basic word chunking", () => {
   });
 
   it("B3 creates one chunk at exactly wordSize", async () => {
-    const chunks = await chunkDocument(textFile("one two three four"), NO_OVERLAP);
+    const chunks = await chunkDocument(
+      textFile("one two three four"),
+      NO_OVERLAP,
+    );
     expect(chunks.map((chunk) => chunk.text)).toEqual(["one two three four"]);
   });
 
@@ -117,13 +124,19 @@ describe("basic word chunking", () => {
   });
 
   it("B5 does not create a redundant chunk for exact multiples", async () => {
-    const chunks = await chunkDocument(textFile(words(8).join(" ")), NO_OVERLAP);
+    const chunks = await chunkDocument(
+      textFile(words(8).join(" ")),
+      NO_OVERLAP,
+    );
     expect(chunks).toHaveLength(2);
     expect(chunks[1].text).toBe(words(8).slice(4).join(" "));
   });
 
   it("B6 creates the correct partial final chunk", async () => {
-    const chunks = await chunkDocument(textFile(words(10).join(" ")), NO_OVERLAP);
+    const chunks = await chunkDocument(
+      textFile(words(10).join(" ")),
+      NO_OVERLAP,
+    );
     expect(chunks.map((chunk) => chunk.metadata.wordCount)).toEqual([4, 4, 2]);
     expect(chunks[2].text).toBe("word9 word10");
   });
@@ -138,36 +151,51 @@ describe("basic word chunking", () => {
   });
 
   it("B8 rejects empty content", async () => {
-    await expect(chunkDocument(textFile("", "empty.txt"), NO_OVERLAP)).rejects.toThrow(
-      "No text could be extracted from empty.txt",
-    );
+    await expect(
+      chunkDocument(textFile("", "empty.txt"), NO_OVERLAP),
+    ).rejects.toThrow("No text could be extracted from empty.txt");
   });
 
   it("B9 numbers chunks sequentially from one", async () => {
-    const chunks = await chunkDocument(textFile(words(10).join(" ")), NO_OVERLAP);
+    const chunks = await chunkDocument(
+      textFile(words(10).join(" ")),
+      NO_OVERLAP,
+    );
     expect(chunks.map((chunk) => chunk.number)).toEqual([1, 2, 3]);
   });
 
   it("B10 records page-relative word starts", async () => {
-    const chunks = await chunkDocument(textFile(words(10).join(" ")), NO_OVERLAP);
+    const chunks = await chunkDocument(
+      textFile(words(10).join(" ")),
+      NO_OVERLAP,
+    );
     expect(chunks.map((chunk) => chunk.metadata.wordStart)).toEqual([0, 4, 8]);
   });
 
   it("B11 records each chunk's word count", async () => {
-    const chunks = await chunkDocument(textFile(words(10).join(" ")), NO_OVERLAP);
+    const chunks = await chunkDocument(
+      textFile(words(10).join(" ")),
+      NO_OVERLAP,
+    );
     expect(chunks.map((chunk) => chunk.metadata.wordCount)).toEqual([4, 4, 2]);
   });
 
   it("B12 represents all original words in order", async () => {
     const original = words(10);
-    const chunks = await chunkDocument(textFile(original.join(" ")), NO_OVERLAP);
+    const chunks = await chunkDocument(
+      textFile(original.join(" ")),
+      NO_OVERLAP,
+    );
     expect(chunks.flatMap((chunk) => chunk.text.split(" "))).toEqual(original);
   });
 });
 
 describe("overlap behavior", () => {
   it("O1 creates adjacent chunks with zero overlap", async () => {
-    const chunks = await chunkDocument(textFile(words(8).join(" ")), NO_OVERLAP);
+    const chunks = await chunkDocument(
+      textFile(words(8).join(" ")),
+      NO_OVERLAP,
+    );
     expect(chunks.map((chunk) => chunk.text)).toEqual([
       "word1 word2 word3 word4",
       "word5 word6 word7 word8",
@@ -239,7 +267,9 @@ describe("overlap behavior", () => {
     for (let index = 1; index < chunks.length; index += 1) {
       const previous = chunks[index - 1].text.split(" ");
       const current = chunks[index].text.split(" ");
-      expect(previous.slice(-overlapWords)).toEqual(current.slice(0, overlapWords));
+      expect(previous.slice(-overlapWords)).toEqual(
+        current.slice(0, overlapWords),
+      );
     }
   });
 
@@ -280,11 +310,22 @@ describe("page-aware chunking", () => {
 
   it("PG2 never overlaps across page boundaries", async () => {
     const chunks = await chunkDocument(
-      await createPdf(["pageone alpha beta gamma", "pagetwo delta epsilon zeta"]),
+      await createPdf([
+        "pageone alpha beta gamma",
+        "pagetwo delta epsilon zeta",
+      ]),
       { wordSize: 3, overlapWords: 1 },
     );
-    expect(chunks.filter((chunk) => chunk.page === 1).every((chunk) => !chunk.text.includes("pagetwo"))).toBe(true);
-    expect(chunks.filter((chunk) => chunk.page === 2).every((chunk) => !chunk.text.includes("pageone"))).toBe(true);
+    expect(
+      chunks
+        .filter((chunk) => chunk.page === 1)
+        .every((chunk) => !chunk.text.includes("pagetwo")),
+    ).toBe(true);
+    expect(
+      chunks
+        .filter((chunk) => chunk.page === 2)
+        .every((chunk) => !chunk.text.includes("pageone")),
+    ).toBe(true);
   });
 
   it("PG3 resets wordStart on every page", async () => {
@@ -292,8 +333,16 @@ describe("page-aware chunking", () => {
       await createPdf(["one two three four five", "six seven eight nine ten"]),
       { wordSize: 4, overlapWords: 1 },
     );
-    expect(chunks.filter((chunk) => chunk.page === 1).map((chunk) => chunk.metadata.wordStart)).toEqual([0, 3]);
-    expect(chunks.filter((chunk) => chunk.page === 2).map((chunk) => chunk.metadata.wordStart)).toEqual([0, 3]);
+    expect(
+      chunks
+        .filter((chunk) => chunk.page === 1)
+        .map((chunk) => chunk.metadata.wordStart),
+    ).toEqual([0, 3]);
+    expect(
+      chunks
+        .filter((chunk) => chunk.page === 2)
+        .map((chunk) => chunk.metadata.wordStart),
+    ).toEqual([0, 3]);
   });
 
   it("PG4 continues chunk numbering across pages", async () => {
@@ -352,7 +401,10 @@ describe("chunk configuration", () => {
   });
 
   it("V2 accepts zero overlap", async () => {
-    const chunks = await chunkDocument(textFile(words(8).join(" ")), NO_OVERLAP);
+    const chunks = await chunkDocument(
+      textFile(words(8).join(" ")),
+      NO_OVERLAP,
+    );
     expect(chunks).toHaveLength(2);
   });
 
@@ -406,62 +458,108 @@ describe("document and chunk identity", () => {
     const file = textFile("one two three four five", "stable.txt");
     const first = await chunkDocument(file, NO_OVERLAP);
     const second = await chunkDocument(file, NO_OVERLAP);
-    expect(first.map((chunk) => chunk.chunkId)).toEqual(second.map((chunk) => chunk.chunkId));
+    expect(first.map((chunk) => chunk.chunkId)).toEqual(
+      second.map((chunk) => chunk.chunkId),
+    );
     expect(first[0].documentId).toBe(second[0].documentId);
   });
 
   it("I2 changes documentId when content changes", async () => {
-    const [first] = await chunkDocument(textFile("first", "same.txt"), NO_OVERLAP);
-    const [second] = await chunkDocument(textFile("second", "same.txt"), NO_OVERLAP);
+    const [first] = await chunkDocument(
+      textFile("first", "same.txt"),
+      NO_OVERLAP,
+    );
+    const [second] = await chunkDocument(
+      textFile("second", "same.txt"),
+      NO_OVERLAP,
+    );
     expect(first.documentId).not.toBe(second.documentId);
   });
 
   it("I3 changes chunk IDs when content changes", async () => {
-    const [first] = await chunkDocument(textFile("first", "same.txt"), NO_OVERLAP);
-    const [second] = await chunkDocument(textFile("second", "same.txt"), NO_OVERLAP);
+    const [first] = await chunkDocument(
+      textFile("first", "same.txt"),
+      NO_OVERLAP,
+    );
+    const [second] = await chunkDocument(
+      textFile("second", "same.txt"),
+      NO_OVERLAP,
+    );
     expect(first.chunkId).not.toBe(second.chunkId);
   });
 
   it("I4 changes documentId when filename changes", async () => {
-    const [first] = await chunkDocument(textFile("same", "first.txt"), NO_OVERLAP);
-    const [second] = await chunkDocument(textFile("same", "second.txt"), NO_OVERLAP);
+    const [first] = await chunkDocument(
+      textFile("same", "first.txt"),
+      NO_OVERLAP,
+    );
+    const [second] = await chunkDocument(
+      textFile("same", "second.txt"),
+      NO_OVERLAP,
+    );
     expect(first.documentId).not.toBe(second.documentId);
   });
 
   it("I5 treats filename casing as case-insensitive for identity", async () => {
-    const [first] = await chunkDocument(textFile("same", "SAMPLE.TXT"), NO_OVERLAP);
-    const [second] = await chunkDocument(textFile("same", "sample.txt"), NO_OVERLAP);
+    const [first] = await chunkDocument(
+      textFile("same", "SAMPLE.TXT"),
+      NO_OVERLAP,
+    );
+    const [second] = await chunkDocument(
+      textFile("same", "sample.txt"),
+      NO_OVERLAP,
+    );
     expect(first.documentId).toBe(second.documentId);
   });
 
   it("I6 gives different positions different chunk IDs", async () => {
-    const chunks = await chunkDocument(textFile(words(8).join(" ")), NO_OVERLAP);
-    expect(new Set(chunks.map((chunk) => chunk.chunkId)).size).toBe(chunks.length);
+    const chunks = await chunkDocument(
+      textFile(words(8).join(" ")),
+      NO_OVERLAP,
+    );
+    expect(new Set(chunks.map((chunk) => chunk.chunkId)).size).toBe(
+      chunks.length,
+    );
   });
 
   it("I7 changes chunk IDs when wordSize changes", async () => {
     const file = textFile(words(8).join(" "));
     const [first] = await chunkDocument(file, { wordSize: 4, overlapWords: 0 });
-    const [second] = await chunkDocument(file, { wordSize: 5, overlapWords: 0 });
+    const [second] = await chunkDocument(file, {
+      wordSize: 5,
+      overlapWords: 0,
+    });
     expect(first.chunkId).not.toBe(second.chunkId);
   });
 
   it("I8 changes chunk IDs when overlap changes", async () => {
     const file = textFile(words(8).join(" "));
     const [first] = await chunkDocument(file, { wordSize: 4, overlapWords: 0 });
-    const [second] = await chunkDocument(file, { wordSize: 4, overlapWords: 1 });
+    const [second] = await chunkDocument(file, {
+      wordSize: 4,
+      overlapWords: 1,
+    });
     expect(first.chunkId).not.toBe(second.chunkId);
   });
 
   it("I9 includes the extension in identity", async () => {
-    const [txt] = await chunkDocument(textFile("same", "sample.txt"), NO_OVERLAP);
+    const [txt] = await chunkDocument(
+      textFile("same", "sample.txt"),
+      NO_OVERLAP,
+    );
     const [md] = await chunkDocument(textFile("same", "sample.md"), NO_OVERLAP);
     expect(txt.chunkId).not.toBe(md.chunkId);
   });
 
   it("I10 changes sourceHash when file bytes change", async () => {
-    const [first] = await chunkDocument(textFile("first", "same.txt"), NO_OVERLAP);
-    const [second] = await chunkDocument(textFile("second", "same.txt"), NO_OVERLAP);
+    const [first] = await chunkDocument(
+      textFile("first", "same.txt"),
+      NO_OVERLAP,
+    );
+    const [second] = await chunkDocument(
+      textFile("second", "same.txt"),
+      NO_OVERLAP,
+    );
     expect(first.sourceHash).not.toBe(second.sourceHash);
   });
 
@@ -469,19 +567,34 @@ describe("document and chunk identity", () => {
     const file = textFile("same content");
     const [first] = await chunkDocument(file, NO_OVERLAP);
     const [second] = await chunkDocument(file, NO_OVERLAP);
-    expect(first.metadata.indexFingerprint).toBe(second.metadata.indexFingerprint);
+    expect(first.metadata.indexFingerprint).toBe(
+      second.metadata.indexFingerprint,
+    );
   });
 
   it("I12 changes the fingerprint when content changes", async () => {
-    const [first] = await chunkDocument(textFile("first", "same.txt"), NO_OVERLAP);
-    const [second] = await chunkDocument(textFile("second", "same.txt"), NO_OVERLAP);
-    expect(first.metadata.indexFingerprint).not.toBe(second.metadata.indexFingerprint);
+    const [first] = await chunkDocument(
+      textFile("first", "same.txt"),
+      NO_OVERLAP,
+    );
+    const [second] = await chunkDocument(
+      textFile("second", "same.txt"),
+      NO_OVERLAP,
+    );
+    expect(first.metadata.indexFingerprint).not.toBe(
+      second.metadata.indexFingerprint,
+    );
   });
 
   it("I13 changes the fingerprint when configuration changes", async () => {
     const file = textFile(words(8).join(" "));
     const [first] = await chunkDocument(file, { wordSize: 4, overlapWords: 0 });
-    const [second] = await chunkDocument(file, { wordSize: 5, overlapWords: 0 });
-    expect(first.metadata.indexFingerprint).not.toBe(second.metadata.indexFingerprint);
+    const [second] = await chunkDocument(file, {
+      wordSize: 5,
+      overlapWords: 0,
+    });
+    expect(first.metadata.indexFingerprint).not.toBe(
+      second.metadata.indexFingerprint,
+    );
   });
 });

@@ -91,10 +91,9 @@ describe("RagPipeline", () => {
     expect(dependencies.embedder.embed).toHaveBeenCalledWith([
       "The launch date is Friday.",
     ]);
-    expect(dependencies.store.upsert).toHaveBeenCalledWith(
-      result.chunks,
-      [[0.1, 0.2, 0.3]],
-    );
+    expect(dependencies.store.upsert).toHaveBeenCalledWith(result.chunks, [
+      [0.1, 0.2, 0.3],
+    ]);
     expect(dependencies.retriever.retrieve).toHaveBeenCalledWith(
       "When is launch?",
     );

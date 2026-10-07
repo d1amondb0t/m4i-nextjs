@@ -7,9 +7,13 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
+    "lint:fix": "eslint --fix",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
     "test": "vitest run"
   },
   "dependencies": {
+    "@huggingface/transformers": "^4.2.0",
     "@qdrant/js-client-rest": "^1.19.0",
     "next": "16.3.0",
     "ollama": "^0.6.3",
@@ -26,7 +30,9 @@
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "16.3.0",
+    "eslint-config-prettier": "10.1.8",
     "pdf-lib": "^1.17.1",
+    "prettier": "3.9.9",
     "tailwindcss": "^4",
     "typescript": "^5",
     "vitest": "^4.1.10"

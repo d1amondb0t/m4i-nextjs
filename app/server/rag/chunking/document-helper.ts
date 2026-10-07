@@ -21,15 +21,19 @@ function decodeUtf8(data: Uint8Array, filename: string): string {
   }
 }
 
-
-export async function extractFile(file: File, extension: string): Promise<ExtractedPage[]> {
+export async function extractFile(
+  file: File,
+  extension: string,
+): Promise<ExtractedPage[]> {
   const bytes = new Uint8Array(await file.arrayBuffer());
 
   if (extension !== "pdf") {
-    return [{
-      page: 1,
-      text: cleanText(decodeUtf8(bytes, file.name))
-    }]
+    return [
+      {
+        page: 1,
+        text: cleanText(decodeUtf8(bytes, file.name)),
+      },
+    ];
   }
 
   const parser = new PDFParse({ data: bytes });
@@ -38,7 +42,7 @@ export async function extractFile(file: File, extension: string): Promise<Extrac
     const result = await parser.getText();
     return result.pages.map((page) => ({
       page: page.num,
-      text: cleanText(page.text)
+      text: cleanText(page.text),
     }));
   } finally {
     await parser.destroy();
