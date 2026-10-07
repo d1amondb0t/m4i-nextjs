@@ -142,8 +142,9 @@ export function HierarchyUpload() {
             type="file"
             accept={RAG_DOCUMENT_INPUT_ACCEPT}
             multiple
+            disabled={isSubmitting}
             onChange={handleSelection}
-            className="mt-3 block w-full rounded-xl border border-zinc-300 px-4 py-3 text-sm text-zinc-700 file:mr-4 file:rounded-lg file:border-0 file:bg-zinc-950 file:px-3 file:py-2 file:text-sm file:font-medium file:text-white"
+            className="mt-3 block w-full rounded-xl border border-zinc-300 px-4 py-3 text-sm text-zinc-700 file:mr-4 file:rounded-lg file:border-0 file:bg-zinc-950 file:px-3 file:py-2 file:text-sm file:font-medium file:text-white disabled:cursor-not-allowed disabled:bg-zinc-100 disabled:text-zinc-400"
           />
           {files.length > 0 ? (
             <p className="mt-2 text-xs text-zinc-500">
@@ -162,12 +163,13 @@ export function HierarchyUpload() {
             value={ontology}
             rows={20}
             spellCheck={false}
+            disabled={isSubmitting}
             onChange={(event) => {
               setOntology(event.target.value);
               setResult(null);
               setStatus({ type: "idle", message: "" });
             }}
-            className="mt-3 w-full resize-y rounded-xl border border-zinc-300 bg-zinc-950 px-4 py-3 font-mono text-xs leading-5 text-zinc-100 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+            className="mt-3 w-full resize-y rounded-xl border border-zinc-300 bg-zinc-950 px-4 py-3 font-mono text-xs leading-5 text-zinc-100 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 disabled:cursor-not-allowed disabled:opacity-60"
           />
 
           <ol className="mt-6 grid gap-2 text-xs text-zinc-600 sm:grid-cols-3">
