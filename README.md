@@ -93,3 +93,29 @@ cross-category winner assignments. Retrieval still uses the limits in
 `DEFAULT_HIERARCHY_CONFIGURATION`, including a 4,000-word context budget. Each
 question makes one retrieval call and, when evidence is retrieved, one matching
 model call. This does not change the standard `/api/rag` pipeline.
+
+## Manual relevance calibration dataset
+
+`scripts/build_calibration_pairs.py` reads `ontology.json` and the downloaded
+`dataset/{dimension}/raw/*.pdf` files. In filename-number order, it submits ten
+PDFs from one dimension per `POST /api/calibration` request, together with every
+question in that dimension's ontology categories. The server chunks and embeds
+that batch once, then returns up to 20 ranked chunks per question. Each search is
+filtered to the submitted documents and chunk configuration. There is no answer
+generation, relevance judgment, or reranking by default.
+
+With the Node server, Ollama, and Qdrant running:
+
+```sh
+python3 -m pip install pandas requests
+python3 scripts/build_calibration_pairs.py
+```
+
+The output is `calibration/pairs.csv`. Its `related` column is empty for a human
+to fill with `yes` or `no`. The script refuses to overwrite an existing output,
+so use `--output` for another run. Partial output is saved after every successful
+document batch. Run `python3 scripts/build_calibration_pairs.py --help` for chunk
+size, overlap, embedding model, retrieval strategy, and optional cross-encoder
+reranking options. The API accepts these settings in the multipart
+`configuration` JSON field and questions in the `questions` JSON array field.
+Only dense and sparse retrieval and cross-encoder reranking are implemented.
