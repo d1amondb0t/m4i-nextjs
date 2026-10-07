@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { parseMatchResponse } from "./ollama-hierarchy-analyzer";
+import { parseMatchResponse } from "./ollama-hierarchy-analyzer-helper";
 
 const match = {
   explicitness: "explicit",
