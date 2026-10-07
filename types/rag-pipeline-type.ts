@@ -1,7 +1,7 @@
 import type { SearchResult, StorageConfiguration } from "@/app/server/rag/storage/storage-types";
 import type { ChunkConfiguration, DocumentChunk } from "./chunk-type";
 import type { GenerationConfiguration } from "./generation-type";
-import type { RetrievalConfiguration } from "./retrieval-types";
+import type { RetrievalConfiguration, RetrievalScope } from "./retrieval-types";
 
 export const MAX_QUESTION_LENGTH = 2_000;
 
@@ -18,7 +18,7 @@ export type Store = {
 };
 
 export type PipelineRetriever = {
-  retrieve(question: string): Promise<SearchResult[]>;
+  retrieve(question: string, scope?: RetrievalScope): Promise<SearchResult[]>;
 };
 
 export type Generator = {

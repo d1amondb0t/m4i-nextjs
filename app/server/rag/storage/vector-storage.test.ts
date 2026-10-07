@@ -357,6 +357,33 @@ describe("QdrantStore", () => {
       );
     });
 
+    it("can scope dense retrieval to the current document IDs", async () => {
+      client.query.mockResolvedValue({ points: [] });
+
+      await store.denseSearch([0.1, 0.2], 5, {
+        documentIds: ["document-1", "document-2"],
+        indexFingerprints: ["current-index"],
+      });
+
+      expect(client.query).toHaveBeenCalledWith(
+        COLLECTION,
+        expect.objectContaining({
+          filter: {
+            must: [
+              {
+                key: "documentId",
+                match: { any: ["document-1", "document-2"] },
+              },
+              {
+                key: "metadata.indexFingerprint",
+                match: { any: ["current-index"] },
+              },
+            ],
+          },
+        }),
+      );
+    });
+
     it("maps dense results and preserves their order", async () => {
       const first = chunk(0, "first");
       const second = chunk(1, "second");
@@ -425,6 +452,30 @@ describe("QdrantStore", () => {
         limit: 8,
         with_payload: true,
       });
+    });
+
+    it("can scope sparse retrieval to the current document IDs", async () => {
+      client.query.mockResolvedValue({ points: [] });
+
+      await store.sparseSearch("search terms", 8, {
+        documentIds: ["document-1"],
+        indexFingerprints: ["current-index"],
+      });
+
+      expect(client.query).toHaveBeenCalledWith(
+        COLLECTION,
+        expect.objectContaining({
+          filter: {
+            must: [
+              { key: "documentId", match: { any: ["document-1"] } },
+              {
+                key: "metadata.indexFingerprint",
+                match: { any: ["current-index"] },
+              },
+            ],
+          },
+        }),
+      );
     });
 
     it("maps sparse results and preserves their order", async () => {

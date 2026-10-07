@@ -61,3 +61,35 @@ docker compose down
 
 The named Docker volume preserves the test collection between runs. Use
 `docker compose down --volumes` only when you intentionally want to delete it.
+
+## Hierarchy question matching
+
+The `/hierarchy` route matches document evidence to the supplied framework’s
+questions. Supply evidence documents plus a JSON ontology containing dimensions,
+categories, and a non-empty `questions` array for each category.
+
+The pipeline indexes the documents once, then visits every category and question.
+For each question it:
+
+1. Retrieves up to 12 chunks using the dimension, category, and question, keeping
+   scores of at least `0.45`. Searches are restricted to the uploaded documents.
+2. Asks Ollama for up to 20 distinct candidate passages relevant to the question, with
+   a brief explanation and supporting quotes. Partial answers, proposed outcomes,
+   indicators, and measurement criteria can qualify; a complete answer or an
+   achieved intervention is not required. A question can return multiple candidates.
+3. Checks each candidate's cited chunk and quote independently against retrieval,
+   removing repeated citations within the same question. Short quotes and one-sentence
+   explanations keep the response within the model's context budget.
+
+Outcomes and indicators are supplied by the final measuring framework’s question
+associations; this pipeline does not extract or generate them. Results return the
+original questions, match classifications, explanations, and citations. Matches
+are preserved independently in each category, including empty categories.
+Diagnostics distinguish candidate count from matched-question count and report
+retrieved, proposed, and retained counts for every question, including empty results.
+
+There are no model-generated validation scores, acceptance thresholds, or
+cross-category winner assignments. Retrieval still uses the limits in
+`DEFAULT_HIERARCHY_CONFIGURATION`, including a 4,000-word context budget. Each
+question makes one retrieval call and, when evidence is retrieved, one matching
+model call. This does not change the standard `/api/rag` pipeline.
