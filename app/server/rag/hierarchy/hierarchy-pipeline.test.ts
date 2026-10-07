@@ -86,7 +86,11 @@ describe("HierarchyPipeline", () => {
     expect(dependencies.retriever.retrieve).toHaveBeenCalledTimes(3);
     for (const question of questions) {
       expect(dependencies.retriever.retrieve).toHaveBeenCalledWith(
-        expect.stringContaining(`Question: ${question}`), ["document-1"],
+        expect.stringContaining(`Question: ${question}`),
+        {
+          documentIds: ["document-1"],
+          indexFingerprints: ["fingerprint"],
+        },
       );
       expect(dependencies.analyzer.match).toHaveBeenCalledWith(
         expect.objectContaining({ id: "advocacy" }), question, [searchResult()],

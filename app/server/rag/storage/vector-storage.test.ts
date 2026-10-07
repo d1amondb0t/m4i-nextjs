@@ -360,7 +360,10 @@ describe("QdrantStore", () => {
     it("can scope dense retrieval to the current document IDs", async () => {
       client.query.mockResolvedValue({ points: [] });
 
-      await store.denseSearch([0.1, 0.2], 5, ["document-1", "document-2"]);
+      await store.denseSearch([0.1, 0.2], 5, {
+        documentIds: ["document-1", "document-2"],
+        indexFingerprints: ["current-index"],
+      });
 
       expect(client.query).toHaveBeenCalledWith(
         COLLECTION,
@@ -370,6 +373,10 @@ describe("QdrantStore", () => {
               {
                 key: "documentId",
                 match: { any: ["document-1", "document-2"] },
+              },
+              {
+                key: "metadata.indexFingerprint",
+                match: { any: ["current-index"] },
               },
             ],
           },
@@ -450,7 +457,10 @@ describe("QdrantStore", () => {
     it("can scope sparse retrieval to the current document IDs", async () => {
       client.query.mockResolvedValue({ points: [] });
 
-      await store.sparseSearch("search terms", 8, ["document-1"]);
+      await store.sparseSearch("search terms", 8, {
+        documentIds: ["document-1"],
+        indexFingerprints: ["current-index"],
+      });
 
       expect(client.query).toHaveBeenCalledWith(
         COLLECTION,
@@ -458,6 +468,10 @@ describe("QdrantStore", () => {
           filter: {
             must: [
               { key: "documentId", match: { any: ["document-1"] } },
+              {
+                key: "metadata.indexFingerprint",
+                match: { any: ["current-index"] },
+              },
             ],
           },
         }),

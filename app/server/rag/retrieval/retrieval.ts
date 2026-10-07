@@ -6,6 +6,7 @@ import {
   type CrossEncoder,
   type RerankingConfiguration,
   type RetrievalConfiguration,
+  type RetrievalScope,
 } from "@/types/retrieval-types";
 import type { OllamaEmbedder } from "../embeddings/ollama-embedder";
 import type { SearchResult } from "../storage/storage-types";
@@ -73,27 +74,27 @@ export class Retriever {
   async dense(
     question: string,
     limit: number,
-    documentIds?: readonly string[],
+    scope?: RetrievalScope,
   ): Promise<SearchResult[]> {
     const queryVector = await this.embedder.embedQuery(question);
-    return documentIds === undefined
+    return scope === undefined
       ? this.store.denseSearch(queryVector, limit)
-      : this.store.denseSearch(queryVector, limit, documentIds);
+      : this.store.denseSearch(queryVector, limit, scope);
   }
 
   async sparse(
     question: string,
     limit: number,
-    documentIds?: readonly string[],
+    scope?: RetrievalScope,
   ): Promise<SearchResult[]> {
-    return documentIds === undefined
+    return scope === undefined
       ? this.store.sparseSearch(question, limit)
-      : this.store.sparseSearch(question, limit, documentIds);
+      : this.store.sparseSearch(question, limit, scope);
   }
 
   async retrieve(
     question: string,
-    documentIds?: readonly string[],
+    scope?: RetrievalScope,
   ): Promise<SearchResult[]> {
     const limit = this.rerankingConfig.enabled
       ? this.rerankingConfig.candidates
@@ -102,10 +103,10 @@ export class Retriever {
 
     switch (this.retrievalConfig.strategy) {
       case "dense":
-        results = await this.dense(question, limit, documentIds);
+        results = await this.dense(question, limit, scope);
         break;
       case "sparse":
-        results = await this.sparse(question, limit, documentIds);
+        results = await this.sparse(question, limit, scope);
         break;
       case "hybrid":
         throw new Error("Hybrid retrieval is not implemented yet.");

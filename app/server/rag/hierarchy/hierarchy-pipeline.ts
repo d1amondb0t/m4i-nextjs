@@ -8,7 +8,10 @@ import type {
   RagPipelineConfiguration,
   Store,
 } from "@/types/rag-pipeline-type";
-import { DEFAULT_RERANKING_CONFIGURATION } from "@/types/retrieval-types";
+import {
+  DEFAULT_RERANKING_CONFIGURATION,
+  type RetrievalScope,
+} from "@/types/retrieval-types";
 import {
   DEFAULT_HIERARCHY_CONFIGURATION,
   type FrameworkCategory,
@@ -119,7 +122,7 @@ export class HierarchyPipeline {
   private async processCategory(
     dimension: FrameworkDimension,
     category: FrameworkCategory,
-    documentIds: readonly string[],
+    scope: RetrievalScope,
   ): Promise<{ category: HierarchyCategoryResult; diagnostics: HierarchyCategoryDiagnostics }> {
     const matches: HierarchyCategoryResult["matches"] = [];
     const retrievedChunkIds = new Set<string>();
@@ -134,7 +137,7 @@ export class HierarchyPipeline {
 
     for (const question of category.questions) {
       const query = buildCategoryQuery(dimension, category, question);
-      const results = (await this.retriever.retrieve(query, documentIds)).filter(
+      const results = (await this.retriever.retrieve(query, scope)).filter(
         (result) => result.score >= this.configuration.minimumRetrievalScore,
       );
       for (const result of results) retrievedChunkIds.add(result.chunk.chunkId);
@@ -210,7 +213,12 @@ export class HierarchyPipeline {
     const chunks = await this.chunker.chunkDocuments(documents);
     const vectors = await this.embedder.embed(chunks.map((chunk) => chunk.text));
     await this.store.upsert(chunks, vectors);
-    const documentIds = [...new Set(chunks.map((chunk) => chunk.documentId))];
+    const scope = {
+      documentIds: [...new Set(chunks.map((chunk) => chunk.documentId))],
+      indexFingerprints: [
+        ...new Set(chunks.map((chunk) => chunk.metadata.indexFingerprint)),
+      ],
+    } satisfies RetrievalScope;
 
     const dimensions: HierarchyPipelineResult["framework"]["dimensions"] = [];
     const diagnostics: HierarchyCategoryDiagnostics[] = [];
@@ -218,7 +226,7 @@ export class HierarchyPipeline {
     for (const dimension of ontology.dimensions) {
       const categories: HierarchyCategoryResult[] = [];
       for (const category of dimension.categories) {
-        const result = await this.processCategory(dimension, category, documentIds);
+        const result = await this.processCategory(dimension, category, scope);
         categories.push(result.category);
         diagnostics.push(result.diagnostics);
       }

@@ -1,7 +1,8 @@
 import { QdrantClient } from "@qdrant/js-client-rest"
 import { DEFAULT_STORAGE_CONFIGURATION, SearchResult, StorageConfiguration } from "./storage-types";
 import { DocumentChunk } from "@/types/chunk-type";
-import { pointId } from "./storage-helper";
+import type { RetrievalScope } from "@/types/retrieval-types";
+import { pointId, retrievalFilter, scopeIsEmpty } from "./storage-helper";
 
 export class QdrantStore {
   private readonly client: QdrantClient;
@@ -111,22 +112,18 @@ export class QdrantStore {
   async denseSearch(
     queryVector: number[],
     limit: number,
-    documentIds?: readonly string[],
+    scope?: RetrievalScope,
   ): Promise<SearchResult[]> {
-    if (documentIds?.length === 0) return [];
+    if (scopeIsEmpty(scope)) return [];
+
+    const filter = retrievalFilter(scope);
 
     const response = await this.client.query(this.collection, {
       query: queryVector,
       using: "dense",
       limit,
       with_payload: true,
-      ...(documentIds
-        ? {
-            filter: {
-              must: [{ key: "documentId", match: { any: [...documentIds] } }],
-            },
-          }
-        : {}),
+      ...(filter ? { filter } : {}),
     });
 
     return response.points.map((point) => {
@@ -145,9 +142,11 @@ export class QdrantStore {
   async sparseSearch(
     query: string,
     limit: number,
-    documentIds?: readonly string[],
+    scope?: RetrievalScope,
   ) {
-    if (documentIds?.length === 0) return [];
+    if (scopeIsEmpty(scope)) return [];
+
+    const filter = retrievalFilter(scope);
 
     const response = await this.client.query(this.collection, {
       query: {
@@ -160,13 +159,7 @@ export class QdrantStore {
       using: "sparse",
       limit,
       with_payload: true,
-      ...(documentIds
-        ? {
-            filter: {
-              must: [{ key: "documentId", match: { any: [...documentIds] } }],
-            },
-          }
-        : {}),
+      ...(filter ? { filter } : {}),
     });
 
     return response.points.map((point) => {

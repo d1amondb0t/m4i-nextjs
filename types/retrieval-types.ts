@@ -14,6 +14,11 @@ export type RerankingConfiguration = {
   candidates: number; // default = 20
 };
 
+export type RetrievalScope = {
+  documentIds?: readonly string[];
+  indexFingerprints?: readonly string[];
+};
+
 export type CrossEncoder = {
   model: PreTrainedModel;
   tokenizer: PreTrainedTokenizer;
