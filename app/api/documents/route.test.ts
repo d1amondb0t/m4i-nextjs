@@ -45,9 +45,8 @@ describe("POST /api/documents", () => {
   });
 
   it("accepts exactly the maximum document count", async () => {
-    const documents = Array.from(
-      { length: MAX_DOCUMENT_COUNT },
-      (_, index) => validDocument(`document-${index + 1}.pdf`),
+    const documents = Array.from({ length: MAX_DOCUMENT_COUNT }, (_, index) =>
+      validDocument(`document-${index + 1}.pdf`),
     );
     const { body, response } = await submitDocuments(documents);
 

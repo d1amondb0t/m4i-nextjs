@@ -1,5 +1,9 @@
-import { QdrantClient } from "@qdrant/js-client-rest"
-import { DEFAULT_STORAGE_CONFIGURATION, SearchResult, StorageConfiguration } from "./storage-types";
+import { QdrantClient } from "@qdrant/js-client-rest";
+import {
+  DEFAULT_STORAGE_CONFIGURATION,
+  SearchResult,
+  StorageConfiguration,
+} from "./storage-types";
 import { DocumentChunk } from "@/types/chunk-type";
 import type { RetrievalScope } from "@/types/retrieval-types";
 import { pointId, retrievalFilter, scopeIsEmpty } from "./storage-helper";
@@ -10,7 +14,7 @@ export class QdrantStore {
   constructor(
     private config: StorageConfiguration = DEFAULT_STORAGE_CONFIGURATION,
     private readonly collection = "rag_test", // to modify in production for different collections and client names
-    client?: QdrantClient
+    client?: QdrantClient,
   ) {
     this.client = client ?? new QdrantClient(config);
   }
@@ -19,7 +23,10 @@ export class QdrantStore {
     return (await this.client.collectionExists(this.collection)).exists;
   }
 
-  async upsert(chunks: DocumentChunk[], denseVectors: number[][]): Promise<void> {
+  async upsert(
+    chunks: DocumentChunk[],
+    denseVectors: number[][],
+  ): Promise<void> {
     if (chunks.length === 0) {
       throw new Error("At least one chunk is required for storage.");
     }
@@ -30,9 +37,13 @@ export class QdrantStore {
 
     const vector = denseVectors[0]?.length ?? 0;
 
-    if ( vector === 0 ||
-      denseVectors.some((denseVector) => denseVector.length !== vector)) {
-      throw new Error("Dense vectors must be non-empty and have equal dimensions.");
+    if (
+      vector === 0 ||
+      denseVectors.some((denseVector) => denseVector.length !== vector)
+    ) {
+      throw new Error(
+        "Dense vectors must be non-empty and have equal dimensions.",
+      );
     }
 
     await this.ensureCollection(vector);
@@ -60,9 +71,7 @@ export class QdrantStore {
     const info = await this.client.getCollection(this.collection);
     const vectors = info.config.params.vectors;
     const existingSize =
-      vectors && "size" in vectors
-        ? vectors.size
-        : vectors?.dense?.size;
+      vectors && "size" in vectors ? vectors.size : vectors?.dense?.size;
 
     if (existingSize === undefined) {
       throw new Error(
@@ -77,7 +86,10 @@ export class QdrantStore {
     }
   }
 
-  async ensureCollection(vectorSize: number, recreate: boolean = false): Promise<void> {
+  async ensureCollection(
+    vectorSize: number,
+    recreate: boolean = false,
+  ): Promise<void> {
     if (!Number.isSafeInteger(vectorSize) || vectorSize <= 0) {
       throw new RangeError("vectorSize must be a positve integer");
     }
@@ -97,13 +109,13 @@ export class QdrantStore {
       vectors: {
         dense: {
           size: vectorSize,
-          distance: "Cosine"
-        }
+          distance: "Cosine",
+        },
       },
       sparse_vectors: {
         sparse: {
           modifier: "idf",
-        }
+        },
       },
     });
   }
@@ -127,23 +139,20 @@ export class QdrantStore {
     });
 
     return response.points.map((point) => {
-      if (!point.payload) throw new Error(`Qdrant point ${point.id} has no payload`);
+      if (!point.payload)
+        throw new Error(`Qdrant point ${point.id} has no payload`);
 
       return {
         chunk: point.payload as DocumentChunk,
         score: point.score,
         denseScore: point.score,
-        sparseScore: null
+        sparseScore: null,
       };
     });
   }
 
   // Exact Key-Word Matching
-  async sparseSearch(
-    query: string,
-    limit: number,
-    scope?: RetrievalScope,
-  ) {
+  async sparseSearch(query: string, limit: number, scope?: RetrievalScope) {
     if (scopeIsEmpty(scope)) return [];
 
     const filter = retrievalFilter(scope);
@@ -163,13 +172,14 @@ export class QdrantStore {
     });
 
     return response.points.map((point) => {
-      if (!point.payload) throw new Error(`Qdrant point ${point.id} has no payload`);
+      if (!point.payload)
+        throw new Error(`Qdrant point ${point.id} has no payload`);
 
       return {
         chunk: point.payload as DocumentChunk,
         score: point.score,
         denseScore: null,
-        sparseScore: point.score
+        sparseScore: point.score,
       };
     });
   }

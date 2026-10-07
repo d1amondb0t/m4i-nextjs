@@ -1,8 +1,11 @@
-import type { PreTrainedModel, PreTrainedTokenizer } from "@huggingface/transformers";
+import type {
+  PreTrainedModel,
+  PreTrainedTokenizer,
+} from "@huggingface/transformers";
 
 export type RetrievalConfiguration = {
   strategy: "dense" | "sparse" | "hybrid";
-  topK : number; // default = 5
+  topK: number; // default = 5
   denseCandidates: number; // default = 20
   sparseCandidates: number; // default = 20
 };

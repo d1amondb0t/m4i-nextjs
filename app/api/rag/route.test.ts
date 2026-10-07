@@ -31,7 +31,10 @@ describe("POST /api/rag input validation", () => {
     const { body, response } = await submit({ question: "What is this?" });
 
     expect(response.status).toBe(400);
-    expect(body).toEqual({ ok: false, message: "Select at least one document." });
+    expect(body).toEqual({
+      ok: false,
+      message: "Select at least one document.",
+    });
   });
 
   it("requires a question", async () => {

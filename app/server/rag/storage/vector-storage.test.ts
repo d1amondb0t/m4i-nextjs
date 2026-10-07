@@ -36,11 +36,11 @@ function collectionInfo(vectorSize?: number) {
           vectorSize === undefined
             ? {}
             : {
-              dense: {
-                size: vectorSize,
-                distance: "Cosine",
+                dense: {
+                  size: vectorSize,
+                  distance: "Cosine",
+                },
               },
-            },
       },
     },
   };
@@ -325,9 +325,9 @@ describe("QdrantStore", () => {
       const error = new Error("Invalid collection");
       vi.spyOn(store, "ensureCollection").mockRejectedValue(error);
 
-      await expect(
-        store.upsert([chunk(0, "text")], [[0.1, 0.2]]),
-      ).rejects.toBe(error);
+      await expect(store.upsert([chunk(0, "text")], [[0.1, 0.2]])).rejects.toBe(
+        error,
+      );
       expect(client.upsert).not.toHaveBeenCalled();
     });
 
@@ -336,9 +336,9 @@ describe("QdrantStore", () => {
       vi.spyOn(store, "ensureCollection").mockResolvedValue();
       client.upsert.mockRejectedValue(error);
 
-      await expect(
-        store.upsert([chunk(0, "text")], [[0.1, 0.2]]),
-      ).rejects.toBe(error);
+      await expect(store.upsert([chunk(0, "text")], [[0.1, 0.2]])).rejects.toBe(
+        error,
+      );
     });
   });
 

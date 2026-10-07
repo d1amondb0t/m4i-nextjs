@@ -4,7 +4,10 @@ export function tokenize(text: string): string[] {
   return text.toLowerCase().match(TOKEN_PATTERN) ?? [];
 }
 
-export function intersectionSize(left: Set<string>, right: Set<string>): number {
+export function intersectionSize(
+  left: Set<string>,
+  right: Set<string>,
+): number {
   let size = 0;
 
   for (const term of left) {
@@ -14,10 +17,9 @@ export function intersectionSize(left: Set<string>, right: Set<string>): number 
   }
 
   return size;
-};
+}
 
 export function splitWords(text: string): string[] {
   const trimmed = text.trim();
   return trimmed ? trimmed.split(/\s+/) : [];
 }
-

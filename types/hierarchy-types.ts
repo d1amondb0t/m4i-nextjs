@@ -52,7 +52,10 @@ export type HierarchyCategoryResult = FrameworkCategory & {
   matches: HierarchyMatch[];
 };
 
-export type HierarchyDimensionResult = Omit<FrameworkDimension, "categories"> & {
+export type HierarchyDimensionResult = Omit<
+  FrameworkDimension,
+  "categories"
+> & {
   categories: HierarchyCategoryResult[];
 };
 

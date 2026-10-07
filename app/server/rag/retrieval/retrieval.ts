@@ -21,9 +21,8 @@ export class Retriever {
     private readonly store: QdrantStore,
     private readonly embedder: OllamaEmbedder,
     private readonly retrievalConfig: RetrievalConfiguration,
-    private readonly rerankingConfig: RerankingConfiguration =
-      DEFAULT_RERANKING_CONFIGURATION,
-  ) { }
+    private readonly rerankingConfig: RerankingConfiguration = DEFAULT_RERANKING_CONFIGURATION,
+  ) {}
 
   private async getCrossEncoder(): Promise<CrossEncoder> {
     if (this.crossEncoder === null) {
@@ -38,8 +37,10 @@ export class Retriever {
     }
   }
 
-  async crossEncoderRerank(question: string, results: SearchResult[]):
-    Promise<SearchResult[]> {
+  async crossEncoderRerank(
+    question: string,
+    results: SearchResult[],
+  ): Promise<SearchResult[]> {
     if (results.length === 0) {
       return results;
     }
@@ -57,7 +58,9 @@ export class Retriever {
     const scores = Array.from(logits.data, (score) => Number(score));
 
     if (scores.length !== results.length) {
-      throw new Error(`Cross-encoder returned ${scores.length} scores for ${results.length} results.`);
+      throw new Error(
+        `Cross-encoder returned ${scores.length} scores for ${results.length} results.`,
+      );
     }
 
     for (let index = 0; index < results.length; index += 1) {

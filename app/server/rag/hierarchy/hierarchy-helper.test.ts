@@ -9,7 +9,11 @@ import {
   parseFrameworkOntology,
 } from "./hierarchy-helper";
 
-function result(chunkId: string, score: number, text = "Policy adoption increased."): SearchResult {
+function result(
+  chunkId: string,
+  score: number,
+  text = "Policy adoption increased.",
+): SearchResult {
   const chunk: DocumentChunk = {
     chunkId,
     documentId: "document-1",
@@ -35,15 +39,27 @@ function result(chunkId: string, score: number, text = "Policy adoption increase
 
 describe("parseFrameworkOntology", () => {
   it.each([{ questions: undefined }, { questions: [] }, { questions: [" "] }])(
-    "rejects categories without usable questions: $questions", ({ questions }) => {
-    expect(() => parseFrameworkOntology({
-      dimensions: [{
-        id: "political",
-        name: "Political",
-        definition: "Policy and governance.",
-        categories: [{ id: "advocacy", name: "Advocacy", definition: "Policy influence.", questions }],
-      }],
-    })).toThrow(/questions/);
+    "rejects categories without usable questions: $questions",
+    ({ questions }) => {
+      expect(() =>
+        parseFrameworkOntology({
+          dimensions: [
+            {
+              id: "political",
+              name: "Political",
+              definition: "Policy and governance.",
+              categories: [
+                {
+                  id: "advocacy",
+                  name: "Advocacy",
+                  definition: "Policy influence.",
+                  questions,
+                },
+              ],
+            },
+          ],
+        }),
+      ).toThrow(/questions/);
     },
   );
 
@@ -96,13 +112,17 @@ describe("parseFrameworkOntology", () => {
             id: "one",
             name: "One",
             definition: "First.",
-            categories: [{ id: "shared", name: "A", definition: "A.", questions: ["A?"] }],
+            categories: [
+              { id: "shared", name: "A", definition: "A.", questions: ["A?"] },
+            ],
           },
           {
             id: "two",
             name: "Two",
             definition: "Second.",
-            categories: [{ id: "shared", name: "B", definition: "B.", questions: ["B?"] }],
+            categories: [
+              { id: "shared", name: "B", definition: "B.", questions: ["B?"] },
+            ],
           },
         ],
       }),
@@ -138,7 +158,11 @@ describe("category retrieval helpers", () => {
   });
 
   it("requires every model citation and quote to exist in retrieved evidence", () => {
-    const retrieved = result("a", 0.9, "The ministry adopted three recommendations.");
+    const retrieved = result(
+      "a",
+      0.9,
+      "The ministry adopted three recommendations.",
+    );
     const match: ExtractedHierarchyMatch = {
       explicitness: "implicit",
       reason: "Adoption supports policy influence.",

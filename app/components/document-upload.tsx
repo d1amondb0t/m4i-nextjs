@@ -1,9 +1,19 @@
 "use client";
 
-import { type ChangeEvent, type FormEvent, useState, } from "react";
-import { MAX_DOCUMENT_COUNT, MAX_DOCUMENT_SIZE_MB, RAG_DOCUMENT_INPUT_ACCEPT, RAG_DOCUMENT_TYPE_LABEL, validateRagDocumentSelection, } from "@/app/server/documents/upload-policy";
+import { type ChangeEvent, type FormEvent, useState } from "react";
+import {
+  MAX_DOCUMENT_COUNT,
+  MAX_DOCUMENT_SIZE_MB,
+  RAG_DOCUMENT_INPUT_ACCEPT,
+  RAG_DOCUMENT_TYPE_LABEL,
+  validateRagDocumentSelection,
+} from "@/app/server/documents/upload-policy";
 import type { UploadStatus } from "@/types/document-upload";
-import { MAX_QUESTION_LENGTH, type RagPipelineResponse, validateQuestion, } from "@/types/rag-pipeline-type";
+import {
+  MAX_QUESTION_LENGTH,
+  type RagPipelineResponse,
+  validateQuestion,
+} from "@/types/rag-pipeline-type";
 
 type SuccessfulPipelineResponse = Extract<RagPipelineResponse, { ok: true }>;
 
@@ -184,7 +194,10 @@ export function DocumentUpload() {
         ) : null}
 
         <div className="mt-6">
-          <label htmlFor="question" className="text-sm font-medium text-zinc-900">
+          <label
+            htmlFor="question"
+            className="text-sm font-medium text-zinc-900"
+          >
             Question
           </label>
           <p className="mt-1 text-sm text-zinc-500">
@@ -228,12 +241,13 @@ export function DocumentUpload() {
         <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <p
             aria-live="polite"
-            className={`text-sm ${status.type === "error"
-              ? "text-red-600"
-              : status.type === "success"
-                ? "text-emerald-700"
-                : "text-zinc-500"
-              }`}
+            className={`text-sm ${
+              status.type === "error"
+                ? "text-red-600"
+                : status.type === "success"
+                  ? "text-emerald-700"
+                  : "text-zinc-500"
+            }`}
           >
             {status.message}
           </p>
@@ -267,7 +281,8 @@ export function DocumentUpload() {
                 >
                   <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-zinc-500">
                     <span>
-                      {source.source} · page {source.page} · chunk {source.chunk}
+                      {source.source} · page {source.page} · chunk{" "}
+                      {source.chunk}
                     </span>
                     <span>score {source.score.toFixed(3)}</span>
                   </div>

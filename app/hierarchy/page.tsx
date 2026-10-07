@@ -7,7 +7,10 @@ export default function HierarchyPage() {
     <main className="min-h-screen bg-zinc-50 px-5 py-12 sm:px-8 lg:py-20">
       <div className="mx-auto max-w-6xl">
         <header className="mb-10 max-w-3xl">
-          <Link href="/" className="text-sm font-medium text-blue-700 hover:text-blue-900">
+          <Link
+            href="/"
+            className="text-sm font-medium text-blue-700 hover:text-blue-900"
+          >
             ← Standard RAG tester
           </Link>
           <p className="mt-8 text-sm font-semibold uppercase tracking-[0.18em] text-blue-700">
@@ -17,7 +20,8 @@ export default function HierarchyPage() {
             Test hierarchy question matching
           </h1>
           <p className="mt-5 text-base leading-7 text-zinc-600 sm:text-lg">
-            Match document evidence to each category’s questions and inspect whether the support is explicit or implicit.
+            Match document evidence to each category’s questions and inspect
+            whether the support is explicit or implicit.
           </p>
         </header>
 

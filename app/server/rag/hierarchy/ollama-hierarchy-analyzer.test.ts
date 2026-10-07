@@ -9,25 +9,39 @@ const match = {
 };
 
 describe("hierarchy model response parsing", () => {
-  it.each(["explicit", "implicit"])("preserves %s question matches", (explicitness) => {
-    expect(parseMatchResponse(JSON.stringify({ matches: [{ ...match, explicitness }] })))
-      .toEqual([{ ...match, explicitness }]);
-  });
+  it.each(["explicit", "implicit"])(
+    "preserves %s question matches",
+    (explicitness) => {
+      expect(
+        parseMatchResponse(
+          JSON.stringify({ matches: [{ ...match, explicitness }] }),
+        ),
+      ).toEqual([{ ...match, explicitness }]);
+    },
+  );
 
   it("allows no match when the question is unsupported", () => {
     expect(parseMatchResponse('{"matches":[]}')).toEqual([]);
   });
 
   it("rejects the old derived-indicator classification", () => {
-    expect(() => parseMatchResponse(JSON.stringify({
-      matches: [{ ...match, explicitness: "derived" }],
-    }))).toThrow("invalid match explicitness");
+    expect(() =>
+      parseMatchResponse(
+        JSON.stringify({
+          matches: [{ ...match, explicitness: "derived" }],
+        }),
+      ),
+    ).toThrow("invalid match explicitness");
   });
 
   it("requires evidence for a match", () => {
-    expect(() => parseMatchResponse(JSON.stringify({
-      matches: [{ ...match, evidence: [] }],
-    }))).toThrow("match without evidence");
+    expect(() =>
+      parseMatchResponse(
+        JSON.stringify({
+          matches: [{ ...match, evidence: [] }],
+        }),
+      ),
+    ).toThrow("match without evidence");
   });
 
   it("rejects missing matches and malformed JSON", () => {

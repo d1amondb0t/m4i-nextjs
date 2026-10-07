@@ -16,13 +16,13 @@ export class OllamaGenerator {
   ) {
     this.client = client;
     this.systemPrompt = readFileSync(promptPath, "utf-8");
-  };
+  }
 
   buildContext(question: string, results: SearchResult[]): string {
     const sections: string[] = [];
     let wordsUsed = 0;
 
-    for(const item of results){
+    for (const item of results) {
       let text = item.chunk.text;
       const words = text.trim().split(/\s+/);
       const remaining = this.config.maxContextWords - wordsUsed;
@@ -38,15 +38,17 @@ export class OllamaGenerator {
   }
 
   async generate(question: string, results: SearchResult[]): Promise<string> {
-
     const response = await this.client.chat({
       model: this.model,
       think: false,
       messages: [
-        {"role": "system", "content": this.systemPrompt},
-        {"role": "user", "content": `Question:\n${question}\n\nContext:\n${this.buildContext(question, results)}`},
+        { role: "system", content: this.systemPrompt },
+        {
+          role: "user",
+          content: `Question:\n${question}\n\nContext:\n${this.buildContext(question, results)}`,
+        },
       ],
-      options: {"temperature": this.config.temperature}
+      options: { temperature: this.config.temperature },
     });
 
     const answer = response.message.content;

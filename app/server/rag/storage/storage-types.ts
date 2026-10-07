@@ -1,6 +1,5 @@
 import { DocumentChunk } from "@/types/chunk-type";
 
-
 export type QdrantLocalStorageConfiguration = {
   host: string;
   port: number;
@@ -16,8 +15,7 @@ export type QdrantCloudStorageConfiguration = {
 };
 
 export type StorageConfiguration =
-  | QdrantLocalStorageConfiguration
-  | QdrantCloudStorageConfiguration;
+  QdrantLocalStorageConfiguration | QdrantCloudStorageConfiguration;
 
 export const DEFAULT_STORAGE_CONFIGURATION = {
   host: "localhost",

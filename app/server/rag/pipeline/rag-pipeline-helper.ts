@@ -2,11 +2,13 @@ import { DEFAULT_CHUNK_CONFIG } from "@/types/chunk-type";
 import { DEFAULT_GENERATION_CONFIGURATION } from "@/types/generation-type";
 import type { RagPipelineConfiguration } from "@/types/rag-pipeline-type";
 import { DEFAULT_RETRIEVAL_CONFIGURATION } from "@/types/retrieval-types";
-import { DEFAULT_STORAGE_CONFIGURATION, type StorageConfiguration,} from "../storage/storage-types";
+import {
+  DEFAULT_STORAGE_CONFIGURATION,
+  type StorageConfiguration,
+} from "../storage/storage-types";
 
 const DEFAULT_COLLECTION = "rag_test";
-const DEFAULT_EMBEDDING_MODEL =
-  "hf.co/CompendiumLabs/bge-base-en-v1.5-gguf";
+const DEFAULT_EMBEDDING_MODEL = "hf.co/CompendiumLabs/bge-base-en-v1.5-gguf";
 
 export const DEFAULT_RAG_PIPELINE_CONFIGURATION = {
   chunking: DEFAULT_CHUNK_CONFIG,

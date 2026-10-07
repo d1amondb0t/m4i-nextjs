@@ -50,12 +50,21 @@ export function parseMatchResponse(content: string): ExtractedHierarchyMatch[] {
   }
 
   return value.matches.map((match) => {
-    if (!isRecord(match) || !Array.isArray(match.evidence) || match.evidence.length === 0) {
+    if (
+      !isRecord(match) ||
+      !Array.isArray(match.evidence) ||
+      match.evidence.length === 0
+    ) {
       throw new Error("The hierarchy model returned a match without evidence.");
     }
 
-    if (match.explicitness !== "explicit" && match.explicitness !== "implicit") {
-      throw new Error("The hierarchy model returned an invalid match explicitness.");
+    if (
+      match.explicitness !== "explicit" &&
+      match.explicitness !== "implicit"
+    ) {
+      throw new Error(
+        "The hierarchy model returned an invalid match explicitness.",
+      );
     }
 
     return {
@@ -66,7 +75,9 @@ export function parseMatchResponse(content: string): ExtractedHierarchyMatch[] {
       ),
       evidence: match.evidence.map((evidence) => {
         if (!isRecord(evidence)) {
-          throw new Error("The hierarchy model returned invalid match evidence.");
+          throw new Error(
+            "The hierarchy model returned invalid match evidence.",
+          );
         }
 
         return {

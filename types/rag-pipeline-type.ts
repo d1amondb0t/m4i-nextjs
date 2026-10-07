@@ -1,4 +1,7 @@
-import type { SearchResult, StorageConfiguration } from "@/app/server/rag/storage/storage-types";
+import type {
+  SearchResult,
+  StorageConfiguration,
+} from "@/app/server/rag/storage/storage-types";
 import type { ChunkConfiguration, DocumentChunk } from "./chunk-type";
 import type { GenerationConfiguration } from "./generation-type";
 import type { RetrievalConfiguration, RetrievalScope } from "./retrieval-types";
@@ -39,7 +42,6 @@ export type RagPipelineResult = {
   results: SearchResult[];
 };
 
-
 export type RagPipelineConfiguration = {
   chunking: ChunkConfiguration;
   collection: string;
@@ -62,14 +64,14 @@ export type RagSource = {
 
 export type RagPipelineResponse =
   | {
-    ok: true;
-    answer: string;
-    indexedChunks: number;
-    sources: RagSource[];
-  }
+      ok: true;
+      answer: string;
+      indexedChunks: number;
+      sources: RagSource[];
+    }
   | {
-    ok: false;
-    message: string;
+      ok: false;
+      message: string;
     };
 
 export function validateQuestion(question: string): string | null {

@@ -31,7 +31,10 @@ describe("POST /api/hierarchy input validation", () => {
     const { body, response } = await submit({ ontology: "{}" });
 
     expect(response.status).toBe(400);
-    expect(body).toEqual({ ok: false, message: "Select at least one document." });
+    expect(body).toEqual({
+      ok: false,
+      message: "Select at least one document.",
+    });
   });
 
   it("requires an ontology", async () => {

@@ -1,9 +1,18 @@
 import { createHash } from "crypto";
-import type { ChunkConfiguration, DocumentIdentity, ExtractedPage, } from "@/types/chunk-type";
-import { AcceptedExtension, isAcceptedExtension } from "../../documents/upload-policy";
+import type {
+  ChunkConfiguration,
+  DocumentIdentity,
+  ExtractedPage,
+} from "@/types/chunk-type";
+import {
+  AcceptedExtension,
+  isAcceptedExtension,
+} from "../../documents/upload-policy";
 
-
-export function hash(algorihtm: "sha1" | "sha256", value: string | Uint8Array): string {
+export function hash(
+  algorihtm: "sha1" | "sha256",
+  value: string | Uint8Array,
+): string {
   return createHash(algorihtm).update(value).digest("hex");
 }
 
@@ -11,8 +20,15 @@ export async function hashFileSha256(file: File): Promise<string> {
   return hash("sha256", new Uint8Array(await file.arrayBuffer()));
 }
 
-export function createHashKeyDocument(file: File, algorithm: "sha1" | "sha256", sourceHash: string): string {
-  return hash(algorithm, `${file.name.toLocaleLowerCase("en-US")}:${sourceHash}`);
+export function createHashKeyDocument(
+  file: File,
+  algorithm: "sha1" | "sha256",
+  sourceHash: string,
+): string {
+  return hash(
+    algorithm,
+    `${file.name.toLocaleLowerCase("en-US")}:${sourceHash}`,
+  );
 }
 
 export function createDocumentChunkKey(
@@ -20,7 +36,7 @@ export function createDocumentChunkKey(
   page: ExtractedPage,
   extension: string,
   config: ChunkConfiguration,
-  start: number
+  start: number,
 ): string {
   return [
     identity.documentId,
@@ -28,7 +44,7 @@ export function createDocumentChunkKey(
     start,
     config.wordSize,
     config.overlapWords,
-    extension
+    extension,
   ].join(":");
 }
 
@@ -43,7 +59,7 @@ export function createIndexFingerprint(
       identity.sourceHash,
       config.wordSize,
       config.overlapWords,
-      isAcceptedExtension(extension)? extension : "",
+      isAcceptedExtension(extension) ? extension : "",
     ].join(":"),
   );
 }
@@ -62,9 +78,16 @@ export function validateChunkConfiguration(config: ChunkConfiguration): void {
   }
 }
 
-export function assertPageExtension(extension:string): asserts extension is AcceptedExtension {
+export function assertPageExtension(
+  extension: string,
+): asserts extension is AcceptedExtension {
   // Temporary includes
-  if (!isAcceptedExtension(extension) || !["pdf", "txt", "md"].includes(extension)) {
-    throw new Error(`Document type ".${extension}" is not implemented for chunking`);
+  if (
+    !isAcceptedExtension(extension) ||
+    !["pdf", "txt", "md"].includes(extension)
+  ) {
+    throw new Error(
+      `Document type ".${extension}" is not implemented for chunking`,
+    );
   }
 }

@@ -198,10 +198,7 @@
             "social protection coverage",
             "service affordability"
           ],
-          "exclude": [
-            "education-specific access",
-            "transport-specific access"
-          ],
+          "exclude": ["education-specific access", "transport-specific access"],
           "questions": [
             "How many people gained access to the service, and how was access defined?",
             "What change in service reliability, quality, or affordability is documented?",
@@ -268,10 +265,7 @@
             "water and air quality",
             "waste and circularity"
           ],
-          "exclude": [
-            "greenhouse gas accounting",
-            "climate hazard exposure"
-          ],
+          "exclude": ["greenhouse gas accounting", "climate hazard exposure"],
           "questions": [
             "What change in habitat area, biodiversity, or ecosystem condition is reported?",
             "How did pollutant concentrations or water quality change, and against which standard?",
@@ -317,10 +311,7 @@
             "capital investment and maintenance",
             "network capacity"
           ],
-          "exclude": [
-            "ridership and demand outcomes",
-            "housing affordability"
-          ],
+          "exclude": ["ridership and demand outcomes", "housing affordability"],
           "questions": [
             "What change in asset condition or state of good repair is documented?",
             "How did crash, injury, or fatality counts change after the intervention?",
@@ -387,10 +378,7 @@
             "accountability to affected populations",
             "response evaluation"
           ],
-          "exclude": [
-            "long-term development programming",
-            "legal doctrine"
-          ],
+          "exclude": ["long-term development programming", "legal doctrine"],
           "questions": [
             "What humanitarian needs were assessed, and how severe are they judged to be?",
             "How many affected people were reached with assistance, and with what gap remaining?",
@@ -457,10 +445,7 @@
             "curriculum and pedagogy quality",
             "learning gain measurement"
           ],
-          "exclude": [
-            "enrolment counts",
-            "school construction"
-          ],
+          "exclude": ["enrolment counts", "school construction"],
           "questions": [
             "What change in learning achievement is measured, and with which assessment?",
             "How large is the reported learning gain, and how was it estimated?",
@@ -478,10 +463,7 @@
             "education financing",
             "data and monitoring systems"
           ],
-          "exclude": [
-            "student learning results",
-            "student enrolment"
-          ],
+          "exclude": ["student learning results", "student enrolment"],
           "questions": [
             "What change in teacher supply, qualification, or retention is reported?",
             "How did professional development alter classroom practice, and how was that verified?",

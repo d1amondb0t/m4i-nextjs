@@ -12,7 +12,10 @@ export function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
-export function requireNonEmptyText(value: unknown, errorMessage: string): string {
+export function requireNonEmptyText(
+  value: unknown,
+  errorMessage: string,
+): string {
   if (typeof value !== "string" || !value.trim()) {
     throw new Error(errorMessage);
   }
@@ -31,13 +34,18 @@ function requiredText(
   );
 
   if (text.length > maximumLength) {
-    throw new Error(`${location} must be ${maximumLength} characters or fewer.`);
+    throw new Error(
+      `${location} must be ${maximumLength} characters or fewer.`,
+    );
   }
 
   return text;
 }
 
-function optionalTextList(value: unknown, location: string): string[] | undefined {
+function optionalTextList(
+  value: unknown,
+  location: string,
+): string[] | undefined {
   if (value === undefined) return undefined;
 
   if (!Array.isArray(value)) {
@@ -55,7 +63,9 @@ function parseCategory(value: unknown, location: string): FrameworkCategory {
   }
 
   if (!Array.isArray(value.questions) || value.questions.length === 0) {
-    throw new Error(`${location}.questions must contain at least one question.`);
+    throw new Error(
+      `${location}.questions must contain at least one question.`,
+    );
   }
 
   return {
@@ -76,7 +86,9 @@ function parseDimension(value: unknown, location: string): FrameworkDimension {
   }
 
   if (!Array.isArray(value.categories) || value.categories.length === 0) {
-    throw new Error(`${location}.categories must contain at least one category.`);
+    throw new Error(
+      `${location}.categories must contain at least one category.`,
+    );
   }
 
   return {
@@ -195,8 +207,8 @@ export function evidenceIsGrounded(
 
       return Boolean(
         result &&
-          quote &&
-          normalizedEvidenceText(result.chunk.text).includes(quote),
+        quote &&
+        normalizedEvidenceText(result.chunk.text).includes(quote),
       );
     })
   );

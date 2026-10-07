@@ -45,7 +45,10 @@ export async function POST(request: Request) {
     } catch (error) {
       const response = {
         ok: false,
-        message: error instanceof Error ? error.message : "Invalid framework ontology.",
+        message:
+          error instanceof Error
+            ? error.message
+            : "Invalid framework ontology.",
       } satisfies HierarchyPipelineResponse;
 
       return Response.json(response, { status: 400 });

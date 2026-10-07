@@ -32,7 +32,10 @@ import {
   evidenceIsGrounded,
   parseFrameworkOntology,
 } from "./hierarchy-helper";
-import { type HierarchyAnalyzer, OllamaHierarchyAnalyzer } from "./ollama-hierarchy-analyzer";
+import {
+  type HierarchyAnalyzer,
+  OllamaHierarchyAnalyzer,
+} from "./ollama-hierarchy-analyzer";
 
 export type HierarchyPipelineDependencies = {
   chunker?: Chunker;
@@ -49,15 +52,24 @@ function validateConfiguration(configuration: HierarchyConfiguration): void {
     }
   }
 
-  if (!Number.isSafeInteger(configuration.topKPerQuery) || configuration.topKPerQuery <= 0) {
+  if (
+    !Number.isSafeInteger(configuration.topKPerQuery) ||
+    configuration.topKPerQuery <= 0
+  ) {
     throw new Error("topKPerQuery must be a positive integer.");
   }
 
-  if (!Number.isSafeInteger(configuration.maxContextWords) || configuration.maxContextWords <= 0) {
+  if (
+    !Number.isSafeInteger(configuration.maxContextWords) ||
+    configuration.maxContextWords <= 0
+  ) {
     throw new Error("maxContextWords must be a positive integer.");
   }
 
-  if (configuration.minimumRetrievalScore < 0 || configuration.minimumRetrievalScore > 1) {
+  if (
+    configuration.minimumRetrievalScore < 0 ||
+    configuration.minimumRetrievalScore > 1
+  ) {
     throw new Error("minimumRetrievalScore must be between 0 and 1.");
   }
 }
@@ -79,7 +91,9 @@ export class HierarchyPipeline {
     this.configuration = configuration;
 
     const client = new Ollama(
-      ragConfiguration.ollamaHost ? { host: ragConfiguration.ollamaHost } : undefined,
+      ragConfiguration.ollamaHost
+        ? { host: ragConfiguration.ollamaHost }
+        : undefined,
     );
     const concreteEmbedder = new OllamaEmbedder(
       ragConfiguration.embeddingModel,
@@ -92,7 +106,8 @@ export class HierarchyPipeline {
       ragConfiguration.collection,
     );
 
-    this.chunker = dependencies.chunker ?? new DocumentChunker(ragConfiguration.chunking);
+    this.chunker =
+      dependencies.chunker ?? new DocumentChunker(ragConfiguration.chunking);
     this.embedder = dependencies.embedder ?? concreteEmbedder;
     this.store = dependencies.store ?? concreteStore;
     this.retriever =
@@ -123,7 +138,10 @@ export class HierarchyPipeline {
     dimension: FrameworkDimension,
     category: FrameworkCategory,
     scope: RetrievalScope,
-  ): Promise<{ category: HierarchyCategoryResult; diagnostics: HierarchyCategoryDiagnostics }> {
+  ): Promise<{
+    category: HierarchyCategoryResult;
+    diagnostics: HierarchyCategoryDiagnostics;
+  }> {
     const matches: HierarchyCategoryResult["matches"] = [];
     const retrievedChunkIds = new Set<string>();
     const diagnostics: HierarchyCategoryDiagnostics = {
@@ -161,16 +179,23 @@ export class HierarchyPipeline {
         if (!evidenceIsGrounded(match, resultsByChunkId)) {
           diagnostics.rejected.push({
             question,
-            reason: "A cited chunk or verbatim evidence quote was not present in retrieval.",
+            reason:
+              "A cited chunk or verbatim evidence quote was not present in retrieval.",
           });
           continue;
         }
         const passageKey = match.evidence
-          .map((evidence) => `${evidence.chunkId}:${evidence.quote.replace(/\s+/g, " ").trim().toLowerCase()}`)
+          .map(
+            (evidence) =>
+              `${evidence.chunkId}:${evidence.quote.replace(/\s+/g, " ").trim().toLowerCase()}`,
+          )
           .sort()
           .join("|");
         if (seenPassages.has(passageKey)) {
-          diagnostics.rejected.push({ question, reason: "Duplicate quoted passage for this question." });
+          diagnostics.rejected.push({
+            question,
+            reason: "Duplicate quoted passage for this question.",
+          });
           continue;
         }
         seenPassages.add(passageKey);
@@ -196,7 +221,9 @@ export class HierarchyPipeline {
     }
 
     diagnostics.retrievedChunks = retrievedChunkIds.size;
-    diagnostics.matchedQuestions = new Set(matches.map((match) => match.question)).size;
+    diagnostics.matchedQuestions = new Set(
+      matches.map((match) => match.question),
+    ).size;
     diagnostics.matchedCandidates = matches.length;
     return { category: { ...category, matches }, diagnostics };
   }
@@ -211,7 +238,9 @@ export class HierarchyPipeline {
 
     const ontology = parseFrameworkOntology(ontologyInput);
     const chunks = await this.chunker.chunkDocuments(documents);
-    const vectors = await this.embedder.embed(chunks.map((chunk) => chunk.text));
+    const vectors = await this.embedder.embed(
+      chunks.map((chunk) => chunk.text),
+    );
     await this.store.upsert(chunks, vectors);
     const scope = {
       documentIds: [...new Set(chunks.map((chunk) => chunk.documentId))],
