@@ -29,4 +29,5 @@ export type SearchResult = {
   score: number;
   denseScore: number | null;
   sparseScore: number | null;
-}
+  rerankerScore?: number;
+};

@@ -1,7 +1,8 @@
 import { QdrantClient } from "@qdrant/js-client-rest"
 import { DEFAULT_STORAGE_CONFIGURATION, SearchResult, StorageConfiguration } from "./storage-types";
 import { DocumentChunk } from "@/types/chunk-type";
-import { pointId } from "./storage-helper";
+import type { RetrievalScope } from "@/types/retrieval-types";
+import { pointId, retrievalFilter, scopeIsEmpty } from "./storage-helper";
 
 export class QdrantStore {
   private readonly client: QdrantClient;
@@ -108,12 +109,21 @@ export class QdrantStore {
   }
 
   // Semantic Matching
-  async denseSearch(queryVector: number[], limit: number): Promise<SearchResult[]> {
+  async denseSearch(
+    queryVector: number[],
+    limit: number,
+    scope?: RetrievalScope,
+  ): Promise<SearchResult[]> {
+    if (scopeIsEmpty(scope)) return [];
+
+    const filter = retrievalFilter(scope);
+
     const response = await this.client.query(this.collection, {
       query: queryVector,
       using: "dense",
       limit,
-      with_payload: true
+      with_payload: true,
+      ...(filter ? { filter } : {}),
     });
 
     return response.points.map((point) => {
@@ -129,7 +139,15 @@ export class QdrantStore {
   }
 
   // Exact Key-Word Matching
-  async sparseSearch(query: string, limit: number) {
+  async sparseSearch(
+    query: string,
+    limit: number,
+    scope?: RetrievalScope,
+  ) {
+    if (scopeIsEmpty(scope)) return [];
+
+    const filter = retrievalFilter(scope);
+
     const response = await this.client.query(this.collection, {
       query: {
         text: query,
@@ -141,6 +159,7 @@ export class QdrantStore {
       using: "sparse",
       limit,
       with_payload: true,
+      ...(filter ? { filter } : {}),
     });
 
     return response.points.map((point) => {
