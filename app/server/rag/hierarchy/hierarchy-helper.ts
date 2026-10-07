@@ -8,8 +8,16 @@ import {
   type FrameworkOntology,
 } from "@/types/hierarchy-types";
 
-function isRecord(value: unknown): value is Record<string, unknown> {
+export function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+export function requireNonEmptyText(value: unknown, errorMessage: string): string {
+  if (typeof value !== "string" || !value.trim()) {
+    throw new Error(errorMessage);
+  }
+
+  return value.trim();
 }
 
 function requiredText(
@@ -17,11 +25,10 @@ function requiredText(
   location: string,
   maximumLength = 2_000,
 ): string {
-  if (typeof value !== "string" || !value.trim()) {
-    throw new Error(`${location} must be a non-empty string.`);
-  }
-
-  const text = value.trim();
+  const text = requireNonEmptyText(
+    value,
+    `${location} must be a non-empty string.`,
+  );
 
   if (text.length > maximumLength) {
     throw new Error(`${location} must be ${maximumLength} characters or fewer.`);

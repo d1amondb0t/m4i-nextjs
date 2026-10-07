@@ -1,4 +1,5 @@
 import type { ExtractedHierarchyMatch } from "@/types/hierarchy-types";
+import { isRecord, requireNonEmptyText } from "./hierarchy-helper";
 
 export const MATCH_SCHEMA = {
   type: "object",
@@ -35,18 +36,6 @@ export const MATCH_SCHEMA = {
   },
 } as const;
 
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === "object" && value !== null && !Array.isArray(value);
-}
-
-function text(value: unknown, location: string): string {
-  if (typeof value !== "string" || !value.trim()) {
-    throw new Error(`The hierarchy model returned an invalid ${location}.`);
-  }
-
-  return value.trim();
-}
-
 export function parseMatchResponse(content: string): ExtractedHierarchyMatch[] {
   let value: unknown;
 
@@ -71,15 +60,24 @@ export function parseMatchResponse(content: string): ExtractedHierarchyMatch[] {
 
     return {
       explicitness: match.explicitness,
-      reason: text(match.reason, "match reason"),
+      reason: requireNonEmptyText(
+        match.reason,
+        "The hierarchy model returned an invalid match reason.",
+      ),
       evidence: match.evidence.map((evidence) => {
         if (!isRecord(evidence)) {
           throw new Error("The hierarchy model returned invalid match evidence.");
         }
 
         return {
-          chunkId: text(evidence.chunkId, "evidence chunkId"),
-          quote: text(evidence.quote, "evidence quote"),
+          chunkId: requireNonEmptyText(
+            evidence.chunkId,
+            "The hierarchy model returned an invalid evidence chunkId.",
+          ),
+          quote: requireNonEmptyText(
+            evidence.quote,
+            "The hierarchy model returned an invalid evidence quote.",
+          ),
         };
       }),
     };
