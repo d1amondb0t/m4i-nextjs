@@ -64,28 +64,28 @@ export function calibrationConfiguration(
   )
     throw new Error("embeddingModel must be a non-empty string.");
   const topK = retrieval.topK ?? 20;
-  
+
   if (!Number.isSafeInteger(topK) || topK <= 0 || topK > 100)
     throw new Error("retrieval.topK must be between 1 and 100.");
   const strategy = retrieval.strategy ?? "dense";
-  
+
   if (strategy !== "dense" && strategy !== "sparse")
     throw new Error("Only dense and sparse retrieval are implemented.");
   const enabled = reranking.enabled ?? false;
-  
+
   if (typeof enabled !== "boolean")
     throw new Error("reranking.enabled must be boolean.");
   const rerankingStrategy = reranking.strategy ?? "cross_encoder";
-  
+
   if (rerankingStrategy !== "cross_encoder")
     throw new Error("Only cross_encoder reranking is implemented.");
   const rerankingModel =
     reranking.model ?? DEFAULT_RERANKING_CONFIGURATION.model;
-  
-    if (typeof rerankingModel !== "string" || !rerankingModel.trim())
+
+  if (typeof rerankingModel !== "string" || !rerankingModel.trim())
     throw new Error("reranking.model must be a non-empty string.");
   const candidates = reranking.candidates ?? Math.max(20, topK);
-  
+
   if (
     !Number.isSafeInteger(candidates) ||
     candidates < topK ||
@@ -115,7 +115,7 @@ export class CalibrationPipeline {
       RagPipelineDependencies,
       "chunker" | "embedder" | "store" | "retriever"
     > = {},
-  ) { }
+  ) {}
 
   async run(documents: readonly File[], questions: readonly string[]) {
     if (documents.length === 0)
