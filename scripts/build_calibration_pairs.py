@@ -9,11 +9,16 @@ import hashlib
 import json
 import re
 import time
-from concurrent.futures import FIRST_COMPLETED, ThreadPoolExecutor, wait
+from concurrent.futures import ThreadPoolExecutor
+from contextlib import ExitStack
 from dataclasses import dataclass
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
+DOCUMENTS_PER_BATCH = 10
+TOP_K = 20
+FILE_REPLACE_ATTEMPTS = 6
+FILE_REPLACE_DELAY = 0.25
 COLUMNS = [
     "dimension_id",
     "category_id",
@@ -34,7 +39,6 @@ COLUMNS = [
 
 @dataclass(frozen=True)
 class BatchJob:
-    index: int
     dimension_id: str
     batch_number: int
     documents: tuple[Path, ...]
@@ -92,13 +96,14 @@ def build_jobs(args, ontology):
             for number, question in enumerate(category["questions"], start=1)
         )
 
-        for start in range(0, len(documents), 10):
+        for start in range(0, len(documents), DOCUMENTS_PER_BATCH):
             jobs.append(
                 BatchJob(
-                    index=len(jobs),
                     dimension_id=dimension_id,
-                    batch_number=start // 10 + 1,
-                    documents=tuple(documents[start : start + 10]),
+                    batch_number=start // DOCUMENTS_PER_BATCH + 1,
+                    documents=tuple(
+                        documents[start : start + DOCUMENTS_PER_BATCH]
+                    ),
                     question_refs=question_refs,
                 )
             )
@@ -128,26 +133,41 @@ def state_path_for(output: Path):
     return output.with_suffix(output.suffix + ".state.json")
 
 
-def completed_prefix_count(jobs, rows_by_job):
-    completed = 0
-    for job in jobs:
-        if job.key not in rows_by_job:
-            break
-        completed += 1
-    return completed
+def replace_file(temporary: Path, destination: Path):
+    for attempt in range(FILE_REPLACE_ATTEMPTS):
+        try:
+            temporary.replace(destination)
+            return
+        except PermissionError as error:
+            if attempt == FILE_REPLACE_ATTEMPTS - 1:
+                raise RuntimeError(
+                    f"Cannot update {destination}. Close it in Excel or any other "
+                    "program, then run the script again."
+                ) from error
+            if attempt == 0:
+                print(f"{destination} is locked; retrying...", flush=True)
+            time.sleep(FILE_REPLACE_DELAY * 2**attempt)
 
 
 def load_checkpoint(pd, args, jobs, signature):
     rows_by_job = {}
     state_path = state_path_for(args.output)
+    output_has_data = args.output.exists() and args.output.stat().st_size > 0
+    state_has_data = state_path.exists() and state_path.stat().st_size > 0
+    state = None
 
-    if state_path.exists() and not args.output.exists():
-        raise RuntimeError(
-            f"Checkpoint state exists without its CSV: {state_path}. "
-            "Restore the CSV or choose a new --output."
-        )
+    if state_has_data:
+        try:
+            state = json.loads(state_path.read_text(encoding="utf-8"))
+        except json.JSONDecodeError as error:
+            raise RuntimeError(f"Invalid checkpoint state: {state_path}") from error
+        if state.get("signature") != signature:
+            raise RuntimeError(
+                "The dataset, ontology, or pipeline configuration changed since "
+                f"the checkpoint was created: {state_path}. Choose a new --output."
+            )
 
-    if args.output.exists():
+    if output_has_data:
         frame = pd.read_csv(args.output, keep_default_na=False)
         if list(frame.columns) != COLUMNS:
             raise RuntimeError(
@@ -176,15 +196,13 @@ def load_checkpoint(pd, args, jobs, signature):
                 raise RuntimeError(
                     f"Existing output contains a document outside {job.label}."
                 )
+    elif state and state.get("completed_batches", 0) > 0:
+        raise RuntimeError(
+            f"Checkpoint state reports completed batches, but {args.output} is "
+            "missing or empty. Restore the CSV or choose a new --output."
+        )
 
-    if state_path.exists():
-        state = json.loads(state_path.read_text(encoding="utf-8"))
-        if state.get("signature") != signature:
-            raise RuntimeError(
-                "The dataset, ontology, or pipeline configuration changed since "
-                f"the checkpoint was created: {state_path}. Choose a new --output."
-            )
-    elif args.output.exists():
+    if output_has_data and not state_has_data:
         print(
             f"Adopting legacy checkpoint {args.output}; assuming its configuration "
             "matches this run.",
@@ -215,19 +233,17 @@ def write_state(state_path, signature, jobs, completed, status, error=None):
     }
     temporary = state_path.with_suffix(state_path.suffix + ".tmp")
     temporary.write_text(json.dumps(state, indent=2) + "\n", encoding="utf-8")
-    temporary.replace(state_path)
+    replace_file(temporary, state_path)
 
 
-def save_checkpoint(pd, args, jobs, rows_by_job, completed, state_path, signature):
+def save_rows(pd, args, jobs, rows_by_job, completed):
     rows = [
         row for job in jobs[:completed] for row in rows_by_job.get(job.key, [])
     ]
     args.output.parent.mkdir(parents=True, exist_ok=True)
     temporary = args.output.with_suffix(args.output.suffix + ".tmp")
     pd.DataFrame(rows, columns=COLUMNS).to_csv(temporary, index=False)
-    temporary.replace(args.output)
-    status = "complete" if completed == len(jobs) else "running"
-    write_state(state_path, signature, jobs, completed, status)
+    replace_file(temporary, args.output)
     return len(rows)
 
 
@@ -244,27 +260,27 @@ def request_batch(requests, args, configuration, job):
         )
         response = None
         try:
-            with requests.Session() as session:
+            with requests.Session() as session, ExitStack() as files_stack:
                 files = [
                     (
                         "documents",
-                        (path.name, path.open("rb"), "application/pdf"),
+                        (
+                            path.name,
+                            files_stack.enter_context(path.open("rb")),
+                            "application/pdf",
+                        ),
                     )
                     for path in job.documents
                 ]
-                try:
-                    response = session.post(
-                        f"{args.api_url.rstrip('/')}/api/calibration",
-                        files=files,
-                        data={
-                            "questions": json.dumps(questions),
-                            "configuration": json.dumps(configuration),
-                        },
-                        timeout=args.timeout,
-                    )
-                finally:
-                    for _, (_, handle, _) in files:
-                        handle.close()
+                response = session.post(
+                    f"{args.api_url.rstrip('/')}/api/calibration",
+                    files=files,
+                    data={
+                        "questions": json.dumps(questions),
+                        "configuration": json.dumps(configuration),
+                    },
+                    timeout=args.timeout,
+                )
         except requests.RequestException as error:
             message = f"request failed: {error}"
             retryable = True
@@ -339,69 +355,45 @@ def run_pending_jobs(
     state_path,
     signature,
 ):
-    next_commit = completed_prefix_count(jobs, rows_by_job)
-    next_submit = next_commit
-    completed_results = {}
-    futures = {}
-    failure = None
-    executor = ThreadPoolExecutor(max_workers=args.workers)
+    pending_jobs = jobs[len(rows_by_job) :]
 
-    def submit_available():
-        nonlocal next_submit
-        while len(futures) < args.workers and next_submit < len(jobs):
-            job = jobs[next_submit]
-            future = executor.submit(
-                request_batch, requests, args, configuration, job
+    with ThreadPoolExecutor(max_workers=args.workers) as executor:
+        futures = [
+            executor.submit(
+                request_batch,
+                requests,
+                args,
+                configuration,
+                job,
             )
-            futures[future] = next_submit
-            next_submit += 1
-
-    try:
-        submit_available()
-        while futures:
-            done, _ = wait(futures, return_when=FIRST_COMPLETED)
-            for future in done:
-                index = futures.pop(future)
+            for job in pending_jobs
+        ]
+        try:
+            for job, future in zip(pending_jobs, futures):
+                rows_by_job[job.key] = future.result()
+                completed = len(rows_by_job)
                 try:
-                    completed_results[index] = future.result()
-                except Exception as error:
-                    if failure is None or index < failure[0]:
-                        failure = index, error
-
-            failure_index = failure[0] if failure else len(jobs)
-            while next_commit < failure_index and next_commit in completed_results:
-                job = jobs[next_commit]
-                rows_by_job[job.key] = completed_results.pop(next_commit)
-                next_commit += 1
-                row_count = save_checkpoint(
-                    pd,
-                    args,
-                    jobs,
-                    rows_by_job,
-                    next_commit,
-                    state_path,
-                    signature,
+                    row_count = save_rows(
+                        pd, args, jobs, rows_by_job, completed
+                    )
+                except BaseException:
+                    del rows_by_job[job.key]
+                    raise
+                status = "complete" if completed == len(jobs) else "running"
+                write_state(
+                    state_path, signature, jobs, completed, status
                 )
                 print(
-                    f"Checkpoint: {next_commit}/{len(jobs)} batches, "
+                    f"Checkpoint: {completed}/{len(jobs)} batches, "
                     f"{row_count} pairs",
                     flush=True,
                 )
+        except BaseException:
+            for future in futures:
+                future.cancel()
+            raise
 
-            if failure:
-                for future in futures:
-                    future.cancel()
-                break
-
-            submit_available()
-    finally:
-        executor.shutdown(wait=True, cancel_futures=True)
-
-    if failure:
-        _, error = failure
-        raise error
-
-    return next_commit
+    return len(rows_by_job)
 
 
 def build_pairs(args):
@@ -412,7 +404,7 @@ def build_pairs(args):
     configuration = {
         "chunkSize": args.chunk_size,
         "chunkOverlap": args.chunk_overlap,
-        "retrieval": {"strategy": args.strategy, "topK": 20},
+        "retrieval": {"strategy": args.strategy, "topK": TOP_K},
         "reranking": {
             "enabled": args.rerank,
             "model": args.reranking_model,
@@ -424,7 +416,7 @@ def build_pairs(args):
     jobs = build_jobs(args, ontology)
     signature = build_signature(args, configuration, jobs)
     rows_by_job, state_path = load_checkpoint(pd, args, jobs, signature)
-    completed = completed_prefix_count(jobs, rows_by_job)
+    completed = len(rows_by_job)
 
     if completed == len(jobs):
         write_state(state_path, signature, jobs, completed, "complete")
@@ -450,7 +442,7 @@ def build_pairs(args):
             signature,
         )
     except BaseException as error:
-        completed = completed_prefix_count(jobs, rows_by_job)
+        completed = len(rows_by_job)
         write_state(
             state_path,
             signature,
@@ -461,7 +453,7 @@ def build_pairs(args):
         )
         raise
 
-    row_count = sum(len(rows_by_job[job.key]) for job in jobs)
+    row_count = sum(map(len, rows_by_job.values()))
     print(
         f"Saved {row_count} question–chunk pairs from {completed} batches "
         f"to {args.output}"
