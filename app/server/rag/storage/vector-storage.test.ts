@@ -321,6 +321,32 @@ describe("QdrantStore", () => {
       );
     });
 
+    it("splits large upserts into sequential 100-point requests", async () => {
+      const chunks = Array.from({ length: 101 }, (_, index) =>
+        chunk(index, `chunk ${index}`),
+      );
+      const denseVectors = chunks.map((_, index) => [index, index + 1]);
+      const ensureCollection = vi
+        .spyOn(store, "ensureCollection")
+        .mockResolvedValue();
+      client.upsert.mockResolvedValue({ status: "completed" });
+
+      await store.upsert(chunks, denseVectors);
+
+      expect(ensureCollection).toHaveBeenCalledOnce();
+      expect(client.upsert).toHaveBeenCalledTimes(2);
+      expect(client.upsert.mock.calls[0]?.[1].points).toHaveLength(100);
+      expect(client.upsert.mock.calls[1]?.[1].points).toEqual([
+        expect.objectContaining({
+          id: pointId(chunks[100]),
+          vector: expect.objectContaining({ dense: denseVectors[100] }),
+        }),
+      ]);
+      expect(client.upsert.mock.invocationCallOrder[0]).toBeLessThan(
+        client.upsert.mock.invocationCallOrder[1],
+      );
+    });
+
     it("does not upsert when collection preparation fails", async () => {
       const error = new Error("Invalid collection");
       vi.spyOn(store, "ensureCollection").mockRejectedValue(error);

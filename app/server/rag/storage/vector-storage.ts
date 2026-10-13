@@ -8,6 +8,8 @@ import { DocumentChunk } from "@/types/chunk-type";
 import type { RetrievalScope } from "@/types/retrieval-types";
 import { pointId, retrievalFilter, scopeIsEmpty } from "./storage-helper";
 
+const UPSERT_BATCH_SIZE = 100;
+
 export class QdrantStore {
   private readonly client: QdrantClient;
 
@@ -48,23 +50,27 @@ export class QdrantStore {
 
     await this.ensureCollection(vector);
 
-    await this.client.upsert(this.collection, {
-      wait: true,
-      points: chunks.map((chunk, index) => ({
-        id: pointId(chunk),
-        vector: {
-          dense: denseVectors[index],
-          sparse: {
-            text: chunk.text,
-            model: "qdrant/bm25",
-            options: {
-              language: "english",
+    for (let start = 0; start < chunks.length; start += UPSERT_BATCH_SIZE) {
+      const batch = chunks.slice(start, start + UPSERT_BATCH_SIZE);
+
+      await this.client.upsert(this.collection, {
+        wait: true,
+        points: batch.map((chunk, index) => ({
+          id: pointId(chunk),
+          vector: {
+            dense: denseVectors[start + index],
+            sparse: {
+              text: chunk.text,
+              model: "qdrant/bm25",
+              options: {
+                language: "english",
+              },
             },
           },
-        },
-        payload: { ...chunk },
-      })),
-    });
+          payload: { ...chunk },
+        })),
+      });
+    }
   }
 
   private async assertVectorSize(expectedSize: number): Promise<void> {
