@@ -3,6 +3,25 @@ import { AcceptedExtension } from "@/app/server/documents/upload-policy";
 export type ExtractedPage = {
   page: number;
   text: string;
+  blocks?: ExtractedBlock[];
+  quality?: "extracted" | "ocr" | "quarantined";
+  qualityReason?: string;
+};
+
+export type DocumentBlockType =
+  | "heading"
+  | "paragraph"
+  | "table"
+  | "caption"
+  | "reference"
+  | "header"
+  | "footer";
+
+export type ExtractedBlock = {
+  page: number;
+  type: DocumentBlockType;
+  text: string;
+  section?: string;
 };
 
 export type ChunkConfiguration = {
@@ -21,6 +40,13 @@ export type DocumentChunkMetadata = {
   columns?: string[];
   delimiter?: string;
   encoding?: string;
+  blockType?: DocumentBlockType;
+  section?: string;
+  documentTopic?: string;
+  retrievalRole?: "evidence" | "auxiliary";
+  extractionQuality?: "extracted" | "ocr";
+  quarantinedPages?: number[];
+  quarantineReasons?: Record<number, string>;
 };
 
 export type DocumentIdentity = {

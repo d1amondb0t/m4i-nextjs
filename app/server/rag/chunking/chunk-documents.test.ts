@@ -393,6 +393,167 @@ describe("page-aware chunking", () => {
   });
 });
 
+describe("structured document chunks", () => {
+  it("splits at sentence boundaries and keeps chunks on their cited page", () => {
+    const chunks = documentChunker.chunkPages(
+      [
+        {
+          page: 4,
+          text: "",
+          quality: "extracted",
+          blocks: [
+            {
+              page: 4,
+              type: "paragraph",
+              text: "Access grew in towns. More families enrolled in schools.",
+            },
+          ],
+        },
+        {
+          page: 5,
+          text: "",
+          quality: "extracted",
+          blocks: [
+            {
+              page: 5,
+              type: "paragraph",
+              text: "Funding continued into the next year.",
+            },
+          ],
+        },
+      ],
+      "pdf",
+      { wordSize: 6, overlapWords: 1 },
+      {
+        documentId: "doc",
+        source: "education.pdf",
+        sourceHash: "hash",
+      },
+    );
+    expect(chunks.map((chunk) => [chunk.page, chunk.text])).toEqual([
+      [4, "Access grew in towns."],
+      [4, "More families enrolled in schools."],
+      [5, "Funding continued into the next year."],
+    ]);
+  });
+
+  it("keeps a table readable and separate from its caption and surrounding prose", () => {
+    const chunks = documentChunker.chunkPages(
+      [
+        {
+          page: 3,
+          text: "",
+          quality: "extracted",
+          blocks: [
+            {
+              page: 3,
+              type: "heading",
+              text: "1. Findings",
+              section: "1. Findings",
+            },
+            {
+              page: 3,
+              type: "paragraph",
+              text: "Schools expanded access.",
+              section: "1. Findings",
+            },
+            {
+              page: 3,
+              type: "caption",
+              text: "Table 1. Participation",
+              section: "1. Findings",
+            },
+            {
+              page: 3,
+              type: "table",
+              text: "Region | Year | Rate\nNorth | 2024 | 62%",
+              section: "1. Findings",
+            },
+          ],
+        },
+      ],
+      "pdf",
+      { wordSize: 50, overlapWords: 5 },
+      {
+        documentId: "doc",
+        source: "education.pdf",
+        sourceHash: "hash",
+      },
+    );
+    expect(chunks.map((chunk) => chunk.metadata.blockType)).toEqual([
+      "heading",
+      "paragraph",
+      "caption",
+      "table",
+    ]);
+    expect(chunks[3].text).toContain(
+      "Region | Year | Rate\nNorth | 2024 | 62%",
+    );
+    expect(chunks[3].page).toBe(3);
+    expect(chunks[3].metadata).toMatchObject({
+      section: "1. Findings",
+      documentTopic: "1. Findings",
+      retrievalRole: "evidence",
+    });
+  });
+
+  it("deduplicates repeated furniture while retaining references as auxiliary chunks", () => {
+    const blocks = (page: number) => [
+      { page, type: "header" as const, text: "Annual report" },
+      {
+        page,
+        type: "paragraph" as const,
+        text: "Access increased in rural areas.",
+      },
+    ];
+    const chunks = documentChunker.chunkPages(
+      [
+        { page: 1, text: "", quality: "extracted", blocks: blocks(1) },
+        {
+          page: 2,
+          text: "",
+          quality: "extracted",
+          blocks: [
+            ...blocks(2),
+            {
+              page: 2,
+              type: "reference",
+              text: "Smith (2024). Education data.",
+              section: "References",
+            },
+          ],
+        },
+        {
+          page: 3,
+          text: "",
+          quality: "quarantined",
+          qualityReason: "OCR failed",
+          blocks: [],
+        },
+      ],
+      "pdf",
+      { wordSize: 50, overlapWords: 5 },
+      {
+        documentId: "doc",
+        source: "report.pdf",
+        sourceHash: "hash",
+      },
+    );
+    expect(
+      chunks.filter((chunk) => chunk.metadata.blockType === "header"),
+    ).toHaveLength(1);
+    expect(
+      chunks.filter((chunk) => chunk.metadata.blockType === "paragraph"),
+    ).toHaveLength(1);
+    expect(
+      chunks.find((chunk) => chunk.metadata.blockType === "reference")?.metadata
+        .retrievalRole,
+    ).toBe("auxiliary");
+    expect(chunks[0].metadata.quarantinedPages).toEqual([3]);
+    expect(chunks[0].metadata.quarantineReasons).toEqual({ 3: "OCR failed" });
+  });
+});
+
 describe("chunk configuration", () => {
   it("V1 accepts a positive integer wordSize", async () => {
     await expect(

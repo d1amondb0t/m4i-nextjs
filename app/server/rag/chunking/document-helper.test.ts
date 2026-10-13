@@ -2,7 +2,12 @@ import { PDFDocument, StandardFonts } from "pdf-lib";
 import { describe, expect, it } from "vitest";
 
 import { DocumentChunker } from "./chunk-documents";
-import { cleanText, extractFile } from "./document-helper";
+import {
+  cleanText,
+  extractFile,
+  pageQualityReason,
+  structurePdfPages,
+} from "./document-helper";
 
 const documentChunker = new DocumentChunker();
 const chunkDocument = documentChunker.chunkDocument.bind(documentChunker);
@@ -263,5 +268,129 @@ describe("PDF extraction", () => {
   it("P9 preserves accented PDF text", async () => {
     const [page] = await extractFile(await createPdf(["café déjà vu"]), "pdf");
     expect(page.text).toContain("café déjà vu");
+  });
+});
+
+describe("structured PDF processing", () => {
+  it("keeps captions, table rows, paragraphs, and repeated furniture separate", () => {
+    const pages = structurePdfPages([
+      {
+        page: 1,
+        text: "Annual report\n1. Findings\nAccess increased in rural areas.\nTable 1. Participation\nRegion\tYear\tRate\nNorth\t2024\t62%\n1",
+        quality: "extracted",
+      },
+      {
+        page: 2,
+        text: "Annual report\nMore schools opened.\nReferences\nSmith (2024). Education data.\n2",
+        quality: "extracted",
+      },
+    ]);
+    expect(pages[0].blocks?.map((block) => block.type)).toEqual([
+      "header",
+      "heading",
+      "paragraph",
+      "caption",
+      "table",
+      "footer",
+    ]);
+    expect(pages[0].blocks?.find((block) => block.type === "table")?.text).toBe(
+      "Region | Year | Rate\nNorth | 2024 | 62%",
+    );
+    expect(pages[1].blocks?.map((block) => block.type)).toEqual([
+      "header",
+      "paragraph",
+      "heading",
+      "reference",
+      "footer",
+    ]);
+    expect(
+      pages[1].blocks?.find((block) => block.type === "reference")?.section,
+    ).toBe("References");
+  });
+
+  it("tries OCR for an error-only PDF page and records its result", async () => {
+    const file = await createPdf(["#NAME?", "Readable original page."]);
+    const requested: number[] = [];
+    const pages = await extractFile(
+      file,
+      "pdf",
+      async (_parser, pageNumber) => {
+        requested.push(pageNumber);
+        return "OCR recovered the first page.";
+      },
+    );
+    expect(requested).toEqual([1]);
+    expect(pages[0].quality).toBe("ocr");
+    expect(pages[0].blocks?.[0].text).toContain("OCR recovered");
+    expect(pages[1].quality).toBe("extracted");
+  });
+
+  it("quarantines a page that remains unreadable after OCR", async () => {
+    const pages = await extractFile(
+      await createPdf(["#NAME?", "Readable page."]),
+      "pdf",
+      async () => "#NAME?",
+    );
+    expect(pages[0]).toMatchObject({
+      page: 1,
+      quality: "quarantined",
+      text: "",
+      blocks: [],
+    });
+    expect(pages[0].qualityReason).toContain("spreadsheet error");
+    expect(pages[1].blocks).toHaveLength(1);
+  });
+
+  it("flags conspicuously joined words before chunking", () => {
+    expect(
+      pageQualityReason(
+        "Thisdocumentcontainsmanywordsjoinedwithoutspacesandcannotberead",
+      ),
+    ).toBe("probable joined words");
+  });
+
+  it("preserves a two-column table rather than folding its rows into prose", () => {
+    const [page] = structurePdfPages([
+      {
+        page: 1,
+        text: "Table 2. Enrollment\nYear\tStudents\n2023\t120\n2024\t145",
+        quality: "extracted",
+      },
+    ]);
+    expect(page.blocks?.map((block) => block.type)).toEqual([
+      "caption",
+      "table",
+    ]);
+    expect(page.blocks?.[1].text).toBe(
+      "Year | Students\n2023 | 120\n2024 | 145",
+    );
+  });
+
+  it("extracts a drawn PDF table as separate readable rows", async () => {
+    const pdf = await PDFDocument.create();
+    const font = await pdf.embedFont(StandardFonts.Helvetica);
+    const page = pdf.addPage();
+    page.drawText("Table 1. Participation", { x: 40, y: 700, size: 12, font });
+    for (const [row, cells] of [
+      ["Region", "Year", "Rate"],
+      ["North", "2024", "62%"],
+    ].entries()) {
+      cells.forEach((cell, column) =>
+        page.drawText(cell, {
+          x: 40 + column * 160,
+          y: 670 - row * 20,
+          size: 12,
+          font,
+        }),
+      );
+    }
+    const file = new File([toArrayBuffer(await pdf.save())], "table.pdf");
+    const [extracted] = await extractFile(file, "pdf");
+    expect(
+      extracted.blocks?.find((block) => block.type === "caption")?.text,
+    ).toBe("Table 1. Participation");
+    expect(
+      extracted.blocks?.find((block) => block.type === "table")?.text,
+    ).toContain("North | 2024 | 62%");
   });
 });

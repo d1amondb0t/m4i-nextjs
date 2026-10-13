@@ -60,6 +60,7 @@ export function createIndexFingerprint(
       config.wordSize,
       config.overlapWords,
       isAcceptedExtension(extension) ? extension : "",
+      "document-processing-v1",
     ].join(":"),
   );
 }
