@@ -37,9 +37,21 @@ to use other models, ports, collection names, prompt files, or a Qdrant Cloud
 cluster. If the embedding model changes its vector dimensions, use a new
 `QDRANT_COLLECTION` name or recreate the existing test collection.
 
-Scanned PDFs require OCR and are not supported by the current chunker. CSV,
-DOCX, and XLSX pass the general upload policy but are hidden from this tester
-until their chunking implementations are complete.
+PDF pages with no readable text, error-only text, or conspicuously joined words
+are retried with a local Tesseract executable (or the path in
+`TESSERACT_PATH`). Install Tesseract on the server to enable OCR. Pages that
+remain unreadable are quarantined: they produce no chunks, and the page numbers
+are recorded in the other chunks' `metadata.quarantinedPages` with reasons in
+`metadata.quarantineReasons`. An entirely
+unreadable PDF is rejected. PDF chunks preserve headings, paragraphs, captions,
+table rows, and references separately, with block type, section, document topic,
+and extraction quality in their metadata. Repeated headers, footers, and
+near-identical passages within a document are deduplicated. References and page
+furniture remain indexed with `retrievalRole: "auxiliary"` for later retrieval
+filtering.
+
+CSV, DOCX, and XLSX pass the general upload policy but are hidden from this
+tester until their chunking implementations are complete.
 
 ## Automated verification
 
