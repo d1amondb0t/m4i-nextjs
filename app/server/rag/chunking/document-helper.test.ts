@@ -244,6 +244,7 @@ describe("PDF extraction", () => {
     expect(pages.map((page) => page.page)).toEqual([1, 2, 3]);
     expect(pages[0].text).toContain("first");
     expect(pages[1].text).toBe("");
+    expect(pages[1].quality).toBe("extracted");
     expect(pages[2].text).toContain("third");
   });
 
@@ -347,6 +348,14 @@ describe("structured PDF processing", () => {
         "Thisdocumentcontainsmanywordsjoinedwithoutspacesandcannotberead",
       ),
     ).toBe("probable joined words");
+  });
+
+  it("does not request OCR for one long identifier on a readable page", () => {
+    expect(
+      pageQualityReason(
+        `This page contains readable prose with many ordinary words and one ${"a".repeat(45)} identifier.`,
+      ),
+    ).toBeUndefined();
   });
 
   it("preserves a two-column table rather than folding its rows into prose", () => {

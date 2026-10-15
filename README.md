@@ -131,3 +131,65 @@ size, overlap, embedding model, retrieval strategy, and optional cross-encoder
 reranking options. The API accepts these settings in the multipart
 `configuration` JSON field and questions in the `questions` JSON array field.
 Only dense and sparse retrieval and cross-encoder reranking are implemented.
+
+## OCR-screened retrieval comparison
+
+`python scripts/build_dataset.py` maintains 100 PDFs in each of the seven
+`dataset/{dimension}/raw/` folders. It checks every page before accepting a
+download. Files with an image-only or badly broken text layer go to
+`dataset/{dimension}/rejected/`, with the reason in `rejected.json`; accepted
+URLs, SHA-256 hashes, and screening versions remain in `links.json`. Blank
+pages do not trigger OCR. Re-running resumes and replaces rejected files until
+each dimension has 100 distinct, text-extractable PDFs.
+
+The comparison uses the application's default 200-word chunks with 50 words of
+overlap. The corpus export runs `DocumentChunker` on every accepted PDF and
+checks its output for OCR or quarantined pages:
+
+```powershell
+npx vitest run --config vitest.corpus.mts
+python scripts/verify_dataset.py
+```
+
+For a quicker controlled comparison, `python scripts/benchmark_retrieval.py`
+uses the earlier 110-document default-chunk corpus and its 1,680 machine-labeled
+question–chunk pairs. `calibration/results/retrieval-benchmark/summary.json`
+separates ranking on that fully judged pool from whole-corpus results, where
+most newly retrieved chunks have no label. Pool recall at 20 is trivially 1
+because that pool has exactly 20 candidates per question; precision at 5 and
+NDCG at 10 are the useful comparisons there.
+
+For the full screened dataset, run the checkpointed stages in order:
+
+```powershell
+python scripts/benchmark_screened.py --phase sparse
+python scripts/benchmark_screened.py --phase retrieve --models bge-m3:latest --normalizations unicode --strategies dense hybrid mmr --batch-size 32
+python scripts/benchmark_screened.py --phase retrieve --models qwen3-embedding:4b --normalizations folded --strategies dense hybrid mmr --batch-size 16
+python scripts/benchmark_screened.py --phase judge
+python scripts/benchmark_screened.py --phase score
+python scripts/benchmark_diagnostics.py
+python scripts/write_benchmark_report.py
+```
+
+`benchmark_diagnostics.py` prints paired bootstrap intervals for NDCG@10
+differences and checks how many retrieved chunks are garbled. The report
+includes `calibration/results/retrieval-report/interpretation.md` when it
+exists, and lists accepted PDFs whose text layer is garbled.
+`question_pairs.csv` beside the report has one row per judged question–chunk
+pair: the judge's label, the chunk text, and every configuration's rank for it.
+
+The sparse stage ranks BM25 on raw, Unicode-cleaned, and folded text. The full
+corpus then adds the two strongest embedders from the controlled comparison,
+each with its best normalization there: BGE-M3 on Unicode text and quantized
+Qwen3 Embedding 4B on folded text. Each uses dense, reciprocal-rank hybrid, and
+MMR selection, both across the whole corpus and within the question's
+dimension. Without arguments, `--phase retrieve` runs every embedder and
+normalization in the controlled grid, which takes far longer. Run only one
+retrieve stage at a time because each rewrites `rankings.json`. No answer
+generation or cross-encoder reranking is part of retrieval. Run the judge after
+every retrieve stage; it skips chunks that already have labels, and the GPU is
+much faster than `--judge-cpu`. The judgment stage uses Qwen3.5 to label the union of every
+configuration's top 20 passages per question. Precision and NDCG are measured
+on those labeled results; recall is relative to the judged candidate pool,
+because relevance outside the pool is unknown. The output and embedding caches
+are under `calibration/results/screened-benchmark/`.

@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """
-Downloads raw PDFs for each impact dimension into ./dataset/{dimension}/raw/.
+Downloads 100 text-extractable PDFs for each impact dimension into
+./dataset/{dimension}/raw/. PDFs needing OCR are excluded entirely.
 
     python scripts/build_dataset.py
 
@@ -9,9 +10,12 @@ each one is recorded in ./dataset/{dimension}/links.json. Re-running resumes.
 """
 
 import csv
+import hashlib
 import io
 import json
+import subprocess
 import sys
+import tempfile
 import time
 import urllib.error
 import urllib.parse
@@ -20,6 +24,9 @@ from concurrent.futures import ThreadPoolExecutor
 from itertools import islice
 from pathlib import Path
 
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+
 PER_DIMENSION = 100
 MAX_CANDIDATES = 1000  # give up on a dimension after trying this many links
 RETRIES = 3
@@ -27,6 +34,126 @@ WORKERS = 4  # parallel downloads per dimension; dimensions also run in parallel
 DATASET = Path(__file__).resolve().parent.parent / "dataset"
 CONTACT = "goofythegoofster@gmail.com"
 USER_AGENT = f"m4i-dataset/0.1 (research corpus builder; {CONTACT})"
+OCR_CHECKER = Path(__file__).with_name("check_pdf_ocr.mjs")
+SCREEN_VERSION = 3
+APP_CORPUS = DATASET.parent / "calibration" / "results" / "screened-corpus"
+
+
+def screen_pdf(pdf):
+    """Check every page for extractable text, without invoking OCR."""
+    with tempfile.NamedTemporaryFile(suffix=".pdf", delete=False) as temporary:
+        temporary.write(pdf)
+        temporary_path = Path(temporary.name)
+    try:
+        try:
+            result = subprocess.run(
+                ["node", str(OCR_CHECKER), str(temporary_path)],
+                capture_output=True, text=True, timeout=180, check=False,
+            )
+        except (subprocess.TimeoutExpired, OSError) as error:
+            return f"OCR screening failed: {error}"
+    finally:
+        temporary_path.unlink(missing_ok=True)
+    try:
+        verdict = json.loads(result.stdout.strip().splitlines()[-1])
+    except (IndexError, ValueError):
+        return f"OCR screening failed: {result.stderr.strip() or result.stdout.strip()}"
+    return None if verdict.get("ok") else (
+        f"page {verdict['page']}: {verdict['reason']}" if verdict.get("page")
+        else verdict.get("reason", "OCR required")
+    )
+
+
+def write_json(path, data):
+    temporary = path.with_suffix(path.suffix + ".tmp")
+    temporary.write_text(json.dumps(data, indent=2) + "\n", encoding="utf-8")
+    for attempt in range(6):
+        try:
+            temporary.replace(path)
+            return
+        except PermissionError:
+            if attempt == 5:
+                raise
+            time.sleep(0.1 * 2**attempt)
+
+
+def audit_existing(dimension, raw, links_path, links, rejected_path, rejected):
+    """Quarantine old OCR PDFs and renumber survivors before downloading more."""
+    entries = [(link, raw / link["file"]) for link in links if (raw / link["file"]).exists()]
+    manifest_path = APP_CORPUS / "manifest.json"
+    app_failures = {}
+    if manifest_path.exists():
+        manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+        for failure in manifest.get("failures", []):
+            filename = failure.split(":", 1)[0]
+            if filename.startswith(f"{dimension}-"):
+                cache_path = APP_CORPUS / f"{filename}.json"
+                if cache_path.exists():
+                    cached = json.loads(cache_path.read_text(encoding="utf-8"))
+                    app_failures[filename] = (cached.get("sourceHash"), failure)
+
+    def check(entry):
+        link, path = entry
+        digest = hashlib.sha256(path.read_bytes()).hexdigest()
+        app_failure = app_failures.get(path.name)
+        if app_failure and app_failure[0] == digest:
+            return f"application extractor: {app_failure[1]}"
+        if link.get("sha256") == digest and link.get("ocr_screened_version") == SCREEN_VERSION:
+            return None
+        return screen_pdf(path.read_bytes())
+    with ThreadPoolExecutor(WORKERS) as pool:
+        checks = list(pool.map(check, entries))
+    kept = []
+    quarantine = raw.parent / "rejected"
+    for (link, path), reason in zip(entries, checks):
+        if reason:
+            quarantine.mkdir(exist_ok=True)
+            destination = quarantine / path.name
+            if destination.exists():
+                destination = quarantine / f"{path.stem}-{hashlib.sha256(path.read_bytes()).hexdigest()[:8]}.pdf"
+            path.replace(destination)
+            rejected.append({"file": destination.name, "url": link["url"], "reason": reason})
+            print(f"  [{dimension}] OCR skip {path.name}: {reason}", flush=True)
+        else:
+            kept.append({**link, "sha256": hashlib.sha256(path.read_bytes()).hexdigest(),
+                         "ocr_screened": True, "ocr_screened_version": SCREEN_VERSION})
+    # Use temporary names so renumbering cannot overwrite an existing PDF.
+    staged = []
+    for index, link in enumerate(kept, 1):
+        old = raw / link["file"]
+        temporary = raw / f".accepted-{index}.pdf"
+        old.replace(temporary)
+        staged.append((link, temporary, f"{dimension}-{index}.pdf"))
+    for link, temporary, filename in staged:
+        temporary.replace(raw / filename)
+        link["file"] = filename
+    write_json(links_path, kept)
+    write_json(rejected_path, rejected)
+    return kept
+
+
+def recover_false_ocr_rejections(dimension, raw, links, rejected_path, rejected):
+    """Recheck quarantined files after a screening-rule update."""
+    remaining = []
+    for item in rejected:
+        if (len(links) >= PER_DIMENSION or "file" not in item or
+                "probable joined words" not in item["reason"]):
+            remaining.append(item)
+            continue
+        path = raw.parent / "rejected" / item["file"]
+        if not path.exists() or screen_pdf(path.read_bytes()):
+            remaining.append(item)
+            continue
+        filename = f"{dimension}-{len(links) + 1}.pdf"
+        path.replace(raw / filename)
+        links.append({
+            "file": filename, "url": item["url"],
+            "sha256": hashlib.sha256((raw / filename).read_bytes()).hexdigest(),
+            "ocr_screened": True, "ocr_screened_version": SCREEN_VERSION,
+        })
+        print(f"  [{dimension}] restored readable {filename}", flush=True)
+    write_json(rejected_path, remaining)
+    return links, remaining
 
 
 def get(url, timeout=60):
@@ -142,6 +269,9 @@ def fetch(url):
         return url, None, error
     if not pdf.startswith(b"%PDF-") or len(pdf) < 10_000:
         return url, None, "not a PDF"
+    reason = screen_pdf(pdf)
+    if reason:
+        return url, None, f"OCR required or unreadable: {reason}"
     return url, pdf, None
 
 
@@ -151,7 +281,14 @@ def download(dimension, sources):
     raw.mkdir(parents=True, exist_ok=True)
     links_path = DATASET / dimension / "links.json"
     links = json.loads(links_path.read_text()) if links_path.exists() else []
-    urls = candidates(sources, seen={link["url"] for link in links})
+    rejected_path = DATASET / dimension / "rejected.json"
+    rejected = json.loads(rejected_path.read_text()) if rejected_path.exists() else []
+    links, rejected = recover_false_ocr_rejections(
+        dimension, raw, links, rejected_path, rejected
+    )
+    links = audit_existing(dimension, raw, links_path, links, rejected_path, rejected)
+    urls = candidates(sources, seen={link["url"] for link in links + rejected})
+    hashes = {link["sha256"] for link in links}
     tried = 0
 
     with ThreadPoolExecutor(WORKERS) as pool:
@@ -166,14 +303,24 @@ def download(dimension, sources):
             for url, pdf, error in pool.map(fetch, batch):
                 if error:
                     print(f"  [{dimension}] skip {url}: {error}")
+                    rejected.append({"url": url, "reason": str(error)})
+                    write_json(rejected_path, rejected)
+                    continue
+                digest = hashlib.sha256(pdf).hexdigest()
+                if digest in hashes:
+                    print(f"  [{dimension}] skip duplicate PDF: {url}")
+                    rejected.append({"url": url, "reason": "duplicate PDF"})
+                    write_json(rejected_path, rejected)
                     continue
                 if len(links) >= PER_DIMENSION:
                     break
                 # Files are numbered and saved here, on one thread, so numbering stays in order.
                 filename = f"{dimension}-{len(links) + 1}.pdf"
                 (raw / filename).write_bytes(pdf)
-                links.append({"file": filename, "url": url})
-                links_path.write_text(json.dumps(links, indent=2))
+                links.append({"file": filename, "url": url, "sha256": digest,
+                              "ocr_screened": True, "ocr_screened_version": SCREEN_VERSION})
+                hashes.add(digest)
+                write_json(links_path, links)
                 print(f"[{dimension}] {len(links)}/{PER_DIMENSION} {filename} <- {url}")
 
 

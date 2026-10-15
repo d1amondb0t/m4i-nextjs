@@ -1,7 +1,7 @@
 import { spawn } from "node:child_process";
 import { PDFParse } from "pdf-parse";
 import { getData as getPdfWorkerData } from "pdf-parse/worker";
-import { getDocument } from "pdfjs-dist/legacy/build/pdf.mjs";
+import { getDocument, OPS } from "pdfjs-dist/legacy/build/pdf.mjs";
 import type {
   DocumentBlockType,
   ExtractedBlock,
@@ -39,7 +39,11 @@ export function pageQualityReason(text: string): string | undefined {
     return "too many replacement characters";
   }
   const tokens = cleaned.split(/\s+/);
-  if (tokens.some((token) => /\p{L}{36,}/u.test(token))) {
+  const joined = tokens.filter((token) => /\p{L}{36,}/u.test(token)).length;
+  if (
+    (tokens.length <= 3 && joined > 0) ||
+    joined >= Math.max(3, tokens.length * 0.1)
+  ) {
     return "probable joined words";
   }
   if (cleaned.length >= 100 && tokens.length < 8) {
@@ -52,11 +56,11 @@ export type OcrPage = (parser: PDFParse, pageNumber: number) => Promise<string>;
 
 async function layoutPdfPages(
   bytes: Uint8Array,
-): Promise<Array<{ num: number; text: string }>> {
+): Promise<Array<{ num: number; text: string; blank: boolean }>> {
   const task = getDocument({ data: new Uint8Array(bytes) });
   try {
     const document = await task.promise;
-    const pages: Array<{ num: number; text: string }> = [];
+    const pages: Array<{ num: number; text: string; blank: boolean }> = [];
     for (let num = 1; num <= document.numPages; num += 1) {
       const page = await document.getPage(num);
       const viewport = page.getViewport({ scale: 1 });
@@ -120,7 +124,22 @@ async function layoutPdfPages(
           );
         })
         .join("\n");
-      pages.push({ num, text });
+      let blank = false;
+      if (!text.trim()) {
+        const operations = await page.getOperatorList();
+        const painted = operations.fnArray.some((operation) =>
+          [
+            OPS.paintXObject,
+            OPS.paintFormXObjectBegin,
+            OPS.paintImageXObject,
+            OPS.paintInlineImageXObject,
+            OPS.paintImageMaskXObject,
+            OPS.paintImageXObjectRepeat,
+          ].includes(operation),
+        );
+        blank = !painted && operations.fnArray.length < 20;
+      }
+      pages.push({ num, text, blank });
       page.cleanup();
     }
     return pages;
@@ -321,6 +340,10 @@ export async function extractFile(
     const result = await layoutPdfPages(bytes);
     const pages: ExtractedPage[] = [];
     for (const page of result) {
+      if (page.blank) {
+        pages.push({ page: page.num, text: "", quality: "extracted" });
+        continue;
+      }
       let raw = page.text;
       let reason = pageQualityReason(raw);
       let qualityReason: string | undefined;
