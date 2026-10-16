@@ -27,6 +27,8 @@ export type ExtractedBlock = {
 export type ChunkConfiguration = {
   overlapWords: number;
   wordSize: number;
+  /** "page" packs structured blocks within a page; "flow" continues passages across pages. */
+  assembly?: "page" | "flow";
 };
 
 export type DocumentChunkMetadata = {
@@ -34,6 +36,7 @@ export type DocumentChunkMetadata = {
   indexFingerprint: string;
   wordCount: number;
   wordStart?: number;
+  pageEnd?: number;
   rowStart?: number;
   rowEnd?: number;
   rowCount?: number;

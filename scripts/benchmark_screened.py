@@ -30,11 +30,11 @@ def atomic_json(path, value):
     temporary.replace(path)
 
 
-def load_corpus():
-    manifest = json.loads((SOURCE / "manifest.json").read_text(encoding="utf-8"))
+def load_corpus(source=SOURCE):
+    manifest = json.loads((source / "manifest.json").read_text(encoding="utf-8"))
     if manifest["documents"] != 700 or manifest["failures"]:
         raise RuntimeError("The 700-document corpus export is incomplete or has OCR failures")
-    files = sorted(SOURCE.glob("*.pdf.json"))
+    files = sorted(source.glob("*.pdf.json"))
     if len(files) != 700:
         raise RuntimeError(f"Expected 700 exported PDFs, found {len(files)}")
     chunks = []
@@ -61,7 +61,7 @@ def load_questions():
 
 
 def retrieve(args):
-    chunks, corpus_hash = load_corpus()
+    chunks, corpus_hash = load_corpus(args.source)
     questions = load_questions()
     keys = list(questions)
     by_dimension = {
@@ -141,7 +141,7 @@ def retrieve(args):
 
 
 def judge_batch(client, model, question, passages, cpu=False):
-    numbered = "\n\n".join(f"[{i}] {text[:1800]}" for i, text in enumerate(passages))
+    numbered = "\n\n".join(f"[{i}] {text[:2600]}" for i, text in enumerate(passages))
     prompt = (
         "Decide whether each passage contains substantive evidence relevant to answering the question. "
         "A partial answer, a concrete outcome, an indicator, or a directly relevant policy or method counts. "
@@ -172,7 +172,7 @@ def judge_batch(client, model, question, passages, cpu=False):
 
 def judge(args):
     index = json.loads((args.output / "rankings.json").read_text(encoding="utf-8"))
-    chunks, corpus_hash = load_corpus()
+    chunks, corpus_hash = load_corpus(args.source)
     if index["corpus_hash"] != corpus_hash:
         raise RuntimeError("Rankings do not match the corpus")
     text_by_id = {c["chunkId"]: c["text"] for c in chunks}
@@ -205,6 +205,22 @@ def judge(args):
             print(f"Judged {key}: {len(values)} pooled chunks", flush=True)
 
 
+def budget_scores(ids, labels, words, budget=1000):
+    """Relevant words among the first `budget` retrieved words, so chunk size cannot inflate precision."""
+    used = relevant = 0
+    for chunk in ids:
+        take = min(words[chunk], budget - used)
+        used += take
+        relevant += take if labels[chunk] else 0
+        if used >= budget:
+            break
+    return {
+        "relevant_words_at_1000": relevant / budget,
+        "relevant_share_of_retrieved_words": relevant / used if used else 0,
+        "retrieved_words_top20": sum(words[chunk] for chunk in ids[:20]),
+    }
+
+
 def score_one(ids, labels):
     positives = sum(labels.values())
     gains = [int(labels[chunk]) for chunk in ids]
@@ -230,13 +246,16 @@ def score_one(ids, labels):
 def score(args):
     index = json.loads((args.output / "rankings.json").read_text(encoding="utf-8"))
     labels = json.loads((args.output / "judgments.json").read_text(encoding="utf-8"))
+    chunks, _ = load_corpus(args.source)
+    words = {chunk["chunkId"]: len(chunk["text"].split()) for chunk in chunks}
+    manifest = json.loads((args.source / "manifest.json").read_text(encoding="utf-8"))
     configurations = {}
     for name, rankings in index["configurations"].items():
         rows = []
         for question, ids in rankings.items():
             if any(chunk not in labels.get(question, {}) for chunk in ids):
                 raise RuntimeError(f"Unjudged retrieved chunk in {name}, {question}")
-            rows.append(score_one(ids, labels[question]))
+            rows.append(score_one(ids, labels[question]) | budget_scores(ids, labels[question], words))
         configurations[name] = {
             key: round(float(np.mean([row[key] for row in rows if row[key] is not None])), 5)
             for key in rows[0]
@@ -247,7 +266,8 @@ def score(args):
         "judged_pairs": sum(map(len, labels.values())),
         "judge_model": args.judge_model,
         "relevance": "machine-judged pooled top-20 candidates; pool recall is not absolute corpus recall",
-        "chunking": {"wordSize": 200, "overlapWords": 50},
+        "chunking": manifest.get("chunking", {"wordSize": 200, "overlapWords": 50}),
+        "source": str(args.source.relative_to(ROOT)),
         "configurations": configurations,
     }
     atomic_json(args.output / "summary.json", result)
@@ -259,6 +279,8 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--phase", required=True, choices=("sparse", "retrieve", "judge", "score"))
     parser.add_argument("--output", type=Path, default=OUTPUT)
+    parser.add_argument("--source", type=Path, default=SOURCE,
+                        help="Exported corpus directory (default: the v1 screened corpus)")
     parser.add_argument("--models", nargs="+", default=DEFAULT_MODELS)
     parser.add_argument("--normalizations", nargs="+", choices=("raw", "unicode", "folded"),
                         default=("raw", "unicode", "folded"))

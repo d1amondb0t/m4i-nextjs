@@ -11,6 +11,13 @@ function words(count: number): string[] {
   return Array.from({ length: count }, (_, index) => `word${index + 1}`);
 }
 
+/** Repeat a sentence into a passage long enough to stand alone as a chunk. */
+function passage(text: string): string {
+  const parts = [text];
+  while (parts.join(" ").split(/\s+/).length < 45) parts.push(text);
+  return parts.join(" ");
+}
+
 function textFile(content: string, name = "sample.txt"): File {
   return new File([content], name);
 }
@@ -454,7 +461,7 @@ describe("structured document chunks", () => {
             {
               page: 3,
               type: "paragraph",
-              text: "Schools expanded access.",
+              text: passage("Schools expanded access."),
               section: "1. Findings",
             },
             {
@@ -481,29 +488,30 @@ describe("structured document chunks", () => {
       },
     );
     expect(chunks.map((chunk) => chunk.metadata.blockType)).toEqual([
-      "heading",
       "paragraph",
-      "caption",
       "table",
     ]);
-    expect(chunks[3].text).toContain(
-      "Region | Year | Rate\nNorth | 2024 | 62%",
+    expect(chunks[0].text).toBe(
+      "1. Findings\n" + passage("Schools expanded access."),
     );
-    expect(chunks[3].page).toBe(3);
-    expect(chunks[3].metadata).toMatchObject({
+    expect(chunks[1].text).toBe(
+      "1. Findings\nTable 1. Participation\nRegion | Year | Rate\nNorth | 2024 | 62%",
+    );
+    expect(chunks[1].page).toBe(3);
+    expect(chunks[1].metadata).toMatchObject({
       section: "1. Findings",
       documentTopic: "1. Findings",
       retrievalRole: "evidence",
     });
   });
 
-  it("deduplicates repeated furniture while retaining references as auxiliary chunks", () => {
+  it("drops page furniture, deduplicates repeats, and keeps references as auxiliary chunks", () => {
     const blocks = (page: number) => [
       { page, type: "header" as const, text: "Annual report" },
       {
         page,
         type: "paragraph" as const,
-        text: "Access increased in rural areas.",
+        text: passage("Access increased in rural areas."),
       },
     ];
     const chunks = documentChunker.chunkPages(
@@ -541,7 +549,7 @@ describe("structured document chunks", () => {
     );
     expect(
       chunks.filter((chunk) => chunk.metadata.blockType === "header"),
-    ).toHaveLength(1);
+    ).toHaveLength(0);
     expect(
       chunks.filter((chunk) => chunk.metadata.blockType === "paragraph"),
     ).toHaveLength(1);
@@ -551,6 +559,202 @@ describe("structured document chunks", () => {
     ).toBe("auxiliary");
     expect(chunks[0].metadata.quarantinedPages).toEqual([3]);
     expect(chunks[0].metadata.quarantineReasons).toEqual({ 3: "OCR failed" });
+  });
+});
+
+describe("passage assembly", () => {
+  const identity = {
+    documentId: "doc",
+    source: "report.pdf",
+    sourceHash: "hash",
+  };
+  const paragraph = (page: number, text: string, section?: string) => ({
+    page,
+    type: "paragraph" as const,
+    text,
+    ...(section ? { section } : {}),
+  });
+  const page = (number: number, blocks: ReturnType<typeof paragraph>[]) => ({
+    page: number,
+    text: "",
+    quality: "extracted" as const,
+    blocks,
+  });
+  const sentence = (index: number) =>
+    `Sentence ${index} reports one finding about school access.`;
+
+  it("A1 merges consecutive line fragments into one passage", () => {
+    const chunks = documentChunker.chunkPages(
+      [
+        page(1, [
+          paragraph(1, "that it is the teacher's job to bring about change"),
+          paragraph(1, "and to set specific goals or objectives for learners."),
+          paragraph(1, "The emphasis makes the process one directional."),
+        ]),
+      ],
+      "pdf",
+      { wordSize: 200, overlapWords: 50 },
+      identity,
+    );
+    expect(chunks).toHaveLength(1);
+    expect(chunks[0].text).toBe(
+      "that it is the teacher's job to bring about change and to set specific goals or objectives for learners. The emphasis makes the process one directional.",
+    );
+  });
+
+  it("A2 fills chunks to wordSize with whole-sentence overlap", () => {
+    const text = Array.from({ length: 12 }, (_, index) =>
+      sentence(index + 1),
+    ).join(" ");
+    const chunks = documentChunker.chunkPages(
+      [page(1, [paragraph(1, text)])],
+      "pdf",
+      { wordSize: 40, overlapWords: 10 },
+      identity,
+    );
+    expect(chunks.length).toBeGreaterThan(1);
+    for (const [index, chunk] of chunks.entries()) {
+      expect(chunk.metadata.wordCount).toBeLessThanOrEqual(40);
+      expect(chunk.text).toMatch(/^Sentence \d+ .*\.$/);
+      if (index > 0) {
+        const previousLast =
+          chunks[index - 1].text.match(/Sentence \d+[^.]*\.$/)![0];
+        expect(chunk.text.startsWith(previousLast)).toBe(true);
+      }
+    }
+  });
+
+  it("A3 folds a short final tail into the previous chunk", () => {
+    const text = [sentence(1), sentence(2), sentence(3), "Done."].join(" ");
+    const chunks = documentChunker.chunkPages(
+      [page(1, [paragraph(1, text)])],
+      "pdf",
+      { wordSize: 24, overlapWords: 0 },
+      identity,
+    );
+    expect(chunks.at(-1)!.text.endsWith("Done.")).toBe(true);
+    expect(chunks.every((chunk) => chunk.text !== "Done.")).toBe(true);
+  });
+
+  it("A4 keeps page assembly within a page and flow assembly across pages", () => {
+    const pages = [
+      page(1, [paragraph(1, "Enrolment rose in the northern districts")]),
+      page(2, [paragraph(2, "after the new transport subsidy began.")]),
+    ];
+    const paged = documentChunker.chunkPages(
+      pages,
+      "pdf",
+      { wordSize: 200, overlapWords: 50 },
+      identity,
+    );
+    const flowed = documentChunker.chunkPages(
+      pages,
+      "pdf",
+      { wordSize: 200, overlapWords: 50, assembly: "flow" },
+      identity,
+    );
+    expect(paged.map((chunk) => chunk.page)).toEqual([1, 2]);
+    expect(flowed).toHaveLength(1);
+    expect(flowed[0].text).toBe(
+      "Enrolment rose in the northern districts after the new transport subsidy began.",
+    );
+    expect(flowed[0]).toMatchObject({ page: 1, metadata: { pageEnd: 2 } });
+  });
+
+  it("A5 starts a new passage at each section and labels only plausible sections", () => {
+    const chunks = documentChunker.chunkPages(
+      [
+        page(1, [
+          paragraph(1, passage("Access improved for girls."), "2. Results"),
+          paragraph(1, passage("Costs fell by a third."), "3. Costs"),
+          paragraph(1, passage("Teachers were retrained."), ") .A"),
+        ]),
+      ],
+      "pdf",
+      { wordSize: 200, overlapWords: 50 },
+      identity,
+    );
+    expect(chunks.map((chunk) => chunk.text)).toEqual([
+      "2. Results\n" + passage("Access improved for girls."),
+      "3. Costs\n" + passage("Costs fell by a third."),
+      passage("Teachers were retrained."),
+    ]);
+  });
+
+  it("A7 reads numbered and column-merged pseudo-tables as prose", () => {
+    const chunks = documentChunker.chunkPages(
+      [
+        {
+          page: 1,
+          text: "",
+          quality: "extracted",
+          blocks: [
+            {
+              page: 1,
+              type: "table",
+              text: "16. | The 2019 Budget projects a continued improvement in spending.",
+            },
+            paragraph(1, "Revenue measures supported the consolidation path."),
+            {
+              page: 1,
+              type: "table",
+              text: "Region | Year | Rate\nNorth | 2024 | 62%\nSouth | 2024 | 58%",
+            },
+          ],
+        },
+      ],
+      "pdf",
+      { wordSize: 200, overlapWords: 50 },
+      identity,
+    );
+    expect(chunks[0].text).toBe(
+      "16. The 2019 Budget projects a continued improvement in spending. Revenue measures supported the consolidation path.\nRegion | Year | Rate\nNorth | 2024 | 62%\nSouth | 2024 | 58%",
+    );
+    expect(chunks[0].metadata.blockType).toBe("paragraph");
+  });
+
+  it("A8 merges short sections forward instead of emitting fragments", () => {
+    const chunks = documentChunker.chunkPages(
+      [
+        {
+          page: 1,
+          text: "",
+          quality: "extracted",
+          blocks: [
+            { page: 1, type: "heading", text: "GOODS", section: "GOODS" },
+            paragraph(1, "Not applicable.", "GOODS"),
+            { page: 1, type: "heading", text: "WORKS", section: "WORKS" },
+            paragraph(1, "Two rural roads were rehabilitated.", "WORKS"),
+          ],
+        },
+      ],
+      "pdf",
+      { wordSize: 200, overlapWords: 50 },
+      identity,
+    );
+    expect(chunks.map((chunk) => chunk.text)).toEqual([
+      "GOODS\nNot applicable. WORKS Two rural roads were rehabilitated.",
+    ]);
+  });
+
+  it("A6 changes chunk IDs between page and flow assembly", () => {
+    const pages = [page(1, [paragraph(1, "Access improved for girls.")])];
+    const [paged] = documentChunker.chunkPages(
+      pages,
+      "pdf",
+      { wordSize: 200, overlapWords: 50 },
+      identity,
+    );
+    const [flowed] = documentChunker.chunkPages(
+      pages,
+      "pdf",
+      { wordSize: 200, overlapWords: 50, assembly: "flow" },
+      identity,
+    );
+    expect(paged.chunkId).not.toBe(flowed.chunkId);
+    expect(paged.metadata.indexFingerprint).not.toBe(
+      flowed.metadata.indexFingerprint,
+    );
   });
 });
 
