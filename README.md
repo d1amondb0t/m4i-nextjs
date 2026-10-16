@@ -43,12 +43,21 @@ are retried with a local Tesseract executable (or the path in
 remain unreadable are quarantined: they produce no chunks, and the page numbers
 are recorded in the other chunks' `metadata.quarantinedPages` with reasons in
 `metadata.quarantineReasons`. An entirely
-unreadable PDF is rejected. PDF chunks preserve headings, paragraphs, captions,
-table rows, and references separately, with block type, section, document topic,
-and extraction quality in their metadata. Repeated headers, footers, and
-near-identical passages within a document are deduplicated. References and page
-furniture remain indexed with `retrievalRole: "auxiliary"` for later retrieval
-filtering.
+unreadable PDF is rejected. PDF text is read in layout order, one column at a
+time on two-column pages, then split into headings, paragraphs, captions, tables
+and references. Chunks are passages of up to 200 words built from consecutive
+blocks of one section, with whole-sentence overlap; by default they continue
+across pages and record the end page in `metadata.pageEnd`. Running headers,
+footers and page numbers are not indexed, and a section heading appears once at
+the top of its passages. References are indexed with
+`retrievalRole: "auxiliary"` and excluded from retrieval unless a scope sets
+`includeAuxiliary`.
+
+Retrieval is hybrid by default: Qdrant fuses the top 100 dense and top 100 BM25
+candidates by reciprocal rank. `/api/rag` answers only from the documents in the
+request. BM25 assumes passages of about 100 tokens (`DEFAULT_BM25_OPTIONS`), and
+sparse vectors are fixed when chunks are stored, so re-index existing
+collections after changing chunking or BM25 options.
 
 CSV, DOCX, and XLSX pass the general upload policy but are hidden from this
 tester until their chunking implementations are complete.
@@ -83,8 +92,11 @@ categories, and a non-empty `questions` array for each category.
 The pipeline indexes the documents once, then visits every category and question.
 For each question it:
 
-1. Retrieves up to 12 chunks using the dimension, category, and question, keeping
-   scores of at least `0.45`. Searches are restricted to the uploaded documents.
+1. Retrieves 20 hybrid candidates for the question, reranks them with
+   `mixedbread-ai/mxbai-rerank-xsmall-v1`, and keeps up to 12 with a reranker
+   probability of at least `0.05`. Searches are restricted to the uploaded
+   documents. The question is used alone: adding the category definition made
+   every tested reranker close to random.
 2. Asks Ollama for up to 20 distinct candidate passages relevant to the question, with
    a brief explanation and supporting quotes. Partial answers, proposed outcomes,
    indicators, and measurement criteria can qualify; a complete answer or an
@@ -131,3 +143,90 @@ size, overlap, embedding model, retrieval strategy, and optional cross-encoder
 reranking options. The API accepts these settings in the multipart
 `configuration` JSON field and questions in the `questions` JSON array field.
 Only dense and sparse retrieval and cross-encoder reranking are implemented.
+
+## OCR-screened retrieval comparison
+
+`python scripts/build_dataset.py` maintains 100 PDFs in each of the seven
+`dataset/{dimension}/raw/` folders. It checks every page before accepting a
+download. Files with an image-only or badly broken text layer go to
+`dataset/{dimension}/rejected/`, with the reason in `rejected.json`; accepted
+URLs, SHA-256 hashes, and screening versions remain in `links.json`. Blank
+pages do not trigger OCR. Re-running resumes and replaces rejected files until
+each dimension has 100 distinct, text-extractable PDFs.
+
+The comparison uses the application's default 200-word chunks with 50 words of
+overlap. The corpus export runs `DocumentChunker` on every accepted PDF and
+checks its output for OCR or quarantined pages:
+
+```powershell
+npx vitest run --config vitest.corpus.mts
+python scripts/verify_dataset.py
+```
+
+For a quicker controlled comparison, `python scripts/benchmark_retrieval.py`
+uses the earlier 110-document default-chunk corpus and its 1,680 machine-labeled
+question–chunk pairs. `calibration/results/retrieval-benchmark/summary.json`
+separates ranking on that fully judged pool from whole-corpus results, where
+most newly retrieved chunks have no label. Pool recall at 20 is trivially 1
+because that pool has exactly 20 candidates per question; precision at 5 and
+NDCG at 10 are the useful comparisons there.
+
+For the full screened dataset, run the checkpointed stages in order:
+
+```powershell
+python scripts/benchmark_screened.py --phase sparse
+python scripts/benchmark_screened.py --phase retrieve --models bge-m3:latest --normalizations unicode --strategies dense hybrid mmr --batch-size 32
+python scripts/benchmark_screened.py --phase retrieve --models qwen3-embedding:4b --normalizations folded --strategies dense hybrid mmr --batch-size 16
+python scripts/benchmark_screened.py --phase judge
+python scripts/benchmark_screened.py --phase score
+python scripts/benchmark_diagnostics.py
+python scripts/write_benchmark_report.py
+```
+
+`benchmark_diagnostics.py` prints paired bootstrap intervals for NDCG@10
+differences and checks how many retrieved chunks are garbled. The report
+includes `calibration/results/retrieval-report/interpretation.md` when it
+exists, and lists accepted PDFs whose text layer is garbled.
+`question_pairs.csv` beside the report has one row per judged question–chunk
+pair: the judge's label, the chunk text, and every configuration's rank for it.
+
+The sparse stage ranks BM25 on raw, Unicode-cleaned, and folded text. The full
+corpus then adds the two strongest embedders from the controlled comparison,
+each with its best normalization there: BGE-M3 on Unicode text and quantized
+Qwen3 Embedding 4B on folded text. Each uses dense, reciprocal-rank hybrid, and
+MMR selection, both across the whole corpus and within the question's
+dimension. Without arguments, `--phase retrieve` runs every embedder and
+normalization in the controlled grid, which takes far longer. Run only one
+retrieve stage at a time because each rewrites `rankings.json`. No answer
+generation or cross-encoder reranking is part of retrieval. Run the judge after
+every retrieve stage; it skips chunks that already have labels, and the GPU is
+much faster than `--judge-cpu`. The judgment stage uses Qwen3.5 to label the union of every
+configuration's top 20 passages per question. Precision and NDCG are measured
+on those labeled results; recall is relative to the judged candidate pool,
+because relevance outside the pool is unknown. The output and embedding caches
+are under `calibration/results/screened-benchmark/`.
+
+### Chunking variants
+
+`DocumentChunker` packs consecutive blocks of one section into passages of up
+to 200 words with whole-sentence overlap. `assembly: "page"` keeps passages
+within a page; `assembly: "flow"` continues them across pages and records
+`pageEnd`. To export the 700 PDFs with each assembly, compare them with the
+earlier export, index one into its own Qdrant collection, and benchmark it:
+
+```powershell
+npx vitest run --config vitest.variants.mts
+python scripts/compare_chunking.py
+$env:VARIANT = "v4-flow"; npx vitest run --config vitest.index.mts
+python scripts/benchmark_screened.py --phase sparse --normalizations unicode --source calibration/results/chunking-variants/v4-flow --output calibration/results/screened-benchmark-v4-flow
+python scripts/benchmark_screened.py --phase retrieve --models bge-m3:latest --normalizations unicode --strategies dense hybrid --source calibration/results/chunking-variants/v4-flow --output calibration/results/screened-benchmark-v4-flow
+python scripts/benchmark_screened.py --phase judge --source calibration/results/chunking-variants/v4-flow --output calibration/results/screened-benchmark-v4-flow
+python scripts/benchmark_screened.py --phase score --source calibration/results/chunking-variants/v4-flow --output calibration/results/screened-benchmark-v4-flow
+```
+
+Variant folders are named after the chunker revision that produced them and
+are kept for comparison; select which to export with `VARIANTS`. Scores now
+include `relevant_share_of_retrieved_words`, so larger chunks cannot raise
+precision just by holding more text. On Windows, fast embedders can exhaust
+local ports through Ollama, so index one collection at a time.
+[CHUNKING_RESULTS.md](CHUNKING_RESULTS.md) records the comparison.

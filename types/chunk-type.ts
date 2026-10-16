@@ -27,6 +27,11 @@ export type ExtractedBlock = {
 export type ChunkConfiguration = {
   overlapWords: number;
   wordSize: number;
+  /**
+   * "flow" (default) continues passages across pages and records pageEnd;
+   * "page" packs structured blocks within a page.
+   */
+  assembly?: "page" | "flow";
 };
 
 export type DocumentChunkMetadata = {
@@ -34,6 +39,7 @@ export type DocumentChunkMetadata = {
   indexFingerprint: string;
   wordCount: number;
   wordStart?: number;
+  pageEnd?: number;
   rowStart?: number;
   rowEnd?: number;
   rowCount?: number;
@@ -66,6 +72,7 @@ export type DocumentChunk = DocumentIdentity & {
 export const DEFAULT_CHUNK_CONFIG: ChunkConfiguration = {
   overlapWords: 50,
   wordSize: 200,
+  assembly: "flow",
 } as const;
 
 export function getContextLabel(chunk: DocumentChunk): string {
