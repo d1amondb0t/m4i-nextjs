@@ -6,8 +6,8 @@ import type {
 export type RetrievalConfiguration = {
   strategy: "dense" | "sparse" | "hybrid";
   topK: number; // default = 5
-  denseCandidates: number; // default = 20
-  sparseCandidates: number; // default = 20
+  denseCandidates: number; // hybrid only; default = 100
+  sparseCandidates: number; // hybrid only; default = 100
 };
 
 export type RerankingConfiguration = {
@@ -20,6 +20,8 @@ export type RerankingConfiguration = {
 export type RetrievalScope = {
   documentIds?: readonly string[];
   indexFingerprints?: readonly string[];
+  /** Headers, footers and references are excluded unless this is true. */
+  includeAuxiliary?: boolean;
 };
 
 export type CrossEncoder = {
@@ -37,6 +39,6 @@ export const DEFAULT_RERANKING_CONFIGURATION = {
 export const DEFAULT_RETRIEVAL_CONFIGURATION = {
   strategy: "dense",
   topK: 5,
-  denseCandidates: 20,
-  sparseCandidates: 20,
+  denseCandidates: 100,
+  sparseCandidates: 100,
 } as const satisfies RetrievalConfiguration;
