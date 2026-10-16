@@ -40,13 +40,13 @@ This file is for an agent continuing the user's active request. Read it before l
 
 Best NDCG@10 per embedding profile (all from the same 20-candidate judged pool; see CSV for every metric and configuration):
 
-| Profile | Normalization | Method | P@5 | Pool R@5 | NDCG@10 |
-| --- | --- | --- | ---: | ---: | ---: |
-| Qwen3 embedding 4B instructed | folded | dense | 0.521 | 0.399 | 0.645 |
-| BGE-M3 | Unicode | hybrid | 0.531 | 0.368 | 0.633 |
-| Qwen3 embedding 0.6B instructed | folded | hybrid | 0.502 | 0.354 | 0.601 |
-| Qwen3 embedding 0.6B plain | folded | hybrid | 0.495 | 0.349 | 0.588 |
-| Nomic Embed Text (official search prefixes) | folded | hybrid | 0.502 | 0.353 | 0.582 |
+| Profile                                     | Normalization | Method |   P@5 | Pool R@5 | NDCG@10 |
+| ------------------------------------------- | ------------- | ------ | ----: | -------: | ------: |
+| Qwen3 embedding 4B instructed               | folded        | dense  | 0.521 |    0.399 |   0.645 |
+| BGE-M3                                      | Unicode       | hybrid | 0.531 |    0.368 |   0.633 |
+| Qwen3 embedding 0.6B instructed             | folded        | hybrid | 0.502 |    0.354 |   0.601 |
+| Qwen3 embedding 0.6B plain                  | folded        | hybrid | 0.495 |    0.349 |   0.588 |
+| Nomic Embed Text (official search prefixes) | folded        | hybrid | 0.502 |    0.353 |   0.582 |
 
 Qwen 4B dense raw NDCG@10 is 0.626 and folded is 0.645; its P@5 is 0.536 raw versus 0.521 folded. Qwen 4B folded hybrid P@5 is 0.545, NDCG@10 is 0.630. The differences are exploratory and may not generalize beyond the earlier candidate pool.
 
@@ -77,6 +77,7 @@ Use `ollama ps` and `python -c "import psutil; print([(p.pid,p.info['cmdline']) 
    `python scripts/benchmark_screened.py --phase retrieve --models qwen3-embedding:4b --normalizations folded --strategies dense hybrid mmr --scopes global dimension --batch-size 16`
 
    This is compute intensive (246,243 x 2,560-dimensional vectors, roughly 2.5 GB cache). Disk had over 330 GB free. Embedding batches checkpoint automatically. A prior 400 response during one controlled Qwen batch was transient and replay succeeded; `embed()` now retries three times and prints the response body on persistent failure. Do not run another `retrieve` writer concurrently. If the Qwen model and judge compete for VRAM, finish retrieval first and then run judge.
+
 4. Rerun `python scripts/benchmark_screened.py --phase judge` after Qwen rankings finish, then `python scripts/benchmark_screened.py --phase score`. It refuses to score any unjudged top-20 chunk. This will compare all saved 700-document configurations with P@5/P@20, pool recall@20, NDCG@10/@20, MAP@20, Hit@10, and MRR. Recall is relative to the union of machine-judged retrieved candidates; relevance outside that pool is unknown.
 5. Run `python scripts/write_benchmark_report.py` to update the Markdown and both CSV tables. Open the report in Codex for review. Add any concise interpretation supported by the final numbers, including normalization and model/retrieval tradeoffs. Explicitly state that the controlled 110-document pool and the screened 700-document corpus are different evaluation sets.
 6. Optionally run `python scripts/validate_judge.py` after the primary benchmark; it currently forces CPU and may need a change to use GPU. It compares 84 positive/negative pairs with earlier machine labels. If used, label its agreement as machine-to-machine only.
