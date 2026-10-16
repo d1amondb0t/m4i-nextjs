@@ -90,7 +90,7 @@ Row 1 of `question_pairs.csv` is `education-77.pdf`, page 5, the text `) .A` fol
 
 ## Suggested fix order
 
-Fixes 1–3 and most of the extraction defects in finding 5 are implemented; [CHUNKING_RESULTS.md](CHUNKING_RESULTS.md) has the measurements.
+Fixes 1–3, most of the extraction defects in finding 5, and fix 4 are implemented. [CHUNKING_RESULTS.md](CHUNKING_RESULTS.md) and [RETRIEVAL_RESULTS.md](RETRIEVAL_RESULTS.md) have the measurements.
 
 1. **Merge blocks into real passages.** Build chunks by accumulating consecutive paragraph and table blocks within a section up to about 200 words, with sentence-aligned overlap. Drop or merge standalone headings, footers and page numbers instead of indexing them alone. Expected effect: the biggest single relevance gain (finding 1).
 2. **Make layout column-aware.** Detect column gutters per page from item x-positions and read each column top to bottom before merging. Join pdf.js items without a space when the gap is smaller than about 0.15 × font size. Repair hyphenation when joining lines.

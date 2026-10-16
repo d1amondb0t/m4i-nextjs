@@ -107,13 +107,10 @@ describe("HierarchyPipeline", () => {
     expect(dependencies.store.upsert).toHaveBeenCalledTimes(1);
     expect(dependencies.retriever.retrieve).toHaveBeenCalledTimes(3);
     for (const question of questions) {
-      expect(dependencies.retriever.retrieve).toHaveBeenCalledWith(
-        expect.stringContaining(`Question: ${question}`),
-        {
-          documentIds: ["document-1"],
-          indexFingerprints: ["fingerprint"],
-        },
-      );
+      expect(dependencies.retriever.retrieve).toHaveBeenCalledWith(question, {
+        documentIds: ["document-1"],
+        indexFingerprints: ["fingerprint"],
+      });
       expect(dependencies.analyzer.match).toHaveBeenCalledWith(
         expect.objectContaining({ id: "advocacy" }),
         question,
@@ -142,7 +139,7 @@ describe("HierarchyPipeline", () => {
 
   it("skips the model and preserves empty categories when retrieval is below the cutoff", async () => {
     vi.mocked(dependencies.retriever.retrieve).mockResolvedValue([
-      { ...searchResult(), score: 0.2, denseScore: 0.2 },
+      { ...searchResult(), score: 0.01, denseScore: 0.01 },
     ]);
     const result = await pipeline().run(
       [new File(["content"], "report.txt")],

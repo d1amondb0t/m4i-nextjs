@@ -27,11 +27,7 @@ import { OllamaEmbedder } from "../embeddings/ollama-embedder";
 import { ragPipelineConfigurationFromEnvironment } from "../pipeline/rag-pipeline-helper";
 import { Retriever } from "../retrieval/retrieval";
 import { QdrantStore } from "../storage/vector-storage";
-import {
-  buildCategoryQuery,
-  evidenceIsGrounded,
-  parseFrameworkOntology,
-} from "./hierarchy-helper";
+import { evidenceIsGrounded, parseFrameworkOntology } from "./hierarchy-helper";
 import {
   type HierarchyAnalyzer,
   OllamaHierarchyAnalyzer,
@@ -154,8 +150,10 @@ export class HierarchyPipeline {
     };
 
     for (const question of category.questions) {
-      const query = buildCategoryQuery(dimension, category, question);
-      const results = (await this.retriever.retrieve(query, scope)).filter(
+      // Retrieve and rerank with the question alone: adding the category
+      // definition and include/exclude lists made every tested cross-encoder
+      // close to random. The analyzer still receives the full category.
+      const results = (await this.retriever.retrieve(question, scope)).filter(
         (result) => result.score >= this.configuration.minimumRetrievalScore,
       );
       for (const result of results) retrievedChunkIds.add(result.chunk.chunkId);

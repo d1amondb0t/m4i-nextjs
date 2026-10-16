@@ -139,18 +139,19 @@ it("indexes audit documents and retrieves through the hierarchy path", async () 
             result.score >=
             DEFAULT_HIERARCHY_CONFIGURATION.minimumRetrievalScore,
         ).length;
-      const reranked = await hierarchyRetriever.retrieve(query, scope);
-      // Same path with the bare question instead of the composite category query.
-      const bare = await hierarchyRetriever.retrieve(question, scope);
+      // The hierarchy pipeline retrieves with the bare question; the composite
+      // category query is kept for comparison with earlier audits.
+      const reranked = await hierarchyRetriever.retrieve(question, scope);
+      const composite = await hierarchyRetriever.retrieve(query, scope);
       retrievals.push({
         category: categoryKey,
         question,
         queryWords: query.split(/\s+/).length,
-        dense: summarize(await denseRetriever.retrieve(query, scope)),
+        dense: summarize(await denseRetriever.retrieve(question, scope)),
         reranked: summarize(reranked),
         passedThreshold: passed(reranked),
-        bareQuestionReranked: summarize(bare),
-        bareQuestionPassedThreshold: passed(bare),
+        compositeQueryReranked: summarize(composite),
+        compositeQueryPassedThreshold: passed(composite),
       });
     }
 
