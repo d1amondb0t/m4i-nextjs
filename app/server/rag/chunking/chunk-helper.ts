@@ -60,7 +60,7 @@ export function createIndexFingerprint(
       config.wordSize,
       config.overlapWords,
       isAcceptedExtension(extension) ? extension : "",
-      config.assembly ?? "page",
+      config.assembly ?? "flow",
       "document-processing-v2",
     ].join(":"),
   );

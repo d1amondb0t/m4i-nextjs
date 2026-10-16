@@ -4,6 +4,7 @@ import { describe, expect, it } from "vitest";
 import { DocumentChunker } from "./chunk-documents";
 
 const NO_OVERLAP = { wordSize: 4, overlapWords: 0 };
+const PAGE_NO_OVERLAP = { ...NO_OVERLAP, assembly: "page" as const };
 const documentChunker = new DocumentChunker();
 const chunkDocument = documentChunker.chunkDocument.bind(documentChunker);
 
@@ -306,11 +307,11 @@ describe("overlap behavior", () => {
   });
 });
 
-describe("page-aware chunking", () => {
+describe("page assembly", () => {
   it("PG1 chunks each page independently", async () => {
     const chunks = await chunkDocument(
       await createPdf(["one two three four five", "six seven eight nine ten"]),
-      { wordSize: 4, overlapWords: 1 },
+      { wordSize: 4, overlapWords: 1, assembly: "page" },
     );
     expect(chunks.map((chunk) => chunk.page)).toEqual([1, 1, 2, 2]);
   });
@@ -321,7 +322,7 @@ describe("page-aware chunking", () => {
         "pageone alpha beta gamma",
         "pagetwo delta epsilon zeta",
       ]),
-      { wordSize: 3, overlapWords: 1 },
+      { wordSize: 3, overlapWords: 1, assembly: "page" },
     );
     expect(
       chunks
@@ -338,7 +339,7 @@ describe("page-aware chunking", () => {
   it("PG3 resets wordStart on every page", async () => {
     const chunks = await chunkDocument(
       await createPdf(["one two three four five", "six seven eight nine ten"]),
-      { wordSize: 4, overlapWords: 1 },
+      { wordSize: 4, overlapWords: 1, assembly: "page" },
     );
     expect(
       chunks
@@ -355,7 +356,7 @@ describe("page-aware chunking", () => {
   it("PG4 continues chunk numbering across pages", async () => {
     const chunks = await chunkDocument(
       await createPdf(["one two three four five", "six seven eight nine ten"]),
-      { wordSize: 4, overlapWords: 1 },
+      { wordSize: 4, overlapWords: 1, assembly: "page" },
     );
     expect(chunks.map((chunk) => chunk.number)).toEqual([1, 2, 3, 4]);
   });
@@ -363,7 +364,7 @@ describe("page-aware chunking", () => {
   it("PG5 associates each chunk with its source page", async () => {
     const chunks = await chunkDocument(
       await createPdf(["first alpha", "second beta", "third gamma"]),
-      NO_OVERLAP,
+      PAGE_NO_OVERLAP,
     );
     expect(chunks.map((chunk) => chunk.page)).toEqual([1, 2, 3]);
     expect(chunks.map((chunk) => chunk.text)).toEqual([
@@ -376,7 +377,7 @@ describe("page-aware chunking", () => {
   it("PG6 creates no chunks for blank pages", async () => {
     const chunks = await chunkDocument(
       await createPdf(["first", null, "third"]),
-      NO_OVERLAP,
+      PAGE_NO_OVERLAP,
     );
     expect(chunks.map((chunk) => chunk.page)).toEqual([1, 3]);
   });
@@ -384,7 +385,7 @@ describe("page-aware chunking", () => {
   it("PG7 handles a short page followed by a long page", async () => {
     const chunks = await chunkDocument(
       await createPdf(["short page", words(9).join(" ")]),
-      NO_OVERLAP,
+      PAGE_NO_OVERLAP,
     );
     expect(chunks.filter((chunk) => chunk.page === 1)).toHaveLength(1);
     expect(chunks.filter((chunk) => chunk.page === 2)).toHaveLength(3);
@@ -393,7 +394,7 @@ describe("page-aware chunking", () => {
   it("PG8 ignores surrounding blank pages without breaking numbering", async () => {
     const chunks = await chunkDocument(
       await createPdf([null, "one two three four five", null]),
-      NO_OVERLAP,
+      PAGE_NO_OVERLAP,
     );
     expect(chunks.map((chunk) => chunk.page)).toEqual([2, 2]);
     expect(chunks.map((chunk) => chunk.number)).toEqual([1, 2]);
@@ -644,7 +645,7 @@ describe("passage assembly", () => {
     const paged = documentChunker.chunkPages(
       pages,
       "pdf",
-      { wordSize: 200, overlapWords: 50 },
+      { wordSize: 200, overlapWords: 50, assembly: "page" },
       identity,
     );
     const flowed = documentChunker.chunkPages(
@@ -742,7 +743,7 @@ describe("passage assembly", () => {
     const [paged] = documentChunker.chunkPages(
       pages,
       "pdf",
-      { wordSize: 200, overlapWords: 50 },
+      { wordSize: 200, overlapWords: 50, assembly: "page" },
       identity,
     );
     const [flowed] = documentChunker.chunkPages(
@@ -809,6 +810,20 @@ describe("chunk configuration", () => {
     await expect(
       chunkDocument(textFile("content"), { wordSize: 10, overlapWords: 11 }),
     ).rejects.toThrow("overlapWords must be strictly smaller than wordSize");
+  });
+
+  it("V14 defaults to flow assembly across PDF pages", async () => {
+    const chunks = await chunkDocument(
+      await createPdf([
+        "Enrolment rose in the northern districts",
+        "after the new transport subsidy began.",
+      ]),
+    );
+    expect(chunks).toHaveLength(1);
+    expect(chunks[0].text).toBe(
+      "Enrolment rose in the northern districts after the new transport subsidy began.",
+    );
+    expect(chunks[0]).toMatchObject({ page: 1, metadata: { pageEnd: 2 } });
   });
 
   it("V13 applies the default 200-word size and 50-word overlap", async () => {

@@ -222,7 +222,7 @@ function buildRuns(
 ): Run[] {
   const runs: Run[] = [];
   const minimum = minimumWords(config);
-  const flow = (config.assembly ?? "page") === "flow";
+  const flow = (config.assembly ?? "flow") === "flow";
   let closed = true;
   for (const page of pages) {
     const blocks = (page.blocks ?? []).map((block) => {
@@ -385,7 +385,7 @@ export class DocumentChunker {
     const ocrPages = new Set(
       pages.filter((page) => page.quality === "ocr").map((page) => page.page),
     );
-    const assembly = config.assembly ?? "page";
+    const assembly = config.assembly ?? "flow";
 
     let ordinal = 0;
     for (const run of buildRuns(pages, config)) {
