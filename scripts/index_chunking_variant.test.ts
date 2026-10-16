@@ -3,7 +3,8 @@
  * default embedder and QdrantStore, then report what the collection holds.
  *
  * VARIANT: directory under calibration/results/chunking-variants, or "v1" for screened-corpus.
- * COLLECTION: target collection (default rag_chunking_<variant>); recreated on each run.
+ * COLLECTION: target collection (default rag_chunking_<variant>); recreated on each run
+ * unless RESUME=1, which keeps it and skips documents that are already fully indexed.
  */
 import { readFile, readdir, writeFile } from "node:fs/promises";
 import path from "node:path";
@@ -24,6 +25,34 @@ const source =
     : path.join(root, "calibration", "results", "chunking-variants", variant);
 const collection =
   process.env.COLLECTION || `rag_chunking_${variant.replace(/\W/g, "_")}`;
+const resume = process.env.RESUME === "1";
+
+/**
+ * Ollama on Windows opens one local connection per input, so fast embedders can
+ * exhaust ephemeral ports (TIME_WAIT). The failure surfaces as several network
+ * errors; wait for ports to free and retry.
+ */
+async function withRetry<T>(
+  label: string,
+  action: () => Promise<T>,
+): Promise<T> {
+  for (let attempt = 1; ; attempt += 1) {
+    try {
+      return await action();
+    } catch (error) {
+      const text = `${String(error)} ${String((error as { cause?: unknown }).cause)}`;
+      if (
+        attempt >= 10 ||
+        !/buffer space|queue was full|ECONNRESET|ECONNREFUSED|EADDRINUSE|fetch failed|socket/i.test(
+          text,
+        )
+      )
+        throw error;
+      console.log(`${label}: network error, retry ${attempt} in 60s`);
+      await new Promise((resolve) => setTimeout(resolve, 60_000));
+    }
+  }
+}
 
 it(`indexes ${variant} into ${collection}`, async () => {
   const config = DEFAULT_RAG_PIPELINE_CONFIGURATION;
@@ -41,19 +70,39 @@ it(`indexes ${variant} into ${collection}`, async () => {
   expect(files).toHaveLength(700);
 
   let indexed = 0;
-  let recreated = false;
+  let ready = resume && (await store.exists());
   for (const [index, name] of files.entries()) {
     const { chunks } = JSON.parse(
       await readFile(path.join(source, name), "utf8"),
     ) as {
       chunks: DocumentChunk[];
     };
-    const vectors = await embedder.embed(chunks.map((chunk) => chunk.text));
-    if (!recreated) {
-      await store.ensureCollection(vectors[0].length, true);
-      recreated = true;
+    if (ready) {
+      const stored = await withRetry(name, () =>
+        client.count(collection, {
+          exact: true,
+          filter: {
+            must: [
+              { key: "documentId", match: { value: chunks[0].documentId } },
+            ],
+          },
+        }),
+      );
+      if (stored.count === chunks.length) {
+        indexed += chunks.length;
+        continue;
+      }
     }
-    await store.upsert(chunks, vectors);
+    const vectors = await withRetry(name, () =>
+      embedder.embed(chunks.map((chunk) => chunk.text)),
+    );
+    if (!ready) {
+      await store.ensureCollection(vectors[0].length, true);
+      ready = true;
+    }
+    await withRetry(name, () => store.upsert(chunks, vectors));
+    // Pace requests so local ports in TIME_WAIT can drain.
+    await new Promise((resolve) => setTimeout(resolve, 300));
     indexed += chunks.length;
     if ((index + 1) % 50 === 0)
       console.log(`${index + 1} documents, ${indexed} chunks`);

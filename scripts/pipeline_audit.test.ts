@@ -3,6 +3,7 @@
  * retrieval path into a separate Qdrant collection, then read the points back.
  *
  * Collection: AUDIT_COLLECTION (default "pipeline_audit"); it is recreated on each run.
+ * AUDIT_ASSEMBLY=page|flow overrides the chunk assembly.
  * Output: calibration/results/pipeline-audit/app_path.json
  */
 import { mkdir, readFile, writeFile } from "node:fs/promises";
@@ -44,7 +45,11 @@ it("indexes audit documents and retrieves through the hierarchy path", async () 
     config.queryPrefix,
     new Ollama(),
   );
-  const chunker = new DocumentChunker(config.chunking);
+  const assembly = process.env.AUDIT_ASSEMBLY as "page" | "flow" | undefined;
+  const chunker = new DocumentChunker({
+    ...config.chunking,
+    ...(assembly ? { assembly } : {}),
+  });
   const report: Record<string, unknown>[] = [];
   let recreated = false;
 

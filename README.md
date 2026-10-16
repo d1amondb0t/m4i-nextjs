@@ -193,3 +193,28 @@ configuration's top 20 passages per question. Precision and NDCG are measured
 on those labeled results; recall is relative to the judged candidate pool,
 because relevance outside the pool is unknown. The output and embedding caches
 are under `calibration/results/screened-benchmark/`.
+
+### Chunking variants
+
+`DocumentChunker` packs consecutive blocks of one section into passages of up
+to 200 words with whole-sentence overlap. `assembly: "page"` keeps passages
+within a page; `assembly: "flow"` continues them across pages and records
+`pageEnd`. To export the 700 PDFs with each assembly, compare them with the
+earlier export, index one into its own Qdrant collection, and benchmark it:
+
+```powershell
+npx vitest run --config vitest.variants.mts
+python scripts/compare_chunking.py
+$env:VARIANT = "v4-flow"; npx vitest run --config vitest.index.mts
+python scripts/benchmark_screened.py --phase sparse --normalizations unicode --source calibration/results/chunking-variants/v4-flow --output calibration/results/screened-benchmark-v4-flow
+python scripts/benchmark_screened.py --phase retrieve --models bge-m3:latest --normalizations unicode --strategies dense hybrid --source calibration/results/chunking-variants/v4-flow --output calibration/results/screened-benchmark-v4-flow
+python scripts/benchmark_screened.py --phase judge --source calibration/results/chunking-variants/v4-flow --output calibration/results/screened-benchmark-v4-flow
+python scripts/benchmark_screened.py --phase score --source calibration/results/chunking-variants/v4-flow --output calibration/results/screened-benchmark-v4-flow
+```
+
+Variant folders are named after the chunker revision that produced them and
+are kept for comparison; select which to export with `VARIANTS`. Scores now
+include `relevant_share_of_retrieved_words`, so larger chunks cannot raise
+precision just by holding more text. On Windows, fast embedders can exhaust
+local ports through Ollama, so index one collection at a time.
+[CHUNKING_RESULTS.md](CHUNKING_RESULTS.md) records the comparison.

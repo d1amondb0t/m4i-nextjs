@@ -267,7 +267,7 @@ def score(args):
         "judge_model": args.judge_model,
         "relevance": "machine-judged pooled top-20 candidates; pool recall is not absolute corpus recall",
         "chunking": manifest.get("chunking", {"wordSize": 200, "overlapWords": 50}),
-        "source": str(args.source.relative_to(ROOT)),
+        "source": str(args.source.resolve().relative_to(ROOT)),
         "configurations": configurations,
     }
     atomic_json(args.output / "summary.json", result)
