@@ -89,7 +89,10 @@ export type HierarchyConfiguration = {
 
 export const DEFAULT_HIERARCHY_CONFIGURATION = {
   topKPerQuery: 12,
-  minimumRetrievalScore: 0.45,
+  // Reranker probability floor. Rerankers separate relevant passages only
+  // weakly on ontology questions, so this drops clear misses and leaves the
+  // rest to the analyzer; 0.05 kept 94% of relevant top-12 chunks.
+  minimumRetrievalScore: 0.05,
   maxContextWords: 4_000,
 } as const satisfies HierarchyConfiguration;
 

@@ -20,22 +20,31 @@ export function pointId(chunk: DocumentChunk): string {
 }
 
 export function retrievalFilter(scope: RetrievalScope | undefined) {
-  if (!scope) return undefined;
-
   const must = [];
 
-  if (scope.documentIds) {
+  if (scope?.documentIds) {
     must.push({ key: "documentId", match: { any: [...scope.documentIds] } });
   }
 
-  if (scope.indexFingerprints) {
+  if (scope?.indexFingerprints) {
     must.push({
       key: "metadata.indexFingerprint",
       match: { any: [...scope.indexFingerprints] },
     });
   }
 
-  return must.length > 0 ? { must } : undefined;
+  // Headers, footers and references are rarely evidence; chunks indexed
+  // before retrievalRole existed have no role and are kept.
+  const mustNot = scope?.includeAuxiliary
+    ? []
+    : [{ key: "metadata.retrievalRole", match: { value: "auxiliary" } }];
+
+  return must.length || mustNot.length
+    ? {
+        ...(must.length ? { must } : {}),
+        ...(mustNot.length ? { must_not: mustNot } : {}),
+      }
+    : undefined;
 }
 
 export function scopeIsEmpty(scope: RetrievalScope | undefined): boolean {

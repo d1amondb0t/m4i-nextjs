@@ -25,6 +25,7 @@ function createStoreMock() {
   return {
     denseSearch: vi.fn(),
     sparseSearch: vi.fn(),
+    hybridSearch: vi.fn(),
   };
 }
 
@@ -74,7 +75,7 @@ describe("Retriever", () => {
     retriever = new Retriever(
       store as unknown as QdrantStore,
       embedder as unknown as OllamaEmbedder,
-      DEFAULT_RETRIEVAL_CONFIGURATION,
+      { ...DEFAULT_RETRIEVAL_CONFIGURATION, strategy: "dense" },
     );
   });
 
@@ -130,7 +131,7 @@ describe("Retriever", () => {
       expect(transformersMocks.modelFromPretrained).toHaveBeenCalledOnce();
       expect(transformersMocks.tokenizerFromPretrained).toHaveBeenCalledOnce();
       expect(transformersMocks.modelFromPretrained).toHaveBeenCalledWith(
-        "cross-encoder/ms-marco-MiniLM-L6-v2",
+        "mixedbread-ai/mxbai-rerank-xsmall-v1",
         { local_files_only: true },
       );
     });
@@ -241,16 +242,32 @@ describe("Retriever", () => {
       expect(embedder.embedQuery).not.toHaveBeenCalled();
     });
 
-    it("reports that hybrid retrieval is not implemented", async () => {
+    it("defaults to hybrid retrieval", () => {
+      expect(DEFAULT_RETRIEVAL_CONFIGURATION.strategy).toBe("hybrid");
+    });
+
+    it("fuses dense and sparse candidates for hybrid retrieval", async () => {
+      const results = searchResults();
+      const scope = { documentIds: ["document-1"] };
+      embedder.embedQuery.mockResolvedValue([0.1, 0.2]);
+      store.hybridSearch.mockResolvedValue(results);
       retriever = new Retriever(
         store as unknown as QdrantStore,
         embedder as unknown as OllamaEmbedder,
         { ...DEFAULT_RETRIEVAL_CONFIGURATION, strategy: "hybrid" },
       );
 
-      await expect(retriever.retrieve("question")).rejects.toThrow(
-        "Hybrid retrieval is not implemented yet.",
+      await expect(retriever.retrieve("question", scope)).resolves.toBe(
+        results,
       );
+      expect(store.hybridSearch).toHaveBeenCalledWith(
+        [0.1, 0.2],
+        "question",
+        5,
+        { dense: 100, sparse: 100 },
+        scope,
+      );
+      expect(store.denseSearch).not.toHaveBeenCalled();
     });
 
     it("retrieves candidates, reranks them, and returns topK", async () => {
@@ -270,7 +287,7 @@ describe("Retriever", () => {
       retriever = new Retriever(
         store as unknown as QdrantStore,
         embedder as unknown as OllamaEmbedder,
-        { ...DEFAULT_RETRIEVAL_CONFIGURATION, topK: 1 },
+        { ...DEFAULT_RETRIEVAL_CONFIGURATION, strategy: "dense", topK: 1 },
         {
           enabled: true,
           strategy: "cross_encoder",

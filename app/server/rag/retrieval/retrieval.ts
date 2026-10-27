@@ -95,6 +95,27 @@ export class Retriever {
       : this.store.sparseSearch(question, limit, scope);
   }
 
+  async hybrid(
+    question: string,
+    limit: number,
+    scope?: RetrievalScope,
+  ): Promise<SearchResult[]> {
+    const queryVector = await this.embedder.embedQuery(question);
+    const candidates = {
+      dense: Math.max(limit, this.retrievalConfig.denseCandidates),
+      sparse: Math.max(limit, this.retrievalConfig.sparseCandidates),
+    };
+    return scope === undefined
+      ? this.store.hybridSearch(queryVector, question, limit, candidates)
+      : this.store.hybridSearch(
+          queryVector,
+          question,
+          limit,
+          candidates,
+          scope,
+        );
+  }
+
   async retrieve(
     question: string,
     scope?: RetrievalScope,
@@ -112,7 +133,8 @@ export class Retriever {
         results = await this.sparse(question, limit, scope);
         break;
       case "hybrid":
-        throw new Error("Hybrid retrieval is not implemented yet.");
+        results = await this.hybrid(question, limit, scope);
+        break;
     }
 
     if (!this.rerankingConfig.enabled) {

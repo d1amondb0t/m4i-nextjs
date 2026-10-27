@@ -480,12 +480,14 @@ def main():
     parser.add_argument(
         "--embedding-model", help="Ollama model; server default if omitted"
     )
-    parser.add_argument("--strategy", choices=("dense", "sparse"), default="dense")
+    parser.add_argument(
+        "--strategy", choices=("dense", "sparse", "hybrid"), default="hybrid"
+    )
     parser.add_argument(
         "--rerank", action="store_true", help="Enable cross-encoder reranking"
     )
     parser.add_argument(
-        "--reranking-model", default="cross-encoder/ms-marco-MiniLM-L6-v2"
+        "--reranking-model", default="mixedbread-ai/mxbai-rerank-xsmall-v1"
     )
     parser.add_argument(
         "--timeout",
