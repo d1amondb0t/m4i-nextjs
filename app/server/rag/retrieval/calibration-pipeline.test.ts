@@ -60,21 +60,21 @@ describe("CalibrationPipeline", () => {
     });
   });
 
-  it("defaults to top 20 without reranking and rejects unavailable strategies", () => {
+  it("defaults to the app strategy and top 20 without reranking, and rejects unknown strategies", () => {
     const configuration = calibrationConfiguration(
       {},
       DEFAULT_RAG_PIPELINE_CONFIGURATION,
     );
     expect(configuration.rag.retrieval).toMatchObject({
-      strategy: "dense",
+      strategy: "hybrid",
       topK: 20,
     });
     expect(configuration.reranking.enabled).toBe(false);
     expect(() =>
       calibrationConfiguration(
-        { retrieval: { strategy: "hybrid" } },
+        { retrieval: { strategy: "keyword" } },
         DEFAULT_RAG_PIPELINE_CONFIGURATION,
       ),
-    ).toThrow("Only dense and sparse");
+    ).toThrow("retrieval.strategy must be dense, sparse, or hybrid.");
   });
 });

@@ -6,6 +6,10 @@ import { pointId } from "./storage-helper";
 import { QdrantStore } from "./vector-storage";
 
 const COLLECTION = "documents";
+const BM25 = { language: "english", avg_len: 100 };
+const EXCLUDE_AUXILIARY = [
+  { key: "metadata.retrievalRole", match: { value: "auxiliary" } },
+];
 
 function createClientMock() {
   return {
@@ -308,9 +312,7 @@ describe("QdrantStore", () => {
             sparse: {
               text: currentChunk.text,
               model: "qdrant/bm25",
-              options: {
-                language: "english",
-              },
+              options: BM25,
             },
           },
           payload: { ...currentChunk },
@@ -405,9 +407,22 @@ describe("QdrantStore", () => {
                 match: { any: ["current-index"] },
               },
             ],
+            must_not: EXCLUDE_AUXILIARY,
           },
         }),
       );
+    });
+
+    it("excludes auxiliary chunks unless the scope includes them", async () => {
+      client.query.mockResolvedValue({ points: [] });
+
+      await store.denseSearch([0.1, 0.2], 5);
+      await store.denseSearch([0.1, 0.2], 5, { includeAuxiliary: true });
+
+      expect(client.query.mock.calls[0][1]).toMatchObject({
+        filter: { must_not: EXCLUDE_AUXILIARY },
+      });
+      expect(client.query.mock.calls[1][1]).not.toHaveProperty("filter");
     });
 
     it("maps dense results and preserves their order", async () => {
@@ -470,13 +485,12 @@ describe("QdrantStore", () => {
         query: {
           text: "search terms",
           model: "qdrant/bm25",
-          options: {
-            language: "english",
-          },
+          options: BM25,
         },
         using: "sparse",
         limit: 8,
         with_payload: true,
+        filter: { must_not: EXCLUDE_AUXILIARY },
       });
     });
 
@@ -499,6 +513,7 @@ describe("QdrantStore", () => {
                 match: { any: ["current-index"] },
               },
             ],
+            must_not: EXCLUDE_AUXILIARY,
           },
         }),
       );
@@ -551,6 +566,67 @@ describe("QdrantStore", () => {
       client.query.mockRejectedValue(error);
 
       await expect(store.sparseSearch("terms", 5)).rejects.toBe(error);
+    });
+  });
+
+  describe("hybridSearch", () => {
+    it("fuses scoped dense and BM25 candidates with reciprocal rank fusion", async () => {
+      client.query.mockResolvedValue({
+        points: [{ id: "point-1", score: 0.03, payload: chunk(1, "match") }],
+      });
+      const filter = {
+        must: [{ key: "documentId", match: { any: ["document-1"] } }],
+        must_not: EXCLUDE_AUXILIARY,
+      };
+
+      const results = await store.hybridSearch(
+        [0.1, 0.2],
+        "search terms",
+        5,
+        { dense: 100, sparse: 50 },
+        { documentIds: ["document-1"] },
+      );
+
+      expect(client.query).toHaveBeenCalledWith(COLLECTION, {
+        prefetch: [
+          { query: [0.1, 0.2], using: "dense", limit: 100, filter },
+          {
+            query: {
+              text: "search terms",
+              model: "qdrant/bm25",
+              options: BM25,
+            },
+            using: "sparse",
+            limit: 50,
+            filter,
+          },
+        ],
+        query: { rrf: { k: 60 } },
+        limit: 5,
+        with_payload: true,
+        filter,
+      });
+      expect(results).toEqual([
+        {
+          chunk: chunk(1, "match"),
+          score: 0.03,
+          denseScore: null,
+          sparseScore: null,
+        },
+      ]);
+    });
+
+    it("returns nothing for an empty scope", async () => {
+      await expect(
+        store.hybridSearch(
+          [0.1],
+          "terms",
+          5,
+          { dense: 10, sparse: 10 },
+          { documentIds: [] },
+        ),
+      ).resolves.toEqual([]);
+      expect(client.query).not.toHaveBeenCalled();
     });
   });
 });

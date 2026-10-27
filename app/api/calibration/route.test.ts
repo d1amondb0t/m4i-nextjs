@@ -27,14 +27,17 @@ describe("POST /api/calibration validation", () => {
     });
   });
 
-  it("rejects unavailable hybrid retrieval", async () => {
+  it("rejects an unknown retrieval strategy", async () => {
     expect(
-      await submit('["What happened?"]', '{"retrieval":{"strategy":"hybrid"}}'),
+      await submit(
+        '["What happened?"]',
+        '{"retrieval":{"strategy":"keyword"}}',
+      ),
     ).toMatchObject({
       status: 400,
       body: {
         ok: false,
-        message: "Only dense and sparse retrieval are implemented.",
+        message: "retrieval.strategy must be dense, sparse, or hybrid.",
       },
     });
   });

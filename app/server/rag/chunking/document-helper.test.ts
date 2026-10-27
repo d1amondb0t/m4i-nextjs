@@ -6,6 +6,7 @@ import {
   cleanText,
   extractFile,
   pageQualityReason,
+  layoutText,
   structurePdfPages,
 } from "./document-helper";
 
@@ -244,6 +245,7 @@ describe("PDF extraction", () => {
     expect(pages.map((page) => page.page)).toEqual([1, 2, 3]);
     expect(pages[0].text).toContain("first");
     expect(pages[1].text).toBe("");
+    expect(pages[1].quality).toBe("extracted");
     expect(pages[2].text).toContain("third");
   });
 
@@ -349,6 +351,14 @@ describe("structured PDF processing", () => {
     ).toBe("probable joined words");
   });
 
+  it("does not request OCR for one long identifier on a readable page", () => {
+    expect(
+      pageQualityReason(
+        `This page contains readable prose with many ordinary words and one ${"a".repeat(45)} identifier.`,
+      ),
+    ).toBeUndefined();
+  });
+
   it("preserves a two-column table rather than folding its rows into prose", () => {
     const [page] = structurePdfPages([
       {
@@ -392,5 +402,266 @@ describe("structured PDF processing", () => {
     expect(
       extracted.blocks?.find((block) => block.type === "table")?.text,
     ).toContain("North | 2024 | 62%");
+  });
+});
+
+describe("structure heuristics", () => {
+  const structure = (...texts: string[]) =>
+    structurePdfPages(
+      texts.map((text, index) => ({
+        page: index + 1,
+        text,
+        quality: "extracted" as const,
+      })),
+    );
+
+  it("H1 rejects OCR debris, IDs, letter-spaced headers and joined words as headings", () => {
+    const [page] = structure(
+      ") .A\nIN00571756\nS H O C K W A V E S\nEDUCATIONPOSITIONORPOLICY\nPROCUREMENT\nTeachers changed practice.",
+    );
+    expect(
+      page.blocks
+        ?.filter((block) => block.type === "heading")
+        .map((block) => block.text),
+    ).toEqual(["PROCUREMENT"]);
+  });
+
+  it("H2 does not treat a numbered paragraph's first line as a heading", () => {
+    const [page] = structure(
+      "49. The institutional setting for debt management is fragmented across several agencies\nand ministries.\n2.1 Smart and Integrated Mobility",
+    );
+    expect(page.blocks?.map((block) => [block.type, block.text])).toEqual([
+      [
+        "paragraph",
+        "49. The institutional setting for debt management is fragmented across several agencies and ministries.",
+      ],
+      ["heading", "2.1 Smart and Integrated Mobility"],
+    ]);
+  });
+
+  it("H3 detects running headers and footers whose page numbers change", () => {
+    const pages = structure(
+      "9 2 S H O C K W A V E S\nFirst page text.\nCongressional Research Service 1",
+      "9 3 S H O C K W A V E S\nSecond page text.\nCongressional Research Service 2",
+    );
+    for (const page of pages) {
+      expect(page.blocks?.map((block) => block.type)).toEqual([
+        "header",
+        "paragraph",
+        "footer",
+      ]);
+    }
+  });
+
+  it("H4 rejoins words hyphenated across lines", () => {
+    const [page] = structure(
+      "Climate change affects the popu-\nlation and agriculture-dependent econ -\nomies.",
+    );
+    expect(page.blocks?.[0].text).toBe(
+      "Climate change affects the population and agriculture-dependent economies.",
+    );
+  });
+
+  it("H5 recognises localised and numbered reference headings", () => {
+    for (const heading of [
+      "ЛИТЕРАТУРА (REFERENCES)",
+      "7. References",
+      "Bibliografía",
+    ]) {
+      const [page] = structure(`${heading}\nSmith, J. (2024). Education data.`);
+      expect(page.blocks?.at(-1)?.type).toBe("reference");
+    }
+  });
+});
+
+describe("page layout", () => {
+  const item = (
+    text: string,
+    x: number,
+    y: number,
+    width: number,
+    raw = text,
+  ) => ({
+    x,
+    y,
+    width,
+    height: 10,
+    text,
+    raw,
+  });
+
+  it("L1 joins pieces of one word and spaces separate words", () => {
+    const text = layoutText(
+      [
+        item("Developme", 0, 100, 50),
+        item("nt", 50.5, 100, 10),
+        item("of", 64, 100, 10),
+        item("the", 77, 100, 15, "the "),
+        item("project", 92, 100, 35),
+      ],
+      600,
+    );
+    expect(text).toBe("Development of the project");
+  });
+
+  it("L2 reads unaligned two-column text one column at a time", () => {
+    const items = [];
+    for (let line = 0; line < 10; line += 1) {
+      items.push(
+        item(
+          `Left column sentence ${line} continues the argument here`,
+          50,
+          100 + line * 12,
+          230,
+        ),
+      );
+      items.push(
+        item(
+          `Right column sentence ${line} develops another point here`,
+          320,
+          106 + line * 12,
+          230,
+        ),
+      );
+    }
+    const lines = layoutText(items, 600).split("\n");
+    expect(lines.slice(0, 10).every((line) => line.startsWith("Left"))).toBe(
+      true,
+    );
+    expect(lines.slice(10).every((line) => line.startsWith("Right"))).toBe(
+      true,
+    );
+  });
+
+  it("L3 keeps a short-cell table in row order", () => {
+    const items = [];
+    for (let row = 0; row < 10; row += 1) {
+      items.push(item(`Region ${row}`, 50, 100 + row * 12, 60));
+      items.push(item("2024", 320, 100 + row * 12, 25));
+      items.push(item(`${50 + row}%`, 450, 100 + row * 12, 25));
+    }
+    const lines = layoutText(items, 600).split("\n");
+    expect(lines[0]).toBe("Region 0\t2024\t50%");
+    expect(lines[1]).toBe("Region 1\t2024\t51%");
+  });
+});
+
+describe("page layout overlaps", () => {
+  const item = (text: string, x: number, width: number) => ({
+    x,
+    y: 100,
+    width,
+    height: 10,
+    text,
+    raw: text,
+  });
+
+  it("L4 drops fake-bold copies drawn at almost the same position", () => {
+    expect(
+      layoutText(
+        [
+          item("Project Name", 0, 60),
+          item("Project Name", 0.4, 60),
+          item("Project Name", 0.8, 60),
+          item(":", 62, 3),
+        ],
+        600,
+      ),
+    ).toBe("Project Name :");
+  });
+
+  it("L5 keeps overlapping decorative glyphs as separate tokens", () => {
+    expect(
+      layoutText(
+        [
+          item("qqqqqqqqqq", 0, 200),
+          item("qqqqqqqqqq", 0, 200),
+          item("q", 20, 20),
+        ],
+        600,
+      ),
+    ).not.toMatch(/q{11,}/);
+  });
+});
+
+describe("mixed page layout", () => {
+  const item = (text: string, x: number, y: number, width: number) => ({
+    x,
+    y,
+    width,
+    height: 10,
+    text,
+    raw: text,
+  });
+
+  it("L6 reorders only the two-column band of a page with full-width sections", () => {
+    const items = [
+      item(
+        "A full-width report title spans both columns of the page",
+        50,
+        80,
+        480,
+      ),
+    ];
+    for (let line = 0; line < 6; line += 1) {
+      items.push(
+        item(
+          `Left column line ${line} carries the first argument`,
+          50,
+          100 + line * 12,
+          230,
+        ),
+      );
+      items.push(
+        item(
+          `Right column line ${line} carries the second argument`,
+          320,
+          100 + line * 12,
+          230,
+        ),
+      );
+    }
+    for (let line = 0; line < 6; line += 1)
+      items.push(
+        item(
+          `Full-width closing line ${line} runs across the whole page width here`,
+          50,
+          200 + line * 12,
+          480,
+        ),
+      );
+    const lines = layoutText(items, 600).split("\n").filter(Boolean);
+    expect(lines[0]).toMatch(/^A full-width report title/);
+    expect(lines.slice(1, 7).every((line) => line.startsWith("Left"))).toBe(
+      true,
+    );
+    expect(lines.slice(7, 13).every((line) => line.startsWith("Right"))).toBe(
+      true,
+    );
+    expect(
+      lines.slice(13).every((line) => line.startsWith("Full-width closing")),
+    ).toBe(true);
+  });
+});
+
+describe("page layout word length", () => {
+  it("L7 keeps edge-to-edge OCR words separate when joining would exceed a plausible word", () => {
+    const item = (text: string, x: number, width: number) => ({
+      x,
+      y: 100,
+      width,
+      height: 8,
+      text,
+      raw: text,
+    });
+    expect(
+      layoutText(
+        [
+          item("THISDOCUMENTHASBEENREPRODUCED", 240, 170),
+          item("EXACTLYASRECEIVEDFROMTHE", 410, 135),
+        ],
+        600,
+      ),
+    ).toBe("THISDOCUMENTHASBEENREPRODUCED EXACTLYASRECEIVEDFROMTHE");
   });
 });

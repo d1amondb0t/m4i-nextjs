@@ -6,8 +6,8 @@ import type {
 export type RetrievalConfiguration = {
   strategy: "dense" | "sparse" | "hybrid";
   topK: number; // default = 5
-  denseCandidates: number; // default = 20
-  sparseCandidates: number; // default = 20
+  denseCandidates: number; // hybrid only; default = 100
+  sparseCandidates: number; // hybrid only; default = 100
 };
 
 export type RerankingConfiguration = {
@@ -20,6 +20,8 @@ export type RerankingConfiguration = {
 export type RetrievalScope = {
   documentIds?: readonly string[];
   indexFingerprints?: readonly string[];
+  /** Headers, footers and references are excluded unless this is true. */
+  includeAuxiliary?: boolean;
 };
 
 export type CrossEncoder = {
@@ -30,13 +32,14 @@ export type CrossEncoder = {
 export const DEFAULT_RERANKING_CONFIGURATION = {
   enabled: false,
   strategy: "cross_encoder",
-  model: "cross-encoder/ms-marco-MiniLM-L6-v2",
+  // Best of four local cross-encoders on the ontology questions (AUC 0.63).
+  model: "mixedbread-ai/mxbai-rerank-xsmall-v1",
   candidates: 20,
 } as const satisfies RerankingConfiguration;
 
 export const DEFAULT_RETRIEVAL_CONFIGURATION = {
-  strategy: "dense",
+  strategy: "hybrid",
   topK: 5,
-  denseCandidates: 20,
-  sparseCandidates: 20,
+  denseCandidates: 100,
+  sparseCandidates: 100,
 } as const satisfies RetrievalConfiguration;
