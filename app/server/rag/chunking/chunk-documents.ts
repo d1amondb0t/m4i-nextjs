@@ -23,64 +23,23 @@ function wordCount(text: string): number {
   return text.split(/\s+/).filter(Boolean).length;
 }
 
-function splitBlock(
-  block: ExtractedBlock,
-  config: ChunkConfiguration,
-): string[] {
-  if (block.type === "table") {
-    const rows = block.text.split("\n");
-    const header = rows[0];
-    const groups: string[] = [];
-    let current = [header];
-    for (const row of rows.slice(1)) {
-      if (
-        wordCount([...current, row].join(" ")) > config.wordSize &&
-        current.length > 1
-      ) {
-        groups.push(current.join("\n"));
-        current = [header];
-      }
-      current.push(row);
+/** Split a table into row groups of at most wordSize words, repeating the header row in each group. */
+function splitTable(text: string, wordSize: number): string[] {
+  const [header, ...rows] = text.split("\n");
+  const groups: string[] = [];
+  let current = [header];
+  for (const row of rows) {
+    if (
+      wordCount([...current, row].join(" ")) > wordSize &&
+      current.length > 1
+    ) {
+      groups.push(current.join("\n"));
+      current = [header];
     }
-    groups.push(current.join("\n"));
-    return groups;
+    current.push(row);
   }
-
-  const words = block.text.split(/\s+/).filter(Boolean);
-  if (words.length <= config.wordSize) return [block.text];
-  const sentences = block.text.split(/(?<=[.!?])\s+(?=[A-Z])/);
-  if (
-    sentences.length > 1 &&
-    sentences.every((sentence) => wordCount(sentence) <= config.wordSize)
-  ) {
-    const groups: string[] = [];
-    let current = "";
-    for (const sentence of sentences) {
-      if (current && wordCount(current + " " + sentence) > config.wordSize) {
-        groups.push(current);
-        current = "";
-      }
-      current = current ? current + " " + sentence : sentence;
-    }
-    if (current) groups.push(current);
-    return groups;
-  }
-
-  // When punctuation is missing, use a bounded word fallback with limited overlap.
-  const overlap = Math.min(
-    config.overlapWords,
-    Math.floor(config.wordSize / 4),
-  );
-  const segments: string[] = [];
-  for (
-    let start = 0;
-    start < words.length;
-    start += config.wordSize - overlap
-  ) {
-    segments.push(words.slice(start, start + config.wordSize).join(" "));
-    if (start + config.wordSize >= words.length) break;
-  }
-  return segments;
+  groups.push(current.join("\n"));
+  return groups;
 }
 
 function normalizeForDedup(text: string): string {
@@ -165,7 +124,7 @@ function blockPieces(
   let offset = wordStart;
   const parts =
     block.type === "table"
-      ? splitBlock(block, config)
+      ? splitTable(block.text, config.wordSize)
       : block.type === "caption"
         ? [block.text]
         : block.text.split(/(?<=[.!?])\s+(?=[\p{Lu}\p{N}"“(])/u);

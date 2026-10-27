@@ -506,6 +506,68 @@ describe("structured document chunks", () => {
     });
   });
 
+  it("splits a long table into row groups that each repeat the header", () => {
+    const chunks = documentChunker.chunkPages(
+      [
+        {
+          page: 2,
+          text: "",
+          quality: "extracted",
+          blocks: [
+            {
+              page: 2,
+              type: "table",
+              text: "Region | Year | Rate\nNorth | 2024 | 62%\nSouth | 2024 | 58%\nEast | 2024 | 51%",
+            },
+          ],
+        },
+      ],
+      "pdf",
+      { wordSize: 12, overlapWords: 2 },
+      {
+        documentId: "doc",
+        source: "education.pdf",
+        sourceHash: "hash",
+      },
+    );
+    expect(chunks.map((chunk) => chunk.text)).toEqual([
+      "Region | Year | Rate\nNorth | 2024 | 62%",
+      "Region | Year | Rate\nSouth | 2024 | 58%",
+      "Region | Year | Rate\nEast | 2024 | 51%",
+    ]);
+    expect(
+      chunks.every(
+        (chunk) =>
+          chunk.page === 2 &&
+          chunk.metadata.blockType === "table" &&
+          chunk.metadata.wordCount <= 12,
+      ),
+    ).toBe(true);
+  });
+
+  it("keeps a single table row whole even when it exceeds wordSize", () => {
+    const row = words(25).join(" | ");
+    const chunks = documentChunker.chunkPages(
+      [
+        {
+          page: 1,
+          text: "",
+          quality: "extracted",
+          blocks: [{ page: 1, type: "table", text: `A | B | C\n${row}` }],
+        },
+      ],
+      "pdf",
+      { wordSize: 10, overlapWords: 2 },
+      {
+        documentId: "doc",
+        source: "education.pdf",
+        sourceHash: "hash",
+      },
+    );
+    expect(chunks.map((chunk) => chunk.text)).toEqual([`A | B | C\n${row}`]);
+    expect(chunks[0].metadata.blockType).toBe("table");
+  });
+
   it("drops page furniture, deduplicates repeats, and keeps references as auxiliary chunks", () => {
     const blocks = (page: number) => [
       { page, type: "header" as const, text: "Annual report" },
