@@ -3,11 +3,35 @@ import { AcceptedExtension } from "@/app/server/documents/upload-policy";
 export type ExtractedPage = {
   page: number;
   text: string;
+  blocks?: ExtractedBlock[];
+  quality?: "extracted" | "ocr" | "quarantined";
+  qualityReason?: string;
+};
+
+export type DocumentBlockType =
+  | "heading"
+  | "paragraph"
+  | "table"
+  | "caption"
+  | "reference"
+  | "header"
+  | "footer";
+
+export type ExtractedBlock = {
+  page: number;
+  type: DocumentBlockType;
+  text: string;
+  section?: string;
 };
 
 export type ChunkConfiguration = {
   overlapWords: number;
   wordSize: number;
+  /**
+   * "flow" (default) continues passages across pages and records pageEnd;
+   * "page" packs structured blocks within a page.
+   */
+  assembly?: "page" | "flow";
 };
 
 export type DocumentChunkMetadata = {
@@ -15,12 +39,20 @@ export type DocumentChunkMetadata = {
   indexFingerprint: string;
   wordCount: number;
   wordStart?: number;
+  pageEnd?: number;
   rowStart?: number;
   rowEnd?: number;
   rowCount?: number;
   columns?: string[];
   delimiter?: string;
   encoding?: string;
+  blockType?: DocumentBlockType;
+  section?: string;
+  documentTopic?: string;
+  retrievalRole?: "evidence" | "auxiliary";
+  extractionQuality?: "extracted" | "ocr";
+  quarantinedPages?: number[];
+  quarantineReasons?: Record<number, string>;
 };
 
 export type DocumentIdentity = {
@@ -40,6 +72,7 @@ export type DocumentChunk = DocumentIdentity & {
 export const DEFAULT_CHUNK_CONFIG: ChunkConfiguration = {
   overlapWords: 50,
   wordSize: 200,
+  assembly: "flow",
 } as const;
 
 export function getContextLabel(chunk: DocumentChunk): string {

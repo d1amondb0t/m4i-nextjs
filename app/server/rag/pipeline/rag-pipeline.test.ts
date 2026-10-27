@@ -96,6 +96,10 @@ describe("RagPipeline", () => {
     ]);
     expect(dependencies.retriever.retrieve).toHaveBeenCalledWith(
       "When is launch?",
+      {
+        documentIds: [result.chunks[0].documentId],
+        indexFingerprints: [result.chunks[0].metadata.indexFingerprint],
+      },
     );
     expect(dependencies.generator.generate).toHaveBeenCalledWith(
       "When is launch?",

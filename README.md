@@ -37,9 +37,30 @@ to use other models, ports, collection names, prompt files, or a Qdrant Cloud
 cluster. If the embedding model changes its vector dimensions, use a new
 `QDRANT_COLLECTION` name or recreate the existing test collection.
 
-Scanned PDFs require OCR and are not supported by the current chunker. CSV,
-DOCX, and XLSX pass the general upload policy but are hidden from this tester
-until their chunking implementations are complete.
+PDF pages with no readable text, error-only text, or conspicuously joined words
+are retried with a local Tesseract executable (or the path in
+`TESSERACT_PATH`). Install Tesseract on the server to enable OCR. Pages that
+remain unreadable are quarantined: they produce no chunks, and the page numbers
+are recorded in the other chunks' `metadata.quarantinedPages` with reasons in
+`metadata.quarantineReasons`. An entirely
+unreadable PDF is rejected. PDF text is read in layout order, one column at a
+time on two-column pages, then split into headings, paragraphs, captions, tables
+and references. Chunks are passages of up to 200 words built from consecutive
+blocks of one section, with whole-sentence overlap; by default they continue
+across pages and record the end page in `metadata.pageEnd`. Running headers,
+footers and page numbers are not indexed, and a section heading appears once at
+the top of its passages. References are indexed with
+`retrievalRole: "auxiliary"` and excluded from retrieval unless a scope sets
+`includeAuxiliary`.
+
+Retrieval is hybrid by default: Qdrant fuses the top 100 dense and top 100 BM25
+candidates by reciprocal rank. `/api/rag` answers only from the documents in the
+request. BM25 assumes passages of about 100 tokens (`DEFAULT_BM25_OPTIONS`), and
+sparse vectors are fixed when chunks are stored, so re-index existing
+collections after changing chunking or BM25 options.
+
+CSV, DOCX, and XLSX pass the general upload policy but are hidden from this
+tester until their chunking implementations are complete.
 
 ## Automated verification
 
@@ -71,8 +92,11 @@ categories, and a non-empty `questions` array for each category.
 The pipeline indexes the documents once, then visits every category and question.
 For each question it:
 
-1. Retrieves up to 12 chunks using the dimension, category, and question, keeping
-   scores of at least `0.45`. Searches are restricted to the uploaded documents.
+1. Retrieves 20 hybrid candidates for the question, reranks them with
+   `mixedbread-ai/mxbai-rerank-xsmall-v1`, and keeps up to 12 with a reranker
+   probability of at least `0.05`. Searches are restricted to the uploaded
+   documents. The question is used alone: adding the category definition made
+   every tested reranker close to random.
 2. Asks Ollama for up to 20 distinct candidate passages relevant to the question, with
    a brief explanation and supporting quotes. Partial answers, proposed outcomes,
    indicators, and measurement criteria can qualify; a complete answer or an
@@ -118,4 +142,4 @@ document batch. Run `python3 scripts/build_calibration_pairs.py --help` for chun
 size, overlap, embedding model, retrieval strategy, and optional cross-encoder
 reranking options. The API accepts these settings in the multipart
 `configuration` JSON field and questions in the `questions` JSON array field.
-Only dense and sparse retrieval and cross-encoder reranking are implemented.
+Dense, sparse, and hybrid retrieval and cross-encoder reranking are implemented.

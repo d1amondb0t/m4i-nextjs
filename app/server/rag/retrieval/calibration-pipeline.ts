@@ -67,10 +67,10 @@ export function calibrationConfiguration(
 
   if (!Number.isSafeInteger(topK) || topK <= 0 || topK > 100)
     throw new Error("retrieval.topK must be between 1 and 100.");
-  const strategy = retrieval.strategy ?? "dense";
+  const strategy = retrieval.strategy ?? base.retrieval.strategy;
 
-  if (strategy !== "dense" && strategy !== "sparse")
-    throw new Error("Only dense and sparse retrieval are implemented.");
+  if (strategy !== "dense" && strategy !== "sparse" && strategy !== "hybrid")
+    throw new Error("retrieval.strategy must be dense, sparse, or hybrid.");
   const enabled = reranking.enabled ?? false;
 
   if (typeof enabled !== "boolean")
@@ -95,7 +95,11 @@ export function calibrationConfiguration(
   return {
     rag: {
       ...base,
-      chunking: { wordSize: chunkSize, overlapWords: chunkOverlap },
+      chunking: {
+        ...base.chunking,
+        wordSize: chunkSize,
+        overlapWords: chunkOverlap,
+      },
       embeddingModel: options.embeddingModel?.trim() || base.embeddingModel,
       retrieval: { ...base.retrieval, strategy, topK },
     },

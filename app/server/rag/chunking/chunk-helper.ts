@@ -60,6 +60,8 @@ export function createIndexFingerprint(
       config.wordSize,
       config.overlapWords,
       isAcceptedExtension(extension) ? extension : "",
+      config.assembly ?? "flow",
+      "document-processing-v2",
     ].join(":"),
   );
 }
@@ -75,6 +77,13 @@ export function validateChunkConfiguration(config: ChunkConfiguration): void {
 
   if (config.overlapWords >= config.wordSize) {
     throw new Error("overlapWords must be strictly smaller than wordSize");
+  }
+
+  if (
+    config.assembly !== undefined &&
+    !["page", "flow"].includes(config.assembly)
+  ) {
+    throw new Error('assembly must be "page" or "flow"');
   }
 }
 
