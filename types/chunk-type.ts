@@ -24,6 +24,25 @@ export type ExtractedBlock = {
   section?: string;
 };
 
+/** Decides how a passage is packed: prose overlaps between chunks, tables and references do not. */
+export type PassageFamily = "prose" | "table" | "reference";
+
+/** The smallest unit packed into a chunk: a sentence, word window, caption or table row group. */
+export type PassagePiece = {
+  text: string;
+  page: number;
+  wordStart: number;
+  words: number;
+  family: PassageFamily;
+};
+
+/** Consecutive pieces of one family under one section, packed into chunks together. */
+export type PassageRun = {
+  family: PassageFamily;
+  section?: string;
+  pieces: PassagePiece[];
+};
+
 export type ChunkConfiguration = {
   overlapWords: number;
   wordSize: number;
@@ -59,6 +78,14 @@ export type DocumentIdentity = {
   documentId: string;
   source: string;
   sourceHash: string;
+};
+
+/** The document and settings every chunk of one chunking pass shares. */
+export type ChunkingContext = {
+  identity: DocumentIdentity;
+  extension: string;
+  config: ChunkConfiguration;
+  indexFingerprint: string;
 };
 
 export type DocumentChunk = DocumentIdentity & {
