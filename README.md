@@ -43,12 +43,16 @@ are retried with a local Tesseract executable (or the path in
 remain unreadable are quarantined: they produce no chunks, and the page numbers
 are recorded in the other chunks' `metadata.quarantinedPages` with reasons in
 `metadata.quarantineReasons`. An entirely
-unreadable PDF is rejected. PDF chunks preserve headings, paragraphs, captions,
-table rows, and references separately, with block type, section, document topic,
-and extraction quality in their metadata. Repeated headers, footers, and
-near-identical passages within a document are deduplicated. References and page
-furniture remain indexed with `retrievalRole: "auxiliary"` for later retrieval
-filtering.
+unreadable PDF is rejected. PDF text is read in layout order, one column at a
+time on two-column pages, then split into headings, paragraphs, captions, tables
+and references. Chunks are passages of up to 200 words built from consecutive
+blocks of one section, with whole-sentence overlap; by default they continue
+across pages and record the end page in `metadata.pageEnd`. Running headers,
+footers and page numbers are not indexed, and a section heading appears once at
+the top of its passages. References are indexed with
+`retrievalRole: "auxiliary"`.
+Re-index existing collections after changing chunking: chunk IDs and index
+fingerprints changed.
 
 CSV, DOCX, and XLSX pass the general upload policy but are hidden from this
 tester until their chunking implementations are complete.

@@ -95,7 +95,11 @@ export function calibrationConfiguration(
   return {
     rag: {
       ...base,
-      chunking: { wordSize: chunkSize, overlapWords: chunkOverlap },
+      chunking: {
+        ...base.chunking,
+        wordSize: chunkSize,
+        overlapWords: chunkOverlap,
+      },
       embeddingModel: options.embeddingModel?.trim() || base.embeddingModel,
       retrieval: { ...base.retrieval, strategy, topK },
     },
