@@ -11,7 +11,7 @@ import {
 } from "./document-helper";
 
 const documentChunker = new DocumentChunker();
-const chunkDocument = documentChunker.chunkDocument.bind(documentChunker);
+const chunkDocument = (file: File) => documentChunker.chunkDocuments([file]);
 
 function toArrayBuffer(bytes: Uint8Array): ArrayBuffer {
   const buffer = new ArrayBuffer(bytes.byteLength);

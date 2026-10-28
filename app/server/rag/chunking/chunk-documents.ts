@@ -39,17 +39,12 @@ export class DocumentChunker {
 
   async chunkDocuments(files: readonly File[]): Promise<DocumentChunk[]> {
     const chunkGroups = await Promise.all(
-      files.map((file) => this.chunkDocument(file, this.config)),
+      files.map((file) => this.chunkDocument(file)),
     );
     return chunkGroups.flat();
   }
 
-  async chunkDocument(
-    file: File,
-    config: ChunkConfiguration = DEFAULT_CHUNK_CONFIG,
-  ): Promise<DocumentChunk[]> {
-    validateChunkConfiguration(config);
-
+  private async chunkDocument(file: File): Promise<DocumentChunk[]> {
     const sourceHash = await hashFileSha256(file);
     const extension = extensionOf(file.name);
 
@@ -63,7 +58,7 @@ export class DocumentChunker {
 
     // extract, clean and chunk document content
     const extractedPages = await extractFile(file, extension);
-    const chunks = this.chunkPages(extractedPages, extension, config, identity);
+    const chunks = this.chunkPages(extractedPages, extension, identity);
 
     if (chunks.length === 0) {
       const detail = extension === "pdf" ? "; scanned PDFs require OCR" : "";
@@ -80,8 +75,8 @@ export class DocumentChunker {
   chunkPages(
     pages: readonly ExtractedPage[],
     extension: string,
-    config: ChunkConfiguration = DEFAULT_CHUNK_CONFIG,
     identity: DocumentIdentity,
+    config: ChunkConfiguration = this.config,
   ): DocumentChunk[] {
     const context: ChunkingContext = {
       identity,

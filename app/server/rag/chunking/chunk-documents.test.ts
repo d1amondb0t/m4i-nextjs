@@ -2,11 +2,17 @@ import { PDFDocument, StandardFonts } from "pdf-lib";
 import { describe, expect, it } from "vitest";
 
 import { DocumentChunker } from "./chunk-documents";
+import type { ChunkConfiguration } from "@/types/chunk-type";
 
 const NO_OVERLAP = { wordSize: 4, overlapWords: 0 };
 const PAGE_NO_OVERLAP = { ...NO_OVERLAP, assembly: "page" as const };
 const documentChunker = new DocumentChunker();
-const chunkDocument = documentChunker.chunkDocument.bind(documentChunker);
+/**
+ * Chunk one file through the public API, with config set on the chunker as in
+ * production. Async so an invalid config rejects instead of throwing.
+ */
+const chunkDocument = async (file: File, config?: ChunkConfiguration) =>
+  new DocumentChunker(config).chunkDocuments([file]);
 
 function words(count: number): string[] {
   return Array.from({ length: count }, (_, index) => `word${index + 1}`);
@@ -431,12 +437,12 @@ describe("structured document chunks", () => {
         },
       ],
       "pdf",
-      { wordSize: 6, overlapWords: 1 },
       {
         documentId: "doc",
         source: "education.pdf",
         sourceHash: "hash",
       },
+      { wordSize: 6, overlapWords: 1 },
     );
     expect(chunks.map((chunk) => [chunk.page, chunk.text])).toEqual([
       [4, "Access grew in towns."],
@@ -481,12 +487,12 @@ describe("structured document chunks", () => {
         },
       ],
       "pdf",
-      { wordSize: 50, overlapWords: 5 },
       {
         documentId: "doc",
         source: "education.pdf",
         sourceHash: "hash",
       },
+      { wordSize: 50, overlapWords: 5 },
     );
     expect(chunks.map((chunk) => chunk.metadata.blockType)).toEqual([
       "paragraph",
@@ -523,12 +529,12 @@ describe("structured document chunks", () => {
         },
       ],
       "pdf",
-      { wordSize: 12, overlapWords: 2 },
       {
         documentId: "doc",
         source: "education.pdf",
         sourceHash: "hash",
       },
+      { wordSize: 12, overlapWords: 2 },
     );
     expect(chunks.map((chunk) => chunk.text)).toEqual([
       "Region | Year | Rate\nNorth | 2024 | 62%",
@@ -557,12 +563,12 @@ describe("structured document chunks", () => {
         },
       ],
       "pdf",
-      { wordSize: 10, overlapWords: 2 },
       {
         documentId: "doc",
         source: "education.pdf",
         sourceHash: "hash",
       },
+      { wordSize: 10, overlapWords: 2 },
     );
     expect(chunks.map((chunk) => chunk.text)).toEqual([`A | B | C\n${row}`]);
     expect(chunks[0].metadata.blockType).toBe("table");
@@ -603,12 +609,12 @@ describe("structured document chunks", () => {
         },
       ],
       "pdf",
-      { wordSize: 50, overlapWords: 5 },
       {
         documentId: "doc",
         source: "report.pdf",
         sourceHash: "hash",
       },
+      { wordSize: 50, overlapWords: 5 },
     );
     expect(
       chunks.filter((chunk) => chunk.metadata.blockType === "header"),
@@ -656,8 +662,8 @@ describe("passage assembly", () => {
         ]),
       ],
       "pdf",
-      { wordSize: 200, overlapWords: 50 },
       identity,
+      { wordSize: 200, overlapWords: 50 },
     );
     expect(chunks).toHaveLength(1);
     expect(chunks[0].text).toBe(
@@ -672,8 +678,8 @@ describe("passage assembly", () => {
     const chunks = documentChunker.chunkPages(
       [page(1, [paragraph(1, text)])],
       "pdf",
-      { wordSize: 40, overlapWords: 10 },
       identity,
+      { wordSize: 40, overlapWords: 10 },
     );
     expect(chunks.length).toBeGreaterThan(1);
     for (const [index, chunk] of chunks.entries()) {
@@ -692,8 +698,8 @@ describe("passage assembly", () => {
     const chunks = documentChunker.chunkPages(
       [page(1, [paragraph(1, text)])],
       "pdf",
-      { wordSize: 24, overlapWords: 0 },
       identity,
+      { wordSize: 24, overlapWords: 0 },
     );
     expect(chunks.at(-1)!.text.endsWith("Done.")).toBe(true);
     expect(chunks.every((chunk) => chunk.text !== "Done.")).toBe(true);
@@ -704,18 +710,16 @@ describe("passage assembly", () => {
       page(1, [paragraph(1, "Enrolment rose in the northern districts")]),
       page(2, [paragraph(2, "after the new transport subsidy began.")]),
     ];
-    const paged = documentChunker.chunkPages(
-      pages,
-      "pdf",
-      { wordSize: 200, overlapWords: 50, assembly: "page" },
-      identity,
-    );
-    const flowed = documentChunker.chunkPages(
-      pages,
-      "pdf",
-      { wordSize: 200, overlapWords: 50, assembly: "flow" },
-      identity,
-    );
+    const paged = documentChunker.chunkPages(pages, "pdf", identity, {
+      wordSize: 200,
+      overlapWords: 50,
+      assembly: "page",
+    });
+    const flowed = documentChunker.chunkPages(pages, "pdf", identity, {
+      wordSize: 200,
+      overlapWords: 50,
+      assembly: "flow",
+    });
     expect(paged.map((chunk) => chunk.page)).toEqual([1, 2]);
     expect(flowed).toHaveLength(1);
     expect(flowed[0].text).toBe(
@@ -734,8 +738,8 @@ describe("passage assembly", () => {
         ]),
       ],
       "pdf",
-      { wordSize: 200, overlapWords: 50 },
       identity,
+      { wordSize: 200, overlapWords: 50 },
     );
     expect(chunks.map((chunk) => chunk.text)).toEqual([
       "2. Results\n" + passage("Access improved for girls."),
@@ -767,8 +771,8 @@ describe("passage assembly", () => {
         },
       ],
       "pdf",
-      { wordSize: 200, overlapWords: 50 },
       identity,
+      { wordSize: 200, overlapWords: 50 },
     );
     expect(chunks[0].text).toBe(
       "16. The 2019 Budget projects a continued improvement in spending. Revenue measures supported the consolidation path.\nRegion | Year | Rate\nNorth | 2024 | 62%\nSouth | 2024 | 58%",
@@ -792,8 +796,8 @@ describe("passage assembly", () => {
         },
       ],
       "pdf",
-      { wordSize: 200, overlapWords: 50 },
       identity,
+      { wordSize: 200, overlapWords: 50 },
     );
     expect(chunks.map((chunk) => chunk.text)).toEqual([
       "GOODS\nNot applicable. WORKS Two rural roads were rehabilitated.",
@@ -802,18 +806,16 @@ describe("passage assembly", () => {
 
   it("A6 changes chunk IDs between page and flow assembly", () => {
     const pages = [page(1, [paragraph(1, "Access improved for girls.")])];
-    const [paged] = documentChunker.chunkPages(
-      pages,
-      "pdf",
-      { wordSize: 200, overlapWords: 50, assembly: "page" },
-      identity,
-    );
-    const [flowed] = documentChunker.chunkPages(
-      pages,
-      "pdf",
-      { wordSize: 200, overlapWords: 50, assembly: "flow" },
-      identity,
-    );
+    const [paged] = documentChunker.chunkPages(pages, "pdf", identity, {
+      wordSize: 200,
+      overlapWords: 50,
+      assembly: "page",
+    });
+    const [flowed] = documentChunker.chunkPages(pages, "pdf", identity, {
+      wordSize: 200,
+      overlapWords: 50,
+      assembly: "flow",
+    });
     expect(paged.chunkId).not.toBe(flowed.chunkId);
     expect(paged.metadata.indexFingerprint).not.toBe(
       flowed.metadata.indexFingerprint,
