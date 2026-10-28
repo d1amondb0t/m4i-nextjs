@@ -78,9 +78,16 @@ export type DocumentIdentity = {
   sourceHash: string;
 };
 
+export type DocumentDescription = {
+  quarantinedPages: number[];
+  quarantineReasons: Record<number, string>;
+  documentTopic: string;
+  ocrPages: Set<number>;
+};
+
 export type ChunkingContext = {
   identity: DocumentIdentity;
-  extension: string;
+  extension: AcceptedExtension;
   config: ChunkConfiguration;
   indexFingerprint: string;
 };
@@ -92,6 +99,8 @@ export type DocumentChunk = DocumentIdentity & {
   text: string;
   metadata: DocumentChunkMetadata;
 };
+
+export type UnnumberedChunk = Omit<DocumentChunk, "number">;
 
 export const DEFAULT_CHUNK_CONFIG: ChunkConfiguration = {
   overlapWords: 50,

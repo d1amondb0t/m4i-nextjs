@@ -2,6 +2,7 @@ import { createHash } from "crypto";
 import type {
   ChunkConfiguration,
   DocumentBlockType,
+  DocumentDescription,
   DocumentIdentity,
   ExtractedPage,
   PassageFamily,
@@ -38,7 +39,7 @@ export function createHashKeyDocument(
 export function createDocumentChunkKey(
   identity: DocumentIdentity,
   page: ExtractedPage,
-  extension: string,
+  extension: AcceptedExtension,
   config: ChunkConfiguration,
   start: number,
 ): string {
@@ -52,9 +53,27 @@ export function createDocumentChunkKey(
   ].join(":");
 }
 
+export function createPassageChunkKey(
+  identity: DocumentIdentity,
+  page: number,
+  ordinal: number,
+  extension: AcceptedExtension,
+  config: ChunkConfiguration,
+): string {
+  return [
+    identity.documentId,
+    page,
+    ordinal,
+    config.wordSize,
+    config.overlapWords,
+    extension,
+    `structured-v2-${config.assembly ?? "flow"}`,
+  ].join(":");
+}
+
 export function createIndexFingerprint(
   identity: DocumentIdentity,
-  extension: string,
+  extension: AcceptedExtension,
   config: ChunkConfiguration,
 ): string {
   return hash(
@@ -63,7 +82,7 @@ export function createIndexFingerprint(
       identity.sourceHash,
       config.wordSize,
       config.overlapWords,
-      isAcceptedExtension(extension) ? extension : "",
+      extension,
       config.assembly ?? "flow",
       "document-processing-v2",
     ].join(":"),
@@ -263,7 +282,7 @@ function documentTopic(
 export function describeDocument(
   pages: readonly ExtractedPage[],
   identity: DocumentIdentity,
-) {
+): DocumentDescription {
   const quarantined = pages.filter((page) => page.quality === "quarantined");
   return {
     quarantinedPages: quarantined.map((page) => page.page),
