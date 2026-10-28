@@ -91,7 +91,13 @@ export class RagPipeline {
 
     await this.store.upsert(chunks, vectors);
 
-    const results = await this.retriever.retrieve(normalizedQuestion);
+    // Answer from the uploaded documents only, not everything in the collection.
+    const results = await this.retriever.retrieve(normalizedQuestion, {
+      documentIds: [...new Set(chunks.map((chunk) => chunk.documentId))],
+      indexFingerprints: [
+        ...new Set(chunks.map((chunk) => chunk.metadata.indexFingerprint)),
+      ],
+    });
     const answer = await this.generator.generate(normalizedQuestion, results);
 
     return { answer, chunks, results };

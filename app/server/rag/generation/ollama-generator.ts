@@ -2,7 +2,7 @@ import { Ollama } from "ollama";
 import { SearchResult } from "../storage/storage-types";
 import { readFileSync } from "fs";
 import { GenerationConfiguration } from "@/types/generation-type";
-import { getContextLabel } from "@/types/chunk-type";
+import { getContextLabel } from "./generator-helper";
 
 export class OllamaGenerator {
   private readonly client: Ollama;
