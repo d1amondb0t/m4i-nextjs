@@ -192,17 +192,30 @@ export function normalizeForDedup(text: string): string {
     .trim();
 }
 
-/** Two normalized texts match exactly, or both have 20+ words and share at least 94% of their vocabulary. */
+/**
+ * Jaccard similarity of two chunks' distinct-word sets at or above which the
+ * later chunk is treated as a duplicate and dropped.
+ */
+export const NEAR_DUPLICATE_THRESHOLD = 0.94;
+
+/** Two normalized texts match exactly, or both have 20+ words and share at least NEAR_DUPLICATE_THRESHOLD of their vocabulary. */
 export function isNearDuplicate(left: string, right: string): boolean {
   if (left === right) return true;
+  
   const leftWords = left.split(" ");
   const rightWords = right.split(" ");
+  
   if (Math.min(leftWords.length, rightWords.length) < 20) return false;
+  
   const leftSet = new Set(leftWords);
   const rightSet = new Set(rightWords);
   let intersection = 0;
+  
   for (const word of leftSet) if (rightSet.has(word)) intersection += 1;
-  return intersection / (leftSet.size + rightSet.size - intersection) >= 0.94;
+  return (
+    intersection / (leftSet.size + rightSet.size - intersection) >=
+    NEAR_DUPLICATE_THRESHOLD
+  );
 }
 
 /** Document-wide facts repeated on every passage chunk. */
