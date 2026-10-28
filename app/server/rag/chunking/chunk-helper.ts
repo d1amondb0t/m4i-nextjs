@@ -14,10 +14,10 @@ import {
 } from "../../documents/upload-policy";
 
 export function hash(
-  algorihtm: "sha1" | "sha256",
+  algorithm: "sha1" | "sha256",
   value: string | Uint8Array,
 ): string {
-  return createHash(algorihtm).update(value).digest("hex");
+  return createHash(algorithm).update(value).digest("hex");
 }
 
 export async function hashFileSha256(file: File): Promise<string> {
@@ -105,65 +105,86 @@ export function assertPageExtension(
   }
 }
 
-/** Block types that are page furniture and never indexed. */
 export const NOT_INDEXED_BLOCK_TYPES = new Set<DocumentBlockType>([
   "header",
   "footer",
 ]);
 
-/** The blockType recorded on a chunk for each passage family. */
 export const FAMILY_BLOCK_TYPE: Record<PassageFamily, DocumentBlockType> = {
   prose: "paragraph",
   table: "table",
   reference: "reference",
 };
 
+export const NEAR_DUPLICATE_THRESHOLD = 0.94;
+
+const NEAR_DUPLICATE_MIN_WORDS = 20;
+
+const BOILERPLATE_HEADING =
+  /^(?:abstract|introduction|references|bibliography)$/i;
+
+const LIST_MARKER = /^(?:\(?[\dA-Za-z]{1,3}[.)]|[•▪◦\-–])$/;
+
 export function wordCount(text: string): number {
   return text.split(/\s+/).filter(Boolean).length;
 }
 
-/** Smallest passage worth emitting on its own; shorter runs absorb what follows. */
 export function minimumPassageWords(config: ChunkConfiguration): number {
   return Math.min(40, Math.floor(config.wordSize / 5));
 }
 
-/** A section label worth repeating on chunks: mostly letters, a real word, heading-sized. */
+function letterRatio(text: string): number {
+  return (text.match(/\p{L}/gu) ?? []).length / text.length;
+}
+
+function isHeadingLike(text: string): boolean {
+  return (
+    wordCount(text) <= 12 &&
+    letterRatio(text) >= 0.6 &&
+    /\p{L}{3,}/u.test(text) &&
+    !text.includes("_")
+  );
+}
+
 export function sectionLabel(section: string | undefined): string | undefined {
-  if (!section) return undefined;
-  const letters = (section.match(/\p{L}/gu) ?? []).length;
-  return wordCount(section) <= 12 &&
-    letters / section.length >= 0.6 &&
-    /\p{L}{3,}/u.test(section) &&
-    !section.includes("_")
-    ? section
-    : undefined;
+  return section && isHeadingLike(section) ? section : undefined;
+}
+
+function isMarkerRow(row: string[]): boolean {
+  return row.length === 2 && LIST_MARKER.test(row[0].trim());
+}
+
+function hasMostlySentenceCells(rows: string[][]): boolean {
+  const cells = rows.flat();
+  const longCells = cells.filter((cell) => wordCount(cell) >= 5).length;
+  return rows.every((row) => row.length <= 2) && longCells * 2 >= cells.length;
+}
+
+function isProseTable(rows: string[][]): boolean {
+  const markerRows = rows.filter(isMarkerRow).length;
+  return markerRows * 2 >= rows.length || hasMostlySentenceCells(rows);
 }
 
 /**
  * Layout extraction marks any tab-separated line as a table row, so numbered
  * paragraphs ("16. | The budget…") and merged text columns look like tables.
- * Treat rows of sentence-length cells, or a marker plus text, as prose and
- * return them flattened; return undefined for a real table.
+ * Returns such prose flattened, or undefined for a real table.
  */
 export function flattenProseTable(text: string): string | undefined {
   const rows = text.split("\n").map((row) => row.split(" | "));
-  const cells = rows.flat();
-  const marker = /^(?:\(?[\dA-Za-z]{1,3}[.)]|[•▪◦\-–])$/;
-  const markerRows = rows.filter(
-    (row) => row.length === 2 && marker.test(row[0].trim()),
-  ).length;
-  const longCells = cells.filter((cell) => wordCount(cell) >= 5).length;
-  const prose =
-    markerRows * 2 >= rows.length ||
-    (rows.every((row) => row.length <= 2) && longCells * 2 >= cells.length);
-  return prose ? rows.map((row) => row.join(" ")).join(" ") : undefined;
+  return isProseTable(rows)
+    ? rows.map((row) => row.join(" ")).join(" ")
+    : undefined;
+}
+
+export function sumPieceWords(pieces: readonly PassagePiece[]): number {
+  return pieces.reduce((sum, piece) => sum + piece.words, 0);
 }
 
 export function countRunWords(run: PassageRun): number {
-  return run.pieces.reduce((sum, piece) => sum + piece.words, 0);
+  return sumPieceWords(run.pieces);
 }
 
-/** The family carrying most words in a chunk. */
 export function dominantFamily(pieces: readonly PassagePiece[]): PassageFamily {
   const totals = new Map<PassageFamily, number>();
   for (const piece of pieces)
@@ -171,20 +192,20 @@ export function dominantFamily(pieces: readonly PassagePiece[]): PassageFamily {
   return [...totals].sort((left, right) => right[1] - left[1])[0][0];
 }
 
-/** Join a chunk's pieces with spaces, breaking the line wherever a table piece starts or ends. */
+function pieceSeparator(previous: PassagePiece, piece: PassagePiece): string {
+  return piece.family === "table" || previous.family === "table" ? "\n" : " ";
+}
+
 export function joinPieces(pieces: readonly PassagePiece[]): string {
   return pieces
     .map((piece, index) =>
       index === 0
         ? piece.text
-        : (piece.family === "table" || pieces[index - 1].family === "table"
-            ? "\n"
-            : " ") + piece.text,
+        : pieceSeparator(pieces[index - 1], piece) + piece.text,
     )
     .join("");
 }
 
-/** Lowercase and strip everything except letters and digits, so near-duplicates compare equal. */
 export function normalizeForDedup(text: string): string {
   return text
     .toLocaleLowerCase("en-US")
@@ -192,33 +213,53 @@ export function normalizeForDedup(text: string): string {
     .trim();
 }
 
-/**
- * Jaccard similarity of two chunks' distinct-word sets at or above which the
- * later chunk is treated as a duplicate and dropped.
- */
-export const NEAR_DUPLICATE_THRESHOLD = 0.94;
+function jaccardSimilarity(left: Set<string>, right: Set<string>): number {
+  let intersection = 0;
+  for (const word of left) if (right.has(word)) intersection += 1;
+  return intersection / (left.size + right.size - intersection);
+}
 
-/** Two normalized texts match exactly, or both have 20+ words and share at least NEAR_DUPLICATE_THRESHOLD of their vocabulary. */
 export function isNearDuplicate(left: string, right: string): boolean {
   if (left === right) return true;
 
   const leftWords = left.split(" ");
   const rightWords = right.split(" ");
 
-  if (Math.min(leftWords.length, rightWords.length) < 20) return false;
+  if (Math.min(leftWords.length, rightWords.length) < NEAR_DUPLICATE_MIN_WORDS)
+    return false;
 
-  const leftSet = new Set(leftWords);
-  const rightSet = new Set(rightWords);
-  let intersection = 0;
-
-  for (const word of leftSet) if (rightSet.has(word)) intersection += 1;
   return (
-    intersection / (leftSet.size + rightSet.size - intersection) >=
+    jaccardSimilarity(new Set(leftWords), new Set(rightWords)) >=
     NEAR_DUPLICATE_THRESHOLD
   );
 }
 
-/** Document-wide facts repeated on every passage chunk. */
+function quarantineReasons(
+  quarantined: readonly ExtractedPage[],
+): Record<number, string> {
+  return Object.fromEntries(
+    quarantined.map((page) => [
+      page.page,
+      page.qualityReason ?? "unreadable after OCR",
+    ]),
+  );
+}
+
+function documentTopic(
+  pages: readonly ExtractedPage[],
+  identity: DocumentIdentity,
+): string {
+  const heading = pages
+    .flatMap((page) => page.blocks ?? [])
+    .find(
+      (block) =>
+        block.type === "heading" &&
+        sectionLabel(block.text) &&
+        !BOILERPLATE_HEADING.test(block.text),
+    );
+  return heading?.text ?? identity.source.replace(/\.[^.]+$/, "");
+}
+
 export function describeDocument(
   pages: readonly ExtractedPage[],
   identity: DocumentIdentity,
@@ -226,24 +267,8 @@ export function describeDocument(
   const quarantined = pages.filter((page) => page.quality === "quarantined");
   return {
     quarantinedPages: quarantined.map((page) => page.page),
-    quarantineReasons: Object.fromEntries(
-      quarantined.map((page) => [
-        page.page,
-        page.qualityReason ?? "unreadable after OCR",
-      ]),
-    ),
-    // The first plausible heading that is not boilerplate, else the file name.
-    documentTopic:
-      pages
-        .flatMap((page) => page.blocks ?? [])
-        .find(
-          (block) =>
-            block.type === "heading" &&
-            sectionLabel(block.text) &&
-            !/^(?:abstract|introduction|references|bibliography)$/i.test(
-              block.text,
-            ),
-        )?.text ?? identity.source.replace(/\.[^.]+$/, ""),
+    quarantineReasons: quarantineReasons(quarantined),
+    documentTopic: documentTopic(pages, identity),
     ocrPages: new Set(
       pages.filter((page) => page.quality === "ocr").map((page) => page.page),
     ),

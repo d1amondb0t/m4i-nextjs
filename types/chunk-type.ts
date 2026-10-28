@@ -24,7 +24,6 @@ export type ExtractedBlock = {
   section?: string;
 };
 
-/** Decides how a passage is packed: prose overlaps between chunks, tables and references do not. */
 export type PassageFamily = "prose" | "table" | "reference";
 
 /** The smallest unit packed into a chunk: a sentence, word window, caption or table row group. */
@@ -36,7 +35,6 @@ export type PassagePiece = {
   family: PassageFamily;
 };
 
-/** Consecutive pieces of one family under one section, packed into chunks together. */
 export type PassageRun = {
   family: PassageFamily;
   section?: string;
@@ -80,7 +78,6 @@ export type DocumentIdentity = {
   sourceHash: string;
 };
 
-/** The document and settings every chunk of one chunking pass shares. */
 export type ChunkingContext = {
   identity: DocumentIdentity;
   extension: string;
@@ -101,18 +98,3 @@ export const DEFAULT_CHUNK_CONFIG: ChunkConfiguration = {
   wordSize: 200,
   assembly: "flow",
 } as const;
-
-export function getContextLabel(chunk: DocumentChunk): string {
-  const safeSource = chunk.source.replaceAll("]", "").replaceAll("\n", " ");
-
-  if (chunk.metadata.contentType == "csv") {
-    const rowStart = chunk.metadata.rowStart ?? 1;
-    const rowEnd = chunk.metadata.rowEnd ?? rowStart;
-    const location =
-      rowStart === rowEnd ? `Row ${rowStart}` : `Row ${rowStart}-${rowEnd}`;
-
-    return `${location} | Source: ${safeSource}`;
-  }
-
-  return `[Page ${chunk.page}] [Source: ${safeSource}]`;
-}
