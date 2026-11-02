@@ -77,4 +77,23 @@ describe("CalibrationPipeline", () => {
       ),
     ).toThrow("retrieval.strategy must be dense, sparse, or hybrid.");
   });
+
+  it("accepts an Ollama reranking runtime and rejects unknown runtimes", () => {
+    expect(
+      calibrationConfiguration({}, DEFAULT_RAG_PIPELINE_CONFIGURATION).reranking
+        .runtime,
+    ).toBe("transformers");
+    expect(
+      calibrationConfiguration(
+        { reranking: { enabled: true, runtime: "ollama", model: "zerank-2" } },
+        DEFAULT_RAG_PIPELINE_CONFIGURATION,
+      ).reranking,
+    ).toMatchObject({ enabled: true, runtime: "ollama", model: "zerank-2" });
+    expect(() =>
+      calibrationConfiguration(
+        { reranking: { runtime: "vllm" } },
+        DEFAULT_RAG_PIPELINE_CONFIGURATION,
+      ),
+    ).toThrow("reranking.runtime must be transformers or ollama.");
+  });
 });

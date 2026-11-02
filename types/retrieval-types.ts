@@ -13,8 +13,18 @@ export type RetrievalConfiguration = {
 export type RerankingConfiguration = {
   enabled: boolean;
   strategy: "cross_encoder" | "lexical";
+  runtime: "transformers" | "ollama"; // ollama: zerank-2 score-head model
   model: string;
   candidates: number; // default = 20
+};
+
+export type OllamaTokenLogprob = {
+  token: string;
+  logprob: number;
+};
+
+export type OllamaLogprobs = {
+  logprobs?: { top_logprobs?: OllamaTokenLogprob[] }[];
 };
 
 export type RetrievalScope = {
@@ -32,10 +42,16 @@ export type CrossEncoder = {
 export const DEFAULT_RERANKING_CONFIGURATION = {
   enabled: false,
   strategy: "cross_encoder",
+  runtime: "transformers",
   // Best of four local cross-encoders on the ontology questions (AUC 0.63).
   model: "mixedbread-ai/mxbai-rerank-xsmall-v1",
   candidates: 20,
 } as const satisfies RerankingConfiguration;
+
+// zerank-2 still finds relevant chunks past the hybrid top 20: with 50
+// candidates the hierarchy matcher made 47% more relevant matches than mxbai
+// with 20 on two calibration batches, while mxbai with 50 made fewer.
+export const ZERANK_RERANKING_CANDIDATES = 50;
 
 export const DEFAULT_RETRIEVAL_CONFIGURATION = {
   strategy: "hybrid",

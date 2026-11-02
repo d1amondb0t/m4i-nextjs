@@ -4,7 +4,11 @@ import type {
 } from "@/app/server/rag/storage/storage-types";
 import type { ChunkConfiguration, DocumentChunk } from "./chunk-type";
 import type { GenerationConfiguration } from "./generation-type";
-import type { RetrievalConfiguration, RetrievalScope } from "./retrieval-types";
+import type {
+  RerankingConfiguration,
+  RetrievalConfiguration,
+  RetrievalScope,
+} from "./retrieval-types";
 
 export const MAX_QUESTION_LENGTH = 2_000;
 
@@ -50,6 +54,7 @@ export type RagPipelineConfiguration = {
   generation: GenerationConfiguration;
   ollamaHost?: string;
   queryPrefix: string;
+  reranking: RerankingConfiguration;
   retrieval: RetrievalConfiguration;
   storage: StorageConfiguration;
 };

@@ -96,6 +96,11 @@ export const DEFAULT_HIERARCHY_CONFIGURATION = {
   maxContextWords: 4_000,
 } as const satisfies HierarchyConfiguration;
 
+// zerank-2's probability, sigmoid(logit / 5), sits higher than mxbai's: 0.05
+// keeps 99% of irrelevant chunks. 0.3 kept 97% of relevant top-12 chunks on the
+// Claude-labelled dev split and dropped 28% of all chunks.
+export const ZERANK_MINIMUM_RETRIEVAL_SCORE = 0.3;
+
 export type HierarchyPipelineResponse =
   | {
       ok: true;

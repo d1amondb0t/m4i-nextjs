@@ -8,12 +8,8 @@ import type {
   RagPipelineConfiguration,
   Store,
 } from "@/types/rag-pipeline-type";
+import type { RetrievalScope } from "@/types/retrieval-types";
 import {
-  DEFAULT_RERANKING_CONFIGURATION,
-  type RetrievalScope,
-} from "@/types/retrieval-types";
-import {
-  DEFAULT_HIERARCHY_CONFIGURATION,
   type FrameworkCategory,
   type FrameworkDimension,
   type FrameworkOntology,
@@ -27,7 +23,11 @@ import { OllamaEmbedder } from "../embeddings/ollama-embedder";
 import { ragPipelineConfigurationFromEnvironment } from "../pipeline/rag-pipeline-helper";
 import { Retriever } from "../retrieval/retrieval";
 import { QdrantStore } from "../storage/vector-storage";
-import { evidenceIsGrounded, parseFrameworkOntology } from "./hierarchy-helper";
+import {
+  evidenceIsGrounded,
+  hierarchyConfigurationFor,
+  parseFrameworkOntology,
+} from "./hierarchy-helper";
 import {
   type HierarchyAnalyzer,
   OllamaHierarchyAnalyzer,
@@ -80,7 +80,9 @@ export class HierarchyPipeline {
 
   constructor(
     ragConfiguration: RagPipelineConfiguration = ragPipelineConfigurationFromEnvironment(),
-    configuration: HierarchyConfiguration = DEFAULT_HIERARCHY_CONFIGURATION,
+    configuration: HierarchyConfiguration = hierarchyConfigurationFor(
+      ragConfiguration.reranking,
+    ),
     dependencies: HierarchyPipelineDependencies = {},
   ) {
     validateConfiguration(configuration);
@@ -116,9 +118,10 @@ export class HierarchyPipeline {
           topK: configuration.topKPerQuery,
         },
         {
-          ...DEFAULT_RERANKING_CONFIGURATION,
+          ...ragConfiguration.reranking,
           enabled: true,
         },
+        client,
       );
     this.analyzer =
       dependencies.analyzer ??

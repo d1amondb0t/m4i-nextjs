@@ -1,7 +1,12 @@
 import { DEFAULT_CHUNK_CONFIG } from "@/types/chunk-type";
 import { DEFAULT_GENERATION_CONFIGURATION } from "@/types/generation-type";
 import type { RagPipelineConfiguration } from "@/types/rag-pipeline-type";
-import { DEFAULT_RETRIEVAL_CONFIGURATION } from "@/types/retrieval-types";
+import {
+  DEFAULT_RERANKING_CONFIGURATION,
+  DEFAULT_RETRIEVAL_CONFIGURATION,
+  ZERANK_RERANKING_CANDIDATES,
+  type RerankingConfiguration,
+} from "@/types/retrieval-types";
 import {
   DEFAULT_STORAGE_CONFIGURATION,
   type StorageConfiguration,
@@ -17,9 +22,22 @@ export const DEFAULT_RAG_PIPELINE_CONFIGURATION = {
   embeddingModel: DEFAULT_EMBEDDING_MODEL,
   generation: DEFAULT_GENERATION_CONFIGURATION,
   queryPrefix: "Represent this sentence for searching relevant passages: ",
+  reranking: DEFAULT_RERANKING_CONFIGURATION,
   retrieval: DEFAULT_RETRIEVAL_CONFIGURATION,
   storage: DEFAULT_STORAGE_CONFIGURATION,
 } as const satisfies RagPipelineConfiguration;
+
+export function rerankingRuntime(
+  value: string | undefined,
+): RerankingConfiguration["runtime"] {
+  const runtime = value?.trim() || DEFAULT_RERANKING_CONFIGURATION.runtime;
+
+  if (runtime !== "transformers" && runtime !== "ollama") {
+    throw new Error("RERANKING_RUNTIME must be transformers or ollama.");
+  }
+
+  return runtime;
+}
 
 export function positiveInteger(
   value: string | undefined,
@@ -58,6 +76,22 @@ export function storageFromEnvironment(): StorageConfiguration {
   };
 }
 
+export function rerankingFromEnvironment(): RerankingConfiguration {
+  const runtime = rerankingRuntime(process.env.RERANKING_RUNTIME);
+
+  return {
+    ...DEFAULT_RERANKING_CONFIGURATION,
+    runtime,
+    model:
+      process.env.RERANKING_MODEL?.trim() ||
+      DEFAULT_RERANKING_CONFIGURATION.model,
+    candidates:
+      runtime === "ollama"
+        ? ZERANK_RERANKING_CANDIDATES
+        : DEFAULT_RERANKING_CONFIGURATION.candidates,
+  };
+}
+
 export function ragPipelineConfigurationFromEnvironment(): RagPipelineConfiguration {
   return {
     chunking: DEFAULT_CHUNK_CONFIG,
@@ -87,6 +121,7 @@ export function ragPipelineConfigurationFromEnvironment(): RagPipelineConfigurat
     queryPrefix:
       process.env.OLLAMA_QUERY_PREFIX ??
       "Represent this sentence for searching relevant passages: ",
+    reranking: rerankingFromEnvironment(),
     retrieval: DEFAULT_RETRIEVAL_CONFIGURATION,
     storage: storageFromEnvironment(),
   };

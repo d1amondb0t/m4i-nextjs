@@ -79,6 +79,10 @@ export function calibrationConfiguration(
 
   if (rerankingStrategy !== "cross_encoder")
     throw new Error("Only cross_encoder reranking is implemented.");
+  const runtime = reranking.runtime ?? DEFAULT_RERANKING_CONFIGURATION.runtime;
+
+  if (runtime !== "transformers" && runtime !== "ollama")
+    throw new Error("reranking.runtime must be transformers or ollama.");
   const rerankingModel =
     reranking.model ?? DEFAULT_RERANKING_CONFIGURATION.model;
 
@@ -106,6 +110,7 @@ export function calibrationConfiguration(
     reranking: {
       enabled,
       strategy: rerankingStrategy,
+      runtime,
       model: rerankingModel.trim(),
       candidates,
     },
@@ -155,6 +160,7 @@ export class CalibrationPipeline {
         embedder as OllamaEmbedder,
         config.retrieval,
         this.configuration.reranking,
+        ollama,
       );
     const chunker =
       this.dependencies.chunker ?? new DocumentChunker(config.chunking);

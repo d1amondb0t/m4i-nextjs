@@ -1,3 +1,4 @@
+import type { Ollama } from "ollama";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { DocumentChunk } from "@/types/chunk-type";
@@ -61,6 +62,16 @@ function searchResults(): SearchResult[] {
       sparseScore: null,
     },
   ];
+}
+
+function logprobs(...tokens: [string, number][]) {
+  return {
+    logprobs: [
+      {
+        top_logprobs: tokens.map(([token, logprob]) => ({ token, logprob })),
+      },
+    ],
+  };
 }
 
 describe("Retriever", () => {
@@ -144,6 +155,107 @@ describe("Retriever", () => {
       ).resolves.toBe(results);
       expect(transformersMocks.modelFromPretrained).not.toHaveBeenCalled();
       expect(transformersMocks.tokenizerFromPretrained).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("ollamaRerank", () => {
+    function ollamaRetriever(generate: ReturnType<typeof vi.fn>, topK = 5) {
+      return new Retriever(
+        store as unknown as QdrantStore,
+        embedder as unknown as OllamaEmbedder,
+        { ...DEFAULT_RETRIEVAL_CONFIGURATION, strategy: "dense", topK },
+        {
+          enabled: true,
+          strategy: "cross_encoder",
+          runtime: "ollama",
+          model: "zerank-2",
+          candidates: 10,
+        },
+        { generate } as unknown as Ollama,
+      );
+    }
+
+    it("scores pairs with the zerank prompt and sorts by the zerank logit", async () => {
+      const first = searchResults()[0];
+      const second: SearchResult = {
+        ...searchResults()[0],
+        chunk: { ...chunk(), chunkId: "chunk-2", text: "more relevant text" },
+      };
+      const generate = vi
+        .fn()
+        .mockResolvedValueOnce(
+          logprobs(["No", -7.5], ["#", -11.9], ["%", -11.9]),
+        )
+        .mockResolvedValueOnce(
+          logprobs(["Yes", -6.4], ["#", -11.9], ["%", -11.9]),
+        );
+
+      const actual = await ollamaRetriever(generate).ollamaRerank("question", [
+        first,
+        second,
+      ]);
+
+      expect(generate).toHaveBeenCalledWith({
+        model: "zerank-2",
+        prompt:
+          "<|im_start|>system\nquestion<|im_end|>\n" +
+          "<|im_start|>user\nretrieved text<|im_end|>\n" +
+          "<|im_start|>assistant\n",
+        raw: true,
+        stream: false,
+        logprobs: true,
+        top_logprobs: 20,
+        options: {
+          num_ctx: 2048,
+          num_predict: 1,
+          temperature: 0,
+          repeat_penalty: 1,
+        },
+      });
+      expect(actual).toEqual([second, first]);
+      expect(first.score).toBeCloseTo(1 / (1 + Math.exp(4.4 / 5)));
+      expect(second.score).toBeCloseTo(1 / (1 + Math.exp(-5.5 / 5)));
+      expect(second.rerankerScore).toBe(second.score);
+    });
+
+    it("rejects a model without the zerank score head", async () => {
+      const generate = vi
+        .fn()
+        .mockResolvedValue(
+          logprobs(["</think>", -0.6], ["<think>", -0.8], ["host", -8]),
+        );
+
+      await expect(
+        ollamaRetriever(generate).ollamaRerank("question", searchResults()),
+      ).rejects.toThrow("not a zerank-2 score-head model");
+    });
+
+    it("rejects a response without log-probabilities", async () => {
+      const generate = vi.fn().mockResolvedValue({ response: "Yes" });
+
+      await expect(
+        ollamaRetriever(generate).ollamaRerank("question", searchResults()),
+      ).rejects.toThrow("zerank-2 returned no token log-probabilities.");
+    });
+
+    it("is used by retrieve when the runtime is ollama", async () => {
+      const first = searchResults()[0];
+      const second: SearchResult = {
+        ...searchResults()[0],
+        chunk: { ...chunk(), chunkId: "chunk-2", text: "best match" },
+      };
+      const generate = vi
+        .fn()
+        .mockResolvedValueOnce(logprobs(["Yes", -11], ["#", -12], ["%", -12]))
+        .mockResolvedValueOnce(logprobs(["Yes", -6], ["#", -12], ["%", -12]));
+      embedder.embedQuery.mockResolvedValue([0.1, 0.2]);
+      store.denseSearch.mockResolvedValue([first, second]);
+
+      await expect(
+        ollamaRetriever(generate, 1).retrieve("question"),
+      ).resolves.toEqual([second]);
+      expect(store.denseSearch).toHaveBeenCalledWith([0.1, 0.2], 10);
+      expect(transformersMocks.modelFromPretrained).not.toHaveBeenCalled();
     });
   });
 
@@ -291,6 +403,7 @@ describe("Retriever", () => {
         {
           enabled: true,
           strategy: "cross_encoder",
+          runtime: "transformers",
           model: "cross-encoder/ms-marco-MiniLM-L6-v2",
           candidates: 10,
         },
