@@ -66,6 +66,12 @@ export class Retriever {
       (score) => 1 / (1 + Math.exp(-Number(score))),
     );
 
+    if (scores.length !== results.length) {
+      throw new Error(
+        `Cross-encoder returned ${scores.length} scores for ${results.length} results.`,
+      );
+    }
+
     return sortByRerankerScore(results, scores);
   }
 

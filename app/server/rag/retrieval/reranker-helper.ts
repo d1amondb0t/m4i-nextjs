@@ -52,12 +52,14 @@ export function zerankPrompt(question: string, passage: string): string {
   );
 }
 
-// The score-head model built by scripts/build_zerank_ollama.py gives "Yes" the
-// zerank-2 logit, "No" its negation and every other token 0, so the logit is
-// the gap between "Yes" or "No" and any other returned token.
-export function zerankLogit(
+function logprobOf(
   topLogprobs: readonly OllamaTokenLogprob[],
-): number {
+  token: string,
+): number | undefined {
+  return topLogprobs.find((item) => item.token === token)?.logprob;
+}
+
+function scoreHeadBaseline(topLogprobs: readonly OllamaTokenLogprob[]): number {
   const others = topLogprobs.filter(
     (item) =>
       item.token !== ZERANK_TRUE_TOKEN && item.token !== ZERANK_FALSE_TOKEN,
@@ -72,13 +74,18 @@ export function zerankLogit(
     );
   }
 
-  const logprob = (token: string) =>
-    topLogprobs.find((item) => item.token === token)?.logprob;
-  const yes = logprob(ZERANK_TRUE_TOKEN);
-  const no = logprob(ZERANK_FALSE_TOKEN);
+  return others[0].logprob;
+}
 
-  if (yes !== undefined) return yes - others[0].logprob;
-  if (no !== undefined) return others[0].logprob - no;
+export function zerankLogit(
+  topLogprobs: readonly OllamaTokenLogprob[],
+): number {
+  const baseline = scoreHeadBaseline(topLogprobs);
+  const yes = logprobOf(topLogprobs, ZERANK_TRUE_TOKEN);
+  const no = logprobOf(topLogprobs, ZERANK_FALSE_TOKEN);
+
+  if (yes !== undefined) return yes - baseline;
+  if (no !== undefined) return baseline - no;
   return 0;
 }
 
@@ -106,7 +113,7 @@ export async function ollamaRerankerScore(
     OllamaLogprobs;
   const topLogprobs = response.logprobs?.[0]?.top_logprobs;
 
-  if (!topLogprobs?.length) {
+  if (!topLogprobs) {
     throw new Error(`${model} returned no token log-probabilities.`);
   }
 
@@ -117,12 +124,6 @@ export function sortByRerankerScore(
   results: SearchResult[],
   scores: readonly number[],
 ): SearchResult[] {
-  if (scores.length !== results.length) {
-    throw new Error(
-      `Reranker returned ${scores.length} scores for ${results.length} results.`,
-    );
-  }
-
   results.forEach((result, index) => {
     result.rerankerScore = scores[index];
     result.score = scores[index];
