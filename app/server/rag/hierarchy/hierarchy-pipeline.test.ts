@@ -137,6 +137,34 @@ describe("HierarchyPipeline", () => {
     });
   });
 
+  it("finishes reranking across every dimension before the first generation", async () => {
+    const calls: string[] = [];
+    vi.mocked(dependencies.retriever.retrieve).mockImplementation(async () => {
+      calls.push("retrieve");
+      return [searchResult()];
+    });
+    vi.mocked(dependencies.analyzer.match).mockImplementation(async () => {
+      calls.push("generate");
+      return [match];
+    });
+    const twoDimensions = {
+      dimensions: ["one", "two"].map((id) => ({
+        ...ontology.dimensions[0],
+        id,
+        categories: [
+          { ...ontology.dimensions[0].categories[0], id: `category-${id}` },
+        ],
+      })),
+    };
+
+    await pipeline().run([new File(["content"], "report.txt")], twoDimensions);
+
+    expect(calls).toEqual([
+      ...Array<string>(6).fill("retrieve"),
+      ...Array<string>(6).fill("generate"),
+    ]);
+  });
+
   it("skips the model and preserves empty categories when retrieval is below the cutoff", async () => {
     vi.mocked(dependencies.retriever.retrieve).mockResolvedValue([
       { ...searchResult(), score: 0.01, denseScore: 0.01 },

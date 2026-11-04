@@ -484,7 +484,10 @@ def main():
         "--strategy", choices=("dense", "sparse", "hybrid"), default="hybrid"
     )
     parser.add_argument(
-        "--rerank", action="store_true", help="Enable cross-encoder reranking"
+        "--rerank",
+        action=argparse.BooleanOptionalAction,
+        default=True,
+        help="Cross-encoder reranking of the retrieved candidates",
     )
     parser.add_argument(
         "--reranking-model", default="mixedbread-ai/mxbai-rerank-xsmall-v1"

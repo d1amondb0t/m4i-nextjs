@@ -11,12 +11,12 @@ import type {
 import type { RetrievalScope } from "@/types/retrieval-types";
 import {
   type FrameworkCategory,
-  type FrameworkDimension,
   type FrameworkOntology,
   type HierarchyCategoryDiagnostics,
   type HierarchyCategoryResult,
   type HierarchyConfiguration,
   type HierarchyPipelineResult,
+  type QuestionRetrieval,
 } from "@/types/hierarchy-types";
 import { DocumentChunker } from "../chunking/chunk-documents";
 import { OllamaEmbedder } from "../embeddings/ollama-embedder";
@@ -133,10 +133,38 @@ export class HierarchyPipeline {
       );
   }
 
-  private async processCategory(
-    dimension: FrameworkDimension,
-    category: FrameworkCategory,
+  private async retrieveOntology(
+    ontology: FrameworkOntology,
     scope: RetrievalScope,
+  ): Promise<Map<string, QuestionRetrieval[]>> {
+    const retrievals = new Map<string, QuestionRetrieval[]>();
+
+    for (const dimension of ontology.dimensions) {
+      for (const category of dimension.categories) {
+        const questions: QuestionRetrieval[] = [];
+        for (const question of category.questions) {
+          // Retrieve and rerank with the question alone: adding the category
+          // definition and include/exclude lists made every tested
+          // cross-encoder close to random. The analyzer still receives the
+          // full category.
+          const results = (
+            await this.retriever.retrieve(question, scope)
+          ).filter(
+            (result) =>
+              result.score >= this.configuration.minimumRetrievalScore,
+          );
+          questions.push({ question, results });
+        }
+        retrievals.set(category.id, questions);
+      }
+    }
+
+    return retrievals;
+  }
+
+  private async analyzeCategory(
+    category: FrameworkCategory,
+    retrievals: readonly QuestionRetrieval[],
   ): Promise<{
     category: HierarchyCategoryResult;
     diagnostics: HierarchyCategoryDiagnostics;
@@ -152,13 +180,7 @@ export class HierarchyPipeline {
       rejected: [],
     };
 
-    for (const question of category.questions) {
-      // Retrieve and rerank with the question alone: adding the category
-      // definition and include/exclude lists made every tested cross-encoder
-      // close to random. The analyzer still receives the full category.
-      const results = (await this.retriever.retrieve(question, scope)).filter(
-        (result) => result.score >= this.configuration.minimumRetrievalScore,
-      );
+    for (const { question, results } of retrievals) {
       for (const result of results) retrievedChunkIds.add(result.chunk.chunkId);
       const questionDiagnostics = {
         question,
@@ -250,13 +272,20 @@ export class HierarchyPipeline {
       ],
     } satisfies RetrievalScope;
 
+    // Reranker and generation models do not fit in VRAM together, so all
+    // reranking finishes before the first generation to avoid swapping them.
+    const retrievals = await this.retrieveOntology(ontology, scope);
+
     const dimensions: HierarchyPipelineResult["framework"]["dimensions"] = [];
     const diagnostics: HierarchyCategoryDiagnostics[] = [];
 
     for (const dimension of ontology.dimensions) {
       const categories: HierarchyCategoryResult[] = [];
       for (const category of dimension.categories) {
-        const result = await this.processCategory(dimension, category, scope);
+        const result = await this.analyzeCategory(
+          category,
+          retrievals.get(category.id)!,
+        );
         categories.push(result.category);
         diagnostics.push(result.diagnostics);
       }

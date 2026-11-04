@@ -89,8 +89,10 @@ The `/hierarchy` route matches document evidence to the supplied framework’s
 questions. Supply evidence documents plus a JSON ontology containing dimensions,
 categories, and a non-empty `questions` array for each category.
 
-The pipeline indexes the documents once, then visits every category and question.
-For each question it:
+The pipeline indexes the documents once, then visits every category and question
+in two passes. The first pass does step 1 for all questions across all dimensions,
+and only then does the second pass do steps 2 and 3. The reranking and generation
+models do not need to share GPU memory, so Ollama swaps them only once per run.
 
 1. Retrieves 20 hybrid candidates for the question, reranks them with
    `mixedbread-ai/mxbai-rerank-xsmall-v1`, and keeps up to 12 with a reranker
