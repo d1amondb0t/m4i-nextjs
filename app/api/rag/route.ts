@@ -1,5 +1,6 @@
 import { validateRagDocumentSelection } from "@/app/server/documents/upload-policy";
 import { RagPipeline } from "@/app/server/rag/pipeline/rag-pipeline";
+import { retrievalScores } from "@/app/server/rag/storage/storage-helper";
 import type { RagPipelineResponse } from "@/types/rag-pipeline-type";
 import { validateQuestion } from "@/types/rag-pipeline-type";
 
@@ -30,12 +31,13 @@ export async function POST(request: Request) {
       ok: true,
       answer: result.answer,
       indexedChunks: result.chunks.length,
-      sources: result.results.map(({ chunk, score }) => ({
-        source: chunk.source,
-        page: chunk.page,
-        chunk: chunk.number,
-        score,
-        text: chunk.text,
+      sources: result.results.map((retrieved) => ({
+        source: retrieved.chunk.source,
+        page: retrieved.chunk.page,
+        chunk: retrieved.chunk.number,
+        score: retrieved.score,
+        scores: retrievalScores(retrieved),
+        text: retrieved.chunk.text,
       })),
     } satisfies RagPipelineResponse;
 

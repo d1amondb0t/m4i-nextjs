@@ -18,6 +18,13 @@ export type RerankingConfiguration = {
   candidates: number; // default = 20
 };
 
+export type RetrievalScores = {
+  denseScore: number | null;
+  sparseScore: number | null;
+  rrfScore: number | null;
+  rerankerScore: number | null;
+};
+
 export type OllamaTokenLogprob = {
   token: string;
   logprob: number;

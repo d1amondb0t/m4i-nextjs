@@ -26,6 +26,7 @@ import { QdrantStore } from "../storage/vector-storage";
 import {
   evidenceIsGrounded,
   hierarchyConfigurationFor,
+  hierarchyRetrievedChunk,
   parseFrameworkOntology,
 } from "./hierarchy-helper";
 import {
@@ -185,6 +186,7 @@ export class HierarchyPipeline {
       const questionDiagnostics = {
         question,
         retrievedChunks: results.length,
+        chunks: results.map(hierarchyRetrievedChunk),
         generatedCandidates: 0,
         acceptedCandidates: 0,
       };
@@ -227,17 +229,10 @@ export class HierarchyPipeline {
           question,
           explicitness: match.explicitness,
           reason: match.reason,
-          evidence: match.evidence.map((evidence) => {
-            const result = resultsByChunkId.get(evidence.chunkId)!;
-            return {
-              chunkId: evidence.chunkId,
-              source: result.chunk.source,
-              page: result.chunk.page,
-              chunk: result.chunk.number,
-              retrievalScore: result.score,
-              quote: evidence.quote,
-            };
-          }),
+          evidence: match.evidence.map((evidence) => ({
+            ...hierarchyRetrievedChunk(resultsByChunkId.get(evidence.chunkId)!),
+            quote: evidence.quote,
+          })),
         });
         questionDiagnostics.acceptedCandidates += 1;
       }

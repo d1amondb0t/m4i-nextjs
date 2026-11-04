@@ -60,6 +60,8 @@ function searchResults(): SearchResult[] {
       score: 0.9,
       denseScore: 0.9,
       sparseScore: null,
+      rrfScore: null,
+      rerankerScore: null,
     },
   ];
 }
@@ -216,6 +218,32 @@ describe("Retriever", () => {
       expect(first.score).toBeCloseTo(1 / (1 + Math.exp(4.4 / 5)));
       expect(second.score).toBeCloseTo(1 / (1 + Math.exp(-5.5 / 5)));
       expect(second.rerankerScore).toBe(second.score);
+    });
+
+    it("replaces the ranking score but keeps the dense, BM25, and RRF scores", async () => {
+      const generate = vi
+        .fn()
+        .mockResolvedValue(logprobs(["Yes", -6.4], ["#", -11.9], ["%", -11.9]));
+      const hybrid: SearchResult = {
+        ...searchResults()[0],
+        score: 0.03,
+        denseScore: 0.81,
+        sparseScore: 7.5,
+        rrfScore: 0.03,
+      };
+
+      const [actual] = await ollamaRetriever(generate).ollamaRerank(
+        "question",
+        [hybrid],
+      );
+
+      expect(actual).toMatchObject({
+        denseScore: 0.81,
+        sparseScore: 7.5,
+        rrfScore: 0.03,
+      });
+      expect(actual.score).toBeCloseTo(1 / (1 + Math.exp(-5.5 / 5)));
+      expect(actual.rerankerScore).toBe(actual.score);
     });
 
     it("rejects a model without the zerank score head", async () => {

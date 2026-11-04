@@ -8,6 +8,7 @@ import type {
   RerankingConfiguration,
   RetrievalConfiguration,
   RetrievalScope,
+  RetrievalScores,
 } from "./retrieval-types";
 
 export const MAX_QUESTION_LENGTH = 2_000;
@@ -64,6 +65,7 @@ export type RagSource = {
   page: number;
   chunk: number;
   score: number;
+  scores: RetrievalScores;
   text: string;
 };
 

@@ -26,8 +26,15 @@ function chunk(): DocumentChunk {
   };
 }
 
+const scores = {
+  denseScore: 0.72,
+  sparseScore: 6.4,
+  rrfScore: 0.03,
+  rerankerScore: 0.91,
+};
+
 function searchResult(): SearchResult {
-  return { chunk: chunk(), score: 0.91, denseScore: 0.91, sparseScore: null };
+  return { chunk: chunk(), score: 0.91, ...scores };
 }
 
 const questions = [
@@ -128,7 +135,7 @@ describe("HierarchyPipeline", () => {
       { question: questions[1], explicitness: "implicit" },
     ]);
     expect(category.matches[0].evidence).toMatchObject([
-      { source: "report.txt", page: 4, retrievalScore: 0.91 },
+      { source: "report.txt", page: 4, scores },
     ]);
     expect(result.diagnostics[0]).toMatchObject({
       retrievedChunks: 1,
@@ -256,6 +263,15 @@ describe("HierarchyPipeline", () => {
       questions.map((question) => ({
         question,
         retrievedChunks: 1,
+        chunks: [
+          {
+            chunkId: "chunk-1",
+            source: "report.txt",
+            page: 4,
+            chunk: 2,
+            scores,
+          },
+        ],
         generatedCandidates: 3,
         acceptedCandidates: 2,
       })),

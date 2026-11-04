@@ -1,7 +1,8 @@
 import type { DocumentChunk } from "@/types/chunk-type";
-import type { RetrievalScope } from "@/types/retrieval-types";
+import type { RetrievalScope, RetrievalScores } from "@/types/retrieval-types";
 import {
   QdrantCloudStorageConfiguration,
+  SearchResult,
   StorageConfiguration,
 } from "./storage-types";
 import { v5 as uuidv5 } from "uuid";
@@ -45,6 +46,21 @@ export function retrievalFilter(scope: RetrievalScope | undefined) {
         ...(mustNot.length ? { must_not: mustNot } : {}),
       }
     : undefined;
+}
+
+export function scoresByPointId(
+  points: readonly { id: string | number; score: number }[],
+): Map<string | number, number> {
+  return new Map(points.map(({ id, score }) => [id, score]));
+}
+
+export function retrievalScores(result: SearchResult): RetrievalScores {
+  return {
+    denseScore: result.denseScore,
+    sparseScore: result.sparseScore,
+    rrfScore: result.rrfScore,
+    rerankerScore: result.rerankerScore,
+  };
 }
 
 export function scopeIsEmpty(scope: RetrievalScope | undefined): boolean {

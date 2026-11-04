@@ -36,6 +36,8 @@ function result(
     score,
     denseScore: score,
     sparseScore: null,
+    rrfScore: null,
+    rerankerScore: null,
   };
 }
 

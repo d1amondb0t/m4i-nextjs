@@ -4,6 +4,7 @@ import { DocumentChunker } from "../chunking/chunk-documents";
 import { OllamaEmbedder } from "../embeddings/ollama-embedder";
 import { ragPipelineConfigurationFromEnvironment } from "../pipeline/rag-pipeline-helper";
 import { Retriever } from "./retrieval";
+import { retrievalScores } from "../storage/storage-helper";
 import { QdrantStore } from "../storage/vector-storage";
 import {
   DEFAULT_RERANKING_CONFIGURATION,
@@ -178,15 +179,16 @@ export class CalibrationPipeline {
       const matches = await retriever.retrieve(question.trim(), scope);
       results.push({
         question,
-        matches: matches.map(({ chunk, score }, index) => ({
+        matches: matches.map((match, index) => ({
           rank: index + 1,
-          score,
-          chunkId: chunk.chunkId,
-          documentId: chunk.documentId,
-          source: chunk.source,
-          page: chunk.page,
-          chunk: chunk.number,
-          text: chunk.text,
+          score: match.score,
+          scores: retrievalScores(match),
+          chunkId: match.chunk.chunkId,
+          documentId: match.chunk.documentId,
+          source: match.chunk.source,
+          page: match.chunk.page,
+          chunk: match.chunk.number,
+          text: match.chunk.text,
         })),
       });
     }

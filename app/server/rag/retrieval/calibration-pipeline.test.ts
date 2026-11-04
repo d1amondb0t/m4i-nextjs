@@ -22,7 +22,14 @@ describe("CalibrationPipeline", () => {
   it("indexes once and scopes every question to the submitted documents", async () => {
     const retriever = {
       retrieve: vi.fn(async () => [
-        { chunk, score: 0.8, denseScore: 0.8, sparseScore: null },
+        {
+          chunk,
+          score: 0.8,
+          denseScore: 0.7,
+          sparseScore: 5.2,
+          rrfScore: 0.03,
+          rerankerScore: 0.8,
+        },
       ]),
     };
     const store = { upsert: vi.fn(async () => undefined) };
@@ -55,6 +62,13 @@ describe("CalibrationPipeline", () => {
     ]);
     expect(result.results[0].matches[0]).toMatchObject({
       rank: 1,
+      score: 0.8,
+      scores: {
+        denseScore: 0.7,
+        sparseScore: 5.2,
+        rrfScore: 0.03,
+        rerankerScore: 0.8,
+      },
       source: "first.pdf",
       text: "A relevant passage",
     });

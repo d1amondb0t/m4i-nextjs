@@ -1,5 +1,6 @@
 import type { SearchResult } from "@/app/server/rag/storage/storage-types";
 import type { DocumentChunk } from "./chunk-type";
+import type { RetrievalScores } from "./retrieval-types";
 
 export const MAX_HIERARCHY_DIMENSIONS = 20;
 export const MAX_HIERARCHY_CATEGORIES = 100;
@@ -35,12 +36,15 @@ export type ExtractedHierarchyMatch = {
   evidence: ExtractedHierarchyEvidence[];
 };
 
-export type HierarchyEvidence = {
+export type HierarchyRetrievedChunk = {
   chunkId: string;
   source: string;
   page: number;
   chunk: number;
-  retrievalScore: number;
+  scores: RetrievalScores;
+};
+
+export type HierarchyEvidence = HierarchyRetrievedChunk & {
   quote: string;
 };
 
@@ -73,6 +77,7 @@ export type HierarchyCategoryDiagnostics = {
   questions: {
     question: string;
     retrievedChunks: number;
+    chunks: HierarchyRetrievedChunk[];
     generatedCandidates: number;
     acceptedCandidates: number;
   }[];
