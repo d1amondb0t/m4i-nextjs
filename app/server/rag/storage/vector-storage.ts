@@ -7,10 +7,13 @@ import {
 import { DocumentChunk } from "@/types/chunk-type";
 import type { RetrievalScope } from "@/types/retrieval-types";
 import {
+  normalizedRrfScore,
   pointId,
   retrievalFilter,
   scoresByPointId,
+  scoresRelativeToTopByPointId,
   scopeIsEmpty,
+  topScore,
 } from "./storage-helper";
 
 const UPSERT_BATCH_SIZE = 100;
@@ -196,6 +199,7 @@ export class QdrantStore {
       with_payload: true,
       ...(filter ? { filter } : {}),
     });
+    const topSparseScore = topScore(response.points);
 
     return response.points.map((point) => {
       if (!point.payload)
@@ -205,7 +209,7 @@ export class QdrantStore {
         chunk: point.payload as DocumentChunk,
         score: point.score,
         denseScore: null,
-        sparseScore: point.score,
+        sparseScore: point.score / topSparseScore,
         rrfScore: null,
         rerankerScore: null,
       };
@@ -259,7 +263,7 @@ export class QdrantStore {
       },
     );
     const denseScores = scoresByPointId(dense.points);
-    const sparseScores = scoresByPointId(sparse.points);
+    const sparseScores = scoresRelativeToTopByPointId(sparse.points);
 
     return fused.points.map((point) => {
       if (!point.payload)
@@ -270,7 +274,7 @@ export class QdrantStore {
         score: point.score,
         denseScore: denseScores.get(point.id) ?? null,
         sparseScore: sparseScores.get(point.id) ?? null,
-        rrfScore: point.score,
+        rrfScore: normalizedRrfScore(point.score, RRF_K),
         rerankerScore: null,
       };
     });

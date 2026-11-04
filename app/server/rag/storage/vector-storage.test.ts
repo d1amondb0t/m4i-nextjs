@@ -529,25 +529,25 @@ describe("QdrantStore", () => {
       const second = chunk(1, "second");
       client.query.mockResolvedValue({
         points: [
-          { id: "point-1", payload: first, score: 0.8 },
-          { id: "point-2", payload: second, score: 0.6 },
+          { id: "point-1", payload: first, score: 8 },
+          { id: "point-2", payload: second, score: 6 },
         ],
       });
 
       await expect(store.sparseSearch("terms", 2)).resolves.toEqual([
         {
           chunk: first,
-          score: 0.8,
+          score: 8,
           denseScore: null,
-          sparseScore: 0.8,
+          sparseScore: 1,
           rrfScore: null,
           rerankerScore: null,
         },
         {
           chunk: second,
-          score: 0.6,
+          score: 6,
           denseScore: null,
-          sparseScore: 0.6,
+          sparseScore: 0.75,
           rrfScore: null,
           rerankerScore: null,
         },
@@ -635,11 +635,53 @@ describe("QdrantStore", () => {
           chunk: chunk(1, "match"),
           score: 0.03,
           denseScore: 0.81,
-          sparseScore: 7.5,
-          rrfScore: 0.03,
+          sparseScore: 1,
+          rrfScore: expect.closeTo(0.9, 5),
           rerankerScore: null,
         },
       ]);
+    });
+
+    it("scales BM25 by the best candidate, even one outside the fused results", async () => {
+      client.queryBatch.mockResolvedValue([
+        {
+          points: [{ id: "point-1", score: 0.02, payload: chunk(1, "match") }],
+        },
+        { points: [] },
+        {
+          points: [
+            { id: "best-keyword-match", score: 8 },
+            { id: "point-1", score: 6 },
+          ],
+        },
+      ]);
+
+      const [result] = await store.hybridSearch([0.1], "terms", 1, {
+        dense: 10,
+        sparse: 10,
+      });
+
+      expect(result.sparseScore).toBe(0.75);
+    });
+
+    it("caps RRF at 1 for Qdrant's rounded score of first place in both lists", async () => {
+      client.queryBatch.mockResolvedValue([
+        {
+          points: [
+            { id: "point-1", score: 0.033333335, payload: chunk(1, "match") },
+          ],
+        },
+        { points: [{ id: "point-1", score: 0.8 }] },
+        { points: [{ id: "point-1", score: 6 }] },
+      ]);
+
+      const [result] = await store.hybridSearch([0.1], "terms", 1, {
+        dense: 10,
+        sparse: 10,
+      });
+
+      expect(result.rrfScore).toBe(1);
+      expect(result.score).toBe(0.033333335);
     });
 
     it("leaves a score null for a chunk outside that search's candidates", async () => {
@@ -666,8 +708,12 @@ describe("QdrantStore", () => {
           rrfScore,
         })),
       ).toEqual([
-        { denseScore: 0.9, sparseScore: null, rrfScore: 0.02 },
-        { denseScore: null, sparseScore: 4.2, rrfScore: 0.01 },
+        {
+          denseScore: 0.9,
+          sparseScore: null,
+          rrfScore: expect.closeTo(0.6, 5),
+        },
+        { denseScore: null, sparseScore: 1, rrfScore: expect.closeTo(0.3, 5) },
       ]);
     });
 
