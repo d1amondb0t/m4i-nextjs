@@ -2,10 +2,12 @@ import { describe, expect, it } from "vitest";
 
 import type { DocumentChunk } from "@/types/chunk-type";
 import type { ExtractedHierarchyMatch } from "@/types/hierarchy-types";
+import { DEFAULT_RERANKING_CONFIGURATION } from "@/types/retrieval-types";
 import type { SearchResult } from "../storage/storage-types";
 import {
   buildCategoryQuery,
   evidenceIsGrounded,
+  hierarchyConfigurationFor,
   parseFrameworkOntology,
 } from "./hierarchy-helper";
 
@@ -34,8 +36,26 @@ function result(
     score,
     denseScore: score,
     sparseScore: null,
+    rrfScore: null,
+    rerankerScore: null,
   };
 }
+
+describe("hierarchyConfigurationFor", () => {
+  it("uses the reranker's own probability floor", () => {
+    expect(
+      hierarchyConfigurationFor(DEFAULT_RERANKING_CONFIGURATION)
+        .minimumRetrievalScore,
+    ).toBe(0.05);
+    expect(
+      hierarchyConfigurationFor({
+        ...DEFAULT_RERANKING_CONFIGURATION,
+        runtime: "ollama",
+        model: "zerank-2-score",
+      }),
+    ).toMatchObject({ topKPerQuery: 12, minimumRetrievalScore: 0.3 });
+  });
+});
 
 describe("parseFrameworkOntology", () => {
   it.each([{ questions: undefined }, { questions: [] }, { questions: [" "] }])(

@@ -89,14 +89,24 @@ The `/hierarchy` route matches document evidence to the supplied framework’s
 questions. Supply evidence documents plus a JSON ontology containing dimensions,
 categories, and a non-empty `questions` array for each category.
 
-The pipeline indexes the documents once, then visits every category and question.
-For each question it:
+The pipeline indexes the documents once, then visits every category and question
+in two passes. The first pass does step 1 for all questions across all dimensions,
+and only then does the second pass do steps 2 and 3. The reranking and generation
+models do not need to share GPU memory, so Ollama swaps them only once per run.
 
 1. Retrieves 20 hybrid candidates for the question, reranks them with
    `mixedbread-ai/mxbai-rerank-xsmall-v1`, and keeps up to 12 with a reranker
    probability of at least `0.05`. Searches are restricted to the uploaded
    documents. The question is used alone: adding the category definition made
-   every tested reranker close to random.
+   every tested reranker close to random. To rerank with zerank-2 instead, build
+   its score-head Ollama model with `scripts/build_zerank_ollama.py` and set
+   `RERANKING_RUNTIME=ollama` and `RERANKING_MODEL` (see `.env.example`). A
+   plain zerank-2 GGUF does not work: its score is the raw "Yes" logit, which
+   Ollama's top log-probabilities never include. The probability is
+   `sigmoid(logit / 5)`, as on the model card, and the floor is `0.3` instead
+   of `0.05`. zerank-2 reranks 50 hybrid candidates instead of 20: on two
+   calibration batches that gave 47% more relevant matches than mxbai with 20,
+   while mxbai itself did worse with 50.
 2. Asks Ollama for up to 20 distinct candidate passages relevant to the question, with
    a brief explanation and supporting quotes. Partial answers, proposed outcomes,
    indicators, and measurement criteria can qualify; a complete answer or an

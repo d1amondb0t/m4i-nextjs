@@ -32,6 +32,8 @@ function searchResult(currentChunk: DocumentChunk): SearchResult {
     score: 0.92,
     denseScore: 0.92,
     sparseScore: null,
+    rrfScore: null,
+    rerankerScore: null,
   };
 }
 

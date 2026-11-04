@@ -19,6 +19,7 @@ function createClientMock() {
     deleteCollection: vi.fn(),
     upsert: vi.fn(),
     query: vi.fn(),
+    queryBatch: vi.fn(),
   };
 }
 
@@ -441,12 +442,16 @@ describe("QdrantStore", () => {
           score: 0.9,
           denseScore: 0.9,
           sparseScore: null,
+          rrfScore: null,
+          rerankerScore: null,
         },
         {
           chunk: second,
           score: 0.7,
           denseScore: 0.7,
           sparseScore: null,
+          rrfScore: null,
+          rerankerScore: null,
         },
       ]);
     });
@@ -524,23 +529,27 @@ describe("QdrantStore", () => {
       const second = chunk(1, "second");
       client.query.mockResolvedValue({
         points: [
-          { id: "point-1", payload: first, score: 0.8 },
-          { id: "point-2", payload: second, score: 0.6 },
+          { id: "point-1", payload: first, score: 8 },
+          { id: "point-2", payload: second, score: 6 },
         ],
       });
 
       await expect(store.sparseSearch("terms", 2)).resolves.toEqual([
         {
           chunk: first,
-          score: 0.8,
+          score: 8,
           denseScore: null,
-          sparseScore: 0.8,
+          sparseScore: 1,
+          rrfScore: null,
+          rerankerScore: null,
         },
         {
           chunk: second,
-          score: 0.6,
+          score: 6,
           denseScore: null,
-          sparseScore: 0.6,
+          sparseScore: 0.75,
+          rrfScore: null,
+          rerankerScore: null,
         },
       ]);
     });
@@ -571,9 +580,13 @@ describe("QdrantStore", () => {
 
   describe("hybridSearch", () => {
     it("fuses scoped dense and BM25 candidates with reciprocal rank fusion", async () => {
-      client.query.mockResolvedValue({
-        points: [{ id: "point-1", score: 0.03, payload: chunk(1, "match") }],
-      });
+      client.queryBatch.mockResolvedValue([
+        {
+          points: [{ id: "point-1", score: 0.03, payload: chunk(1, "match") }],
+        },
+        { points: [{ id: "point-1", score: 0.81 }] },
+        { points: [{ id: "point-1", score: 7.5 }] },
+      ]);
       const filter = {
         must: [{ key: "documentId", match: { any: ["document-1"] } }],
         must_not: EXCLUDE_AUXILIARY,
@@ -587,33 +600,133 @@ describe("QdrantStore", () => {
         { documentIds: ["document-1"] },
       );
 
-      expect(client.query).toHaveBeenCalledWith(COLLECTION, {
-        prefetch: [
-          { query: [0.1, 0.2], using: "dense", limit: 100, filter },
+      const denseSearch = {
+        query: [0.1, 0.2],
+        using: "dense",
+        limit: 100,
+        filter,
+      };
+      const sparseSearch = {
+        query: {
+          text: "search terms",
+          model: "qdrant/bm25",
+          options: BM25,
+        },
+        using: "sparse",
+        limit: 50,
+        filter,
+      };
+
+      expect(client.queryBatch).toHaveBeenCalledWith(COLLECTION, {
+        searches: [
           {
-            query: {
-              text: "search terms",
-              model: "qdrant/bm25",
-              options: BM25,
-            },
-            using: "sparse",
-            limit: 50,
+            prefetch: [denseSearch, sparseSearch],
+            query: { rrf: { k: 60 } },
+            limit: 5,
+            with_payload: true,
             filter,
           },
+          { ...denseSearch, with_payload: false },
+          { ...sparseSearch, with_payload: false },
         ],
-        query: { rrf: { k: 60 } },
-        limit: 5,
-        with_payload: true,
-        filter,
       });
       expect(results).toEqual([
         {
           chunk: chunk(1, "match"),
           score: 0.03,
-          denseScore: null,
-          sparseScore: null,
+          denseScore: 0.81,
+          sparseScore: 1,
+          rrfScore: expect.closeTo(0.9, 5),
+          rerankerScore: null,
         },
       ]);
+    });
+
+    it("scales BM25 by the best candidate, even one outside the fused results", async () => {
+      client.queryBatch.mockResolvedValue([
+        {
+          points: [{ id: "point-1", score: 0.02, payload: chunk(1, "match") }],
+        },
+        { points: [] },
+        {
+          points: [
+            { id: "best-keyword-match", score: 8 },
+            { id: "point-1", score: 6 },
+          ],
+        },
+      ]);
+
+      const [result] = await store.hybridSearch([0.1], "terms", 1, {
+        dense: 10,
+        sparse: 10,
+      });
+
+      expect(result.sparseScore).toBe(0.75);
+    });
+
+    it("caps RRF at 1 for Qdrant's rounded score of first place in both lists", async () => {
+      client.queryBatch.mockResolvedValue([
+        {
+          points: [
+            { id: "point-1", score: 0.033333335, payload: chunk(1, "match") },
+          ],
+        },
+        { points: [{ id: "point-1", score: 0.8 }] },
+        { points: [{ id: "point-1", score: 6 }] },
+      ]);
+
+      const [result] = await store.hybridSearch([0.1], "terms", 1, {
+        dense: 10,
+        sparse: 10,
+      });
+
+      expect(result.rrfScore).toBe(1);
+      expect(result.score).toBe(0.033333335);
+    });
+
+    it("leaves a score null for a chunk outside that search's candidates", async () => {
+      client.queryBatch.mockResolvedValue([
+        {
+          points: [
+            { id: "dense-only", score: 0.02, payload: chunk(1, "dense") },
+            { id: "sparse-only", score: 0.01, payload: chunk(2, "sparse") },
+          ],
+        },
+        { points: [{ id: "dense-only", score: 0.9 }] },
+        { points: [{ id: "sparse-only", score: 4.2 }] },
+      ]);
+
+      const results = await store.hybridSearch([0.1], "terms", 2, {
+        dense: 10,
+        sparse: 10,
+      });
+
+      expect(
+        results.map(({ denseScore, sparseScore, rrfScore }) => ({
+          denseScore,
+          sparseScore,
+          rrfScore,
+        })),
+      ).toEqual([
+        {
+          denseScore: 0.9,
+          sparseScore: null,
+          rrfScore: expect.closeTo(0.6, 5),
+        },
+        { denseScore: null, sparseScore: 1, rrfScore: expect.closeTo(0.3, 5) },
+      ]);
+    });
+
+    it("rejects a fused result without a payload", async () => {
+      client.queryBatch.mockResolvedValue([
+        { points: [{ id: "point-3", score: 0.02 }] },
+        { points: [] },
+        { points: [] },
+      ]);
+
+      await expect(
+        store.hybridSearch([0.1], "terms", 5, { dense: 10, sparse: 10 }),
+      ).rejects.toThrow("Qdrant point point-3 has no payload");
     });
 
     it("returns nothing for an empty scope", async () => {
@@ -626,7 +739,7 @@ describe("QdrantStore", () => {
           { documentIds: [] },
         ),
       ).resolves.toEqual([]);
-      expect(client.query).not.toHaveBeenCalled();
+      expect(client.queryBatch).not.toHaveBeenCalled();
     });
   });
 });

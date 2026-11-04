@@ -74,6 +74,8 @@ describe("ragPipelineConfigurationFromEnvironment", () => {
     vi.stubEnv("RAG_MAX_CONTEXT_WORDS", "900");
     vi.stubEnv("OLLAMA_HOST", "http://ollama:11434");
     vi.stubEnv("OLLAMA_QUERY_PREFIX", "query: ");
+    vi.stubEnv("RERANKING_RUNTIME", "ollama");
+    vi.stubEnv("RERANKING_MODEL", " reranking-model ");
 
     const configuration = ragPipelineConfigurationFromEnvironment();
 
@@ -88,10 +90,35 @@ describe("ragPipelineConfigurationFromEnvironment", () => {
       },
       ollamaHost: "http://ollama:11434",
       queryPrefix: "query: ",
+      reranking: {
+        enabled: false,
+        runtime: "ollama",
+        model: "reranking-model",
+        candidates: 50,
+      },
       storage: {
         host: "qdrant",
         port: 7000,
       },
     });
+  });
+
+  it("defaults to the transformers reranker", () => {
+    vi.stubEnv("RERANKING_RUNTIME", "");
+    vi.stubEnv("RERANKING_MODEL", "");
+
+    expect(ragPipelineConfigurationFromEnvironment().reranking).toMatchObject({
+      runtime: "transformers",
+      model: "mixedbread-ai/mxbai-rerank-xsmall-v1",
+      candidates: 20,
+    });
+  });
+
+  it("rejects an unknown reranking runtime", () => {
+    vi.stubEnv("RERANKING_RUNTIME", "vllm");
+
+    expect(() => ragPipelineConfigurationFromEnvironment()).toThrow(
+      "RERANKING_RUNTIME must be transformers or ollama.",
+    );
   });
 });

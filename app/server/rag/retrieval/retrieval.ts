@@ -1,4 +1,5 @@
 import type { Tensor } from "@huggingface/transformers";
+import { Ollama } from "ollama";
 
 import type { DocumentChunk } from "@/types/chunk-type";
 import {
@@ -11,7 +12,11 @@ import {
 import type { OllamaEmbedder } from "../embeddings/ollama-embedder";
 import type { SearchResult } from "../storage/storage-types";
 import type { QdrantStore } from "../storage/vector-storage";
-import { loadCrossEncoder } from "./reranker-helper";
+import {
+  loadCrossEncoder,
+  ollamaRerankerScore,
+  sortByRerankerScore,
+} from "./reranker-helper";
 
 export class Retriever {
   private chunks: DocumentChunk[] | null = null;
@@ -22,6 +27,7 @@ export class Retriever {
     private readonly embedder: OllamaEmbedder,
     private readonly retrievalConfig: RetrievalConfiguration,
     private readonly rerankingConfig: RerankingConfiguration = DEFAULT_RERANKING_CONFIGURATION,
+    private readonly ollama: Ollama = new Ollama(),
   ) {}
 
   private async getCrossEncoder(): Promise<CrossEncoder> {
@@ -55,7 +61,10 @@ export class Retriever {
       },
     );
     const { logits } = (await model(features)) as { logits: Tensor };
-    const scores = Array.from(logits.data, (score) => Number(score));
+    const scores = Array.from(
+      logits.data,
+      (score) => 1 / (1 + Math.exp(-Number(score))),
+    );
 
     if (scores.length !== results.length) {
       throw new Error(
@@ -63,15 +72,25 @@ export class Retriever {
       );
     }
 
-    for (let index = 0; index < results.length; index += 1) {
-      const score = scores[index];
-      //results[index].rerankerScore = score;
-      //results[index].score = score;
-      results[index].rerankerScore = 1 / (1 + Math.exp(-score));
-      results[index].score = 1 / (1 + Math.exp(-score));
-    }
+    return sortByRerankerScore(results, scores);
+  }
 
-    return [...results].sort((left, right) => right.score - left.score);
+  async ollamaRerank(
+    question: string,
+    results: SearchResult[],
+  ): Promise<SearchResult[]> {
+    const scores = await Promise.all(
+      results.map((result) =>
+        ollamaRerankerScore(
+          this.ollama,
+          this.rerankingConfig.model,
+          question,
+          result.chunk.text,
+        ),
+      ),
+    );
+
+    return sortByRerankerScore(results, scores);
   }
 
   async dense(
@@ -145,7 +164,10 @@ export class Retriever {
       throw new Error("Lexical reranking is not implemented yet.");
     }
 
-    const reranked = await this.crossEncoderRerank(question, results);
+    const reranked =
+      this.rerankingConfig.runtime === "ollama"
+        ? await this.ollamaRerank(question, results)
+        : await this.crossEncoderRerank(question, results);
     return reranked.slice(0, this.retrievalConfig.topK);
   }
 }
