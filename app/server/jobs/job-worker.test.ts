@@ -9,7 +9,7 @@ import type {
 import type { RagPipelineResult } from "@/types/rag-pipeline-type";
 import type { RerankedResult } from "@/types/retrieval-types";
 import { openDatabase } from "../db/database";
-import { createJob, findJob } from "../db/jobs-repository";
+import { claimNextJob, createJob, findJob } from "../db/jobs-repository";
 import { listRuns, loadSnapshot } from "../db/runs-repository";
 import { createUser } from "../db/users-repository";
 import { DEFAULT_RAG_PIPELINE_CONFIGURATION } from "../rag/pipeline/rag-pipeline-helper";
@@ -292,5 +292,45 @@ describe("JobWorker", () => {
     expect(
       ["job-1", "job-2", "job-3"].map((id) => findJob(db, id)!.status),
     ).toEqual(["done", "done", "done"]);
+  });
+
+  it("removes the uploads of jobs a restart interrupted", () => {
+    queue("job-1", "rag");
+    claimNextJob(db);
+    worker();
+
+    expect(findJob(db, "job-1")).toMatchObject({ status: "failed" });
+    expect(removeUploads).toHaveBeenCalledWith("job-1");
+  });
+
+  it("records nothing when the snapshot cannot be saved", async () => {
+    db.exec(
+      "CREATE TRIGGER no_runs BEFORE INSERT ON runs BEGIN SELECT RAISE(ABORT, 'disk full'); END",
+    );
+    queue("job-1", "rag");
+    await worker().wake();
+
+    expect(findJob(db, "job-1")).toMatchObject({
+      status: "failed",
+      error: "disk full",
+      runId: null,
+    });
+    expect(db.prepare("SELECT * FROM documents").all()).toEqual([]);
+  });
+
+  it("keeps the answer when the nearest ontology question cannot be found", async () => {
+    runner.embedder = () => ({
+      embed: async () => {
+        throw new Error("Embedding model is not pulled");
+      },
+    });
+    queue("job-1", "rag");
+    await worker().wake();
+
+    const run = loadSnapshot(db, findJob(db, "job-1")!.runId!, userId)!;
+    expect(run.questions[0]).toMatchObject({
+      nearestOntologyQuestion: null,
+      nearestOntologySimilarity: null,
+    });
   });
 });

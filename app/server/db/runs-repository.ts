@@ -254,11 +254,13 @@ function insertQuestions(db: DatabaseSync, input: SnapshotInput): void {
   });
 }
 
+export function insertSnapshot(db: DatabaseSync, input: SnapshotInput): void {
+  insertRun(db, input);
+  insertQuestions(db, input);
+}
+
 export function saveSnapshot(db: DatabaseSync, input: SnapshotInput): void {
-  transaction(db, () => {
-    insertRun(db, input);
-    insertQuestions(db, input);
-  });
+  transaction(db, () => insertSnapshot(db, input));
 }
 
 export function listRuns(db: DatabaseSync, userId: number): RunSummary[] {

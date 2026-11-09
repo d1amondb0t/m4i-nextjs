@@ -1,8 +1,12 @@
 import Link from "next/link";
+import { notFound } from "next/navigation";
 
 import { HierarchyUpload } from "@/app/components/hierarchy-upload";
+import { currentUser } from "@/app/server/auth/session";
 
-export default function HierarchyPage() {
+export default async function HierarchyPage() {
+  if (!(await currentUser())?.isAdmin) notFound();
+
   return (
     <main className="min-h-screen bg-zinc-50 px-5 py-12 sm:px-8 lg:py-20">
       <div className="mx-auto max-w-6xl">

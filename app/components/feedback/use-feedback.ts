@@ -62,6 +62,9 @@ export function useFeedback(
   // so a slow response never overwrites a later click.
   const confirmed = useRef(initial);
   const latestRequest = useRef<Record<string, number>>({});
+  // Requests for one target go out one after another, so they reach the
+  // server in the order they were clicked.
+  const queues = useRef<Record<string, Promise<FeedbackResponse>>>({});
 
   const apply = useCallback(
     async (
@@ -74,15 +77,18 @@ export function useFeedback(
       setFeedback((current) => withEntry(current, key, optimistic));
       setSaveStates((current) => ({ ...current, [key]: "saving" }));
 
-      const result = await request().catch(
-        (error: unknown): FeedbackResponse => ({
+      const pending = (queues.current[key] ?? Promise.resolve())
+        .then(request)
+        .catch((error: unknown): FeedbackResponse => ({
           ok: false,
           message:
             error instanceof Error
               ? error.message
               : "Could not reach the server.",
-        }),
-      );
+        }));
+      queues.current[key] = pending;
+      const result = await pending;
+      if (queues.current[key] === pending) delete queues.current[key];
 
       if (result.ok) {
         confirmed.current = withEntry(confirmed.current, key, result.feedback);

@@ -23,6 +23,7 @@ export type User = {
   name: string;
   collection: string;
   isAdmin: boolean;
+  sessionVersion: number;
 };
 
 export type JobUpload = {

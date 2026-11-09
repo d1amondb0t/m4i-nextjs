@@ -30,6 +30,16 @@ export type ReviewCounts = {
   labelledChunks: number;
 };
 
+export function sameOriginPath(next: string | null, origin: string): string {
+  if (!next) return "/";
+
+  // Parsing catches tricks such as "/\t/evil.com" and "/\evil.com".
+  const target = new URL(next, origin);
+  return target.origin === origin
+    ? `${target.pathname}${target.search}${target.hash}`
+    : "/";
+}
+
 export function countLabel(
   count: number,
   singular: string,

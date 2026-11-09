@@ -65,13 +65,21 @@ export function FeedbackControls({
     setEditedComment(null);
   }
 
-  async function choose(verdict: Verdict) {
-    const saved =
-      entry?.verdict === verdict
-        ? await controller.clear(targetType, targetId)
-        : await controller.save(targetType, targetId, verdict, comment);
+  function keepAsDraft(value: string) {
+    if (value.trim()) changeComment(value);
+    else discardDraft();
+  }
 
-    if (saved) discardDraft();
+  async function choose(verdict: Verdict) {
+    if (entry?.verdict !== verdict) {
+      if (await controller.save(targetType, targetId, verdict, comment)) {
+        discardDraft();
+      }
+      return;
+    }
+
+    // Clearing the verdict deletes the saved comment, so keep it as a draft.
+    if (await controller.clear(targetType, targetId)) keepAsDraft(comment);
   }
 
   async function saveComment() {

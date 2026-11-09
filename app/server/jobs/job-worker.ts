@@ -10,7 +10,7 @@ import {
   failJob,
   updateJobProgress,
 } from "../db/jobs-repository";
-import { saveSnapshot } from "../db/runs-repository";
+import { insertSnapshot } from "../db/runs-repository";
 import { findUserById } from "../db/users-repository";
 import {
   DEFAULT_JOB_RUNNER_DEPENDENCIES,
@@ -30,27 +30,36 @@ export type JobWorkerDependencies = {
 // One job at a time: the reranker and the generation model share one GPU.
 export class JobWorker {
   private draining: Promise<void> | null = null;
+  private wokenWhileDraining = false;
 
   constructor(private readonly dependencies: JobWorkerDependencies) {
     for (const id of failInterruptedJobs(dependencies.db)) {
       dependencies.log(`Marked interrupted job ${id} as failed.`);
+      void dependencies.removeUploads(id);
     }
   }
 
   wake(): Promise<void> {
+    this.wokenWhileDraining = true;
+    // A wake that lands after the last claim but before the drain settles
+    // would otherwise leave its job queued.
     this.draining ??= this.drain().finally(() => {
       this.draining = null;
+      if (this.wokenWhileDraining) void this.wake();
     });
     return this.draining;
   }
 
   private async drain(): Promise<void> {
-    for (
-      let job = claimNextJob(this.dependencies.db);
-      job;
-      job = claimNextJob(this.dependencies.db)
-    ) {
-      await this.process(job);
+    while (this.wokenWhileDraining) {
+      this.wokenWhileDraining = false;
+      for (
+        let job = claimNextJob(this.dependencies.db);
+        job;
+        job = claimNextJob(this.dependencies.db)
+      ) {
+        await this.process(job);
+      }
     }
   }
 
@@ -76,9 +85,9 @@ export class JobWorker {
 
       transaction(db, () => {
         recordDocuments(db, records);
+        insertSnapshot(db, snapshot);
+        completeJob(db, job.id, snapshot.runId);
       });
-      saveSnapshot(db, snapshot);
-      completeJob(db, job.id, snapshot.runId);
       log(`Job ${job.id} finished as run ${snapshot.runId}.`);
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);

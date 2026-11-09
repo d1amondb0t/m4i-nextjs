@@ -43,17 +43,20 @@ export async function POST(request: Request) {
   if (error) return badRequest(error);
 
   const id = randomUUID();
-  const uploads = await saveUploads(id, documents).catch(async (cause) => {
+  try {
+    const uploads = await saveUploads(id, documents);
+    createJob(getDatabase(), {
+      id,
+      userId: user.id,
+      mode: mode satisfies RunMode,
+      question,
+      uploads,
+    });
+  } catch (cause) {
+    // Without a job row, nothing else would ever remove these files.
     await removeUploads(id);
     throw cause;
-  });
-  createJob(getDatabase(), {
-    id,
-    userId: user.id,
-    mode: mode satisfies RunMode,
-    question,
-    uploads,
-  });
+  }
   void jobWorker().wake();
 
   return Response.json({ ok: true, jobId: id } satisfies CreateJobResponse, {

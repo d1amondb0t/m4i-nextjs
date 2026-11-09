@@ -126,7 +126,10 @@ describe("repositories", () => {
 
     const replacement = resetAccessCode(db, "Carol Smith");
     expect(findUserByAccessCode(db, accessCode)).toBeNull();
-    expect(findUserByAccessCode(db, replacement)).toEqual(user);
+    expect(findUserByAccessCode(db, replacement)).toEqual({
+      ...user,
+      sessionVersion: user.sessionVersion + 1,
+    });
   });
 
   it("claims jobs one at a time, oldest first, and reports queue positions", () => {

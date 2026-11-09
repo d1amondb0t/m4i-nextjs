@@ -5,31 +5,57 @@ import { join } from "node:path";
 export const SESSION_COOKIE = "m4i_session";
 export const SESSION_MAX_AGE_SECONDS = 60 * 60 * 24 * 90;
 
-function signature(userId: number, secret: string): string {
+export type SessionClaims = {
+  userId: number;
+  version: number;
+  issuedAt: number;
+};
+
+function payload({ userId, version, issuedAt }: SessionClaims): string {
+  return `${userId}.${version}.${issuedAt}`;
+}
+
+function signature(claims: SessionClaims, secret: string): string {
   return createHmac("sha256", secret)
-    .update(`user:${userId}`)
+    .update(`user:${payload(claims)}`)
     .digest("base64url");
 }
 
-export function signSession(userId: number, secret: string): string {
-  return `${userId}.${signature(userId, secret)}`;
+function nowInSeconds(): number {
+  return Math.floor(Date.now() / 1000);
+}
+
+export function signSession(
+  userId: number,
+  version: number,
+  secret: string,
+  issuedAt = nowInSeconds(),
+): string {
+  const claims = { userId, version, issuedAt };
+  return `${payload(claims)}.${signature(claims, secret)}`;
 }
 
 export function verifySession(
   value: string | undefined,
   secret: string,
-): number | null {
-  const match = /^(\d+)\.([A-Za-z0-9_-]+)$/.exec(value ?? "");
+  now = nowInSeconds(),
+): SessionClaims | null {
+  const match = /^(\d+)\.(\d+)\.(\d+)\.([A-Za-z0-9_-]+)$/.exec(value ?? "");
   if (!match) return null;
 
-  const userId = Number(match[1]);
-  const expected = Buffer.from(signature(userId, secret));
-  const received = Buffer.from(match[2]);
+  const claims = {
+    userId: Number(match[1]),
+    version: Number(match[2]),
+    issuedAt: Number(match[3]),
+  };
+  const expected = Buffer.from(signature(claims, secret));
+  const received = Buffer.from(match[4]);
+  const signed =
+    expected.length === received.length && timingSafeEqual(expected, received);
+  const fresh =
+    claims.issuedAt <= now && now - claims.issuedAt < SESSION_MAX_AGE_SECONDS;
 
-  return expected.length === received.length &&
-    timingSafeEqual(expected, received)
-    ? userId
-    : null;
+  return signed && fresh ? claims : null;
 }
 
 export function loadSessionSecret(directory: string): string {

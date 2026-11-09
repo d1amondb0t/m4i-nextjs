@@ -1,7 +1,12 @@
 import { DocumentUpload } from "@/app/components/document-upload";
 import Link from "next/link";
+import { notFound } from "next/navigation";
 
-export default function Home() {
+import { currentUser } from "@/app/server/auth/session";
+
+export default async function RagExperimentPage() {
+  if (!(await currentUser())?.isAdmin) notFound();
+
   return (
     <main className="min-h-screen bg-zinc-50 px-5 py-12 sm:px-8 lg:py-20">
       <div className="mx-auto max-w-5xl">

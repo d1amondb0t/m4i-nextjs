@@ -1,10 +1,15 @@
+import { redirect } from "next/navigation";
+
 import { ActiveJobBanner } from "./components/feedback/active-job-banner";
 import { NewRunForm } from "./components/feedback/new-run-form";
 import { PageHeader } from "./components/page-header";
+import { currentUser } from "./server/auth/session";
 import { loadOntology } from "./server/jobs/ontology-source";
 import { countOntologyQuestions } from "./server/rag/hierarchy/hierarchy-helper";
 
-export default function Home() {
+export default async function Home() {
+  if (!(await currentUser())) redirect("/login");
+
   const ontology = loadOntology();
 
   return (

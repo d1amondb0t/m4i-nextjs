@@ -13,6 +13,7 @@ type UserRow = {
   name: string;
   collection: string;
   is_admin: number;
+  session_version: number;
 };
 
 function toUser(row: UserRow): User {
@@ -21,6 +22,7 @@ function toUser(row: UserRow): User {
     name: row.name,
     collection: row.collection,
     isAdmin: row.is_admin === 1,
+    sessionVersion: row.session_version,
   };
 }
 
@@ -51,7 +53,10 @@ export function createUser(
 export function resetAccessCode(db: DatabaseSync, name: string): string {
   const accessCode = generateAccessCode();
   const { changes } = db
-    .prepare("UPDATE users SET access_code_hash = ? WHERE name = ?")
+    .prepare(
+      `UPDATE users SET access_code_hash = ?, session_version = session_version + 1
+       WHERE name = ?`,
+    )
     .run(hashAccessCode(accessCode), name.trim());
 
   if (changes === 0) {
@@ -63,7 +68,9 @@ export function resetAccessCode(db: DatabaseSync, name: string): string {
 
 export function findUserById(db: DatabaseSync, id: number): User | null {
   const row = db
-    .prepare("SELECT id, name, collection, is_admin FROM users WHERE id = ?")
+    .prepare(
+      "SELECT id, name, collection, is_admin, session_version FROM users WHERE id = ?",
+    )
     .get(id) as UserRow | undefined;
 
   return row ? toUser(row) : null;
@@ -75,7 +82,7 @@ export function findUserByAccessCode(
 ): User | null {
   const row = db
     .prepare(
-      "SELECT id, name, collection, is_admin FROM users WHERE access_code_hash = ?",
+      "SELECT id, name, collection, is_admin, session_version FROM users WHERE access_code_hash = ?",
     )
     .get(hashAccessCode(accessCode)) as UserRow | undefined;
 
@@ -85,7 +92,9 @@ export function findUserByAccessCode(
 export function listUsers(db: DatabaseSync): User[] {
   return (
     db
-      .prepare("SELECT id, name, collection, is_admin FROM users ORDER BY id")
+      .prepare(
+        "SELECT id, name, collection, is_admin, session_version FROM users ORDER BY id",
+      )
       .all() as UserRow[]
   ).map(toUser);
 }

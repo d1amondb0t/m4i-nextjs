@@ -3,6 +3,8 @@
 import { useRouter, useSearchParams } from "next/navigation";
 import { type FormEvent, useState } from "react";
 
+import { sameOriginPath } from "./review-helper";
+
 export function LoginForm() {
   const router = useRouter();
   const next = useSearchParams().get("next");
@@ -31,10 +33,7 @@ export function LoginForm() {
         return;
       }
 
-      // Only follow same-site paths, never another origin.
-      router.replace(
-        next?.startsWith("/") && !next.startsWith("//") ? next : "/",
-      );
+      router.replace(sameOriginPath(next, window.location.origin));
       router.refresh();
     } catch {
       setError("Could not reach the server.");

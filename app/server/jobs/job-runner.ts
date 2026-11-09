@@ -71,7 +71,7 @@ const ontologyVectors = new Map<string, Promise<number[][]>>();
 
 function hashFile(path: string): string {
   return createHash("sha256")
-    .update(readFileSync(resolve(path)))
+    .update(readFileSync(resolve(/*turbopackIgnore: true*/ path)))
     .digest("hex");
 }
 
@@ -154,11 +154,13 @@ async function runRag(
   const result = await dependencies
     .ragPipeline(configuration)
     .run(documents, question, onProgress);
+  // The nearest ontology question is a hint for the gap analysis; the answer
+  // is still worth reviewing without it.
   const nearest = await nearestOntologyQuestion(
     question,
     configuration,
     dependencies,
-  );
+  ).catch(() => null);
 
   return {
     snapshot: {

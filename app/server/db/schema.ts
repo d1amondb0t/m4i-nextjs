@@ -133,4 +133,7 @@ export const MIGRATIONS: readonly string[] = [
   );
   CREATE INDEX feedback_run ON feedback (run_id);
   `,
+  `
+  ALTER TABLE users ADD COLUMN session_version INTEGER NOT NULL DEFAULT 0;
+  `,
 ];

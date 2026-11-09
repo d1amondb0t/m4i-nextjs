@@ -19,16 +19,20 @@ function sessionSecret(): string {
 }
 
 export async function currentUser(): Promise<User | null> {
-  const userId = verifySession(
+  const claims = verifySession(
     (await cookies()).get(SESSION_COOKIE)?.value,
     sessionSecret(),
   );
+  if (!claims) return null;
 
-  return userId === null ? null : findUserById(getDatabase(), userId);
+  // A new access code bumps the version, which signs out older sessions.
+  const user = findUserById(getDatabase(), claims.userId);
+  return user?.sessionVersion === claims.version ? user : null;
 }
 
 export async function startSession(user: User): Promise<void> {
-  (await cookies()).set(SESSION_COOKIE, signSession(user.id, sessionSecret()), {
+  const value = signSession(user.id, user.sessionVersion, sessionSecret());
+  (await cookies()).set(SESSION_COOKIE, value, {
     httpOnly: true,
     sameSite: "lax",
     secure: process.env.NODE_ENV === "production",
