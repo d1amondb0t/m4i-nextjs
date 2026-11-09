@@ -10,7 +10,7 @@ import {
 } from "@/app/server/documents/upload-policy";
 import type { UploadStatus } from "@/types/document-upload";
 
-import { RetrievalScoreList } from "./retrieval-score-list";
+import { RerankingComparison } from "./reranking-comparison";
 import {
   MAX_QUESTION_LENGTH,
   type RagPipelineResponse,
@@ -224,8 +224,8 @@ export function DocumentUpload() {
           </p>
         </div>
 
-        <ol className="mt-6 grid gap-2 text-xs text-zinc-600 sm:grid-cols-5">
-          {["Chunk", "Embed", "Store", "Retrieve", "Generate"].map(
+        <ol className="mt-6 grid gap-2 text-xs text-zinc-600 sm:grid-cols-6">
+          {["Chunk", "Embed", "Store", "Retrieve", "Rerank", "Generate"].map(
             (step, index) => (
               <li
                 key={step}
@@ -275,25 +275,12 @@ export function DocumentUpload() {
             Retrieved context
           </h3>
           {result.sources.length > 0 ? (
-            <ul className="mt-3 space-y-3">
-              {result.sources.map((source, index) => (
-                <li
-                  key={`${source.source}-${source.page}-${source.chunk}-${index}`}
-                  className="rounded-xl border border-zinc-200 bg-zinc-50 p-4"
-                >
-                  <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-zinc-500">
-                    <span>
-                      {source.source} · page {source.page} · chunk{" "}
-                      {source.chunk}
-                    </span>
-                    <RetrievalScoreList scores={source.scores} />
-                  </div>
-                  <p className="mt-2 text-sm leading-6 text-zinc-700">
-                    {source.text}
-                  </p>
-                </li>
-              ))}
-            </ul>
+            <RerankingComparison
+              sources={result.sources}
+              withoutReranking={result.reranking.withoutReranking}
+              model={result.reranking.model}
+              candidateCount={result.reranking.candidateCount}
+            />
           ) : (
             <p className="mt-2 text-sm text-zinc-500">
               No chunks were returned by retrieval.

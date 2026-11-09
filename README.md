@@ -5,8 +5,9 @@ This Next.js application runs the current RAG implementation end to end:
 1. `DocumentChunker` extracts and chunks uploaded PDF, TXT, or Markdown files.
 2. `OllamaEmbedder` creates dense embeddings.
 3. `QdrantStore` creates the collection and upserts dense and BM25 vectors.
-4. `Retriever` embeds the question and retrieves the top matching chunks.
-5. `OllamaGenerator` generates an answer from the retrieved context.
+4. `Retriever` embeds the question, retrieves the top matching chunks, and
+   reranks them with the configured reranker.
+5. `OllamaGenerator` generates an answer from the reranked context.
 
 `RagPipeline` in `app/server/rag/pipeline/rag-pipeline.ts` initializes and
 coordinates these components. The browser submits the files and question to
@@ -30,7 +31,10 @@ npm run dev
 
 Open `http://localhost:3000`, select one or more implemented document types,
 enter a question, and choose **Run RAG pipeline**. The page displays the answer,
-the number of indexed chunks, and the retrieved context with similarity scores.
+the number of indexed chunks, and the top chunks with and without reranking side
+by side, with their scores and how each chunk's rank changed. Only the reranked
+chunks are used for the answer. The reranker is set by `RERANKING_RUNTIME` and
+`RERANKING_MODEL` (see `.env.example`).
 
 The defaults work with Ollama and Qdrant on the local machine. Edit `.env.local`
 to use other models, ports, collection names, prompt files, or a Qdrant Cloud
