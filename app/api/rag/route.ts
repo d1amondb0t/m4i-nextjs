@@ -1,3 +1,4 @@
+import { adminOnly } from "@/app/server/auth/session";
 import { validateRagDocumentSelection } from "@/app/server/documents/upload-policy";
 import { RagPipeline } from "@/app/server/rag/pipeline/rag-pipeline";
 import { ragSource } from "@/app/server/rag/pipeline/rag-pipeline-helper";
@@ -7,6 +8,9 @@ import { validateQuestion } from "@/types/rag-pipeline-type";
 export const runtime = "nodejs";
 
 export async function POST(request: Request) {
+  const denied = await adminOnly();
+  if (denied) return denied;
+
   try {
     const formData = await request.formData();
     const documents = formData

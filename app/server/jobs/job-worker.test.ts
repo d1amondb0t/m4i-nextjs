@@ -1,0 +1,291 @@
+import type { DatabaseSync } from "node:sqlite";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+
+import type { DocumentChunk } from "@/types/chunk-type";
+import type {
+  FrameworkOntology,
+  HierarchyPipelineResult,
+} from "@/types/hierarchy-types";
+import type { RagPipelineResult } from "@/types/rag-pipeline-type";
+import type { RerankedResult } from "@/types/retrieval-types";
+import { openDatabase } from "../db/database";
+import { createJob, findJob } from "../db/jobs-repository";
+import { listRuns, loadSnapshot } from "../db/runs-repository";
+import { createUser } from "../db/users-repository";
+import { DEFAULT_RAG_PIPELINE_CONFIGURATION } from "../rag/pipeline/rag-pipeline-helper";
+import type { SearchResult } from "../rag/storage/storage-types";
+import type { JobRunnerDependencies } from "./job-runner";
+import { JobWorker } from "./job-worker";
+
+function chunk(chunkId: string): DocumentChunk {
+  return {
+    chunkId,
+    documentId: "document-1",
+    source: "report.pdf",
+    sourceHash: "source-hash",
+    page: 2,
+    number: Number(chunkId.replace(/\D/g, "")),
+    text: `Text of ${chunkId}`,
+    metadata: {
+      contentType: "pdf",
+      indexFingerprint: "fingerprint",
+      wordCount: 3,
+    },
+  };
+}
+
+function result(chunkId: string, score: number): SearchResult {
+  return {
+    chunk: chunk(chunkId),
+    score,
+    denseScore: 0.5,
+    sparseScore: null,
+    rrfScore: 0.7,
+    rerankerScore: score,
+  };
+}
+
+function ranked(chunkId: string, score: number, rank: number): RerankedResult {
+  return { ...result(chunkId, score), retrievalRank: rank, rerankedRank: rank };
+}
+
+const ontology: FrameworkOntology = {
+  dimensions: [
+    {
+      id: "political",
+      name: "Political",
+      definition: "Policy change.",
+      categories: [
+        {
+          id: "advocacy",
+          name: "Advocacy",
+          definition: "Influence on policy.",
+          questions: ["Was the policy adopted?", "Who was engaged?"],
+        },
+      ],
+    },
+  ],
+};
+
+const ragResult: RagPipelineResult = {
+  answer: "Yes, it was adopted.",
+  candidateCount: 3,
+  chunks: [chunk("chunk-1"), chunk("chunk-2"), chunk("chunk-3")],
+  rerankingModel: "zerank",
+  results: [ranked("chunk-1", 0.9, 1)],
+  withoutReranking: [ranked("chunk-2", 0.4, 1)],
+  outsideTopK: [ranked("chunk-2", 0.4, 2), ranked("chunk-3", 0.1, 3)],
+};
+
+const hierarchyResult: HierarchyPipelineResult = {
+  chunks: [chunk("chunk-1"), chunk("chunk-2")],
+  diagnostics: [],
+  framework: {
+    dimensions: [
+      {
+        ...ontology.dimensions[0],
+        categories: [
+          {
+            ...ontology.dimensions[0].categories[0],
+            matches: [
+              {
+                question: "Was the policy adopted?",
+                explicitness: "explicit",
+                reason: "The report says it was adopted.",
+                evidence: [
+                  {
+                    chunkId: "chunk-1",
+                    quote: "adopted",
+                    source: "report.pdf",
+                    page: 2,
+                    chunk: 1,
+                    scores: {
+                      denseScore: 0.5,
+                      sparseScore: null,
+                      rrfScore: 0.7,
+                      rerankerScore: 0.9,
+                    },
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+      },
+    ],
+  },
+  retrievals: [
+    {
+      dimensionId: "political",
+      categoryId: "advocacy",
+      questions: [
+        {
+          question: "Was the policy adopted?",
+          results: [result("chunk-1", 0.9)],
+          droppedBelowCutoff: [result("chunk-2", 0.1)],
+          droppedOutsideTopK: [],
+        },
+        {
+          question: "Who was engaged?",
+          results: [],
+          droppedBelowCutoff: [],
+          droppedOutsideTopK: [result("chunk-2", 0.05)],
+        },
+      ],
+    },
+  ],
+};
+
+describe("JobWorker", () => {
+  let db: DatabaseSync;
+  let userId: number;
+  let runner: JobRunnerDependencies;
+  let removeUploads: ReturnType<typeof vi.fn>;
+  let ragRun: ReturnType<typeof vi.fn>;
+  let hierarchyRun: ReturnType<typeof vi.fn>;
+
+  function worker() {
+    return new JobWorker({
+      db,
+      runner,
+      loadUploads: async () => [new File(["text"], "report.pdf")],
+      removeUploads,
+      log: () => {},
+    });
+  }
+
+  function queue(id: string, mode: "rag" | "ontology") {
+    createJob(db, {
+      id,
+      userId,
+      mode,
+      question: mode === "rag" ? "Was it adopted?" : null,
+      uploads: [{ file: "0.pdf", name: "report.pdf", type: "application/pdf" }],
+    });
+  }
+
+  beforeEach(() => {
+    db = openDatabase(":memory:");
+    userId = createUser(db, "Alice").user.id;
+    removeUploads = vi.fn(async () => {});
+    ragRun = vi.fn(async (_documents, _question, onProgress) => {
+      onProgress(3, 3);
+      return ragResult;
+    });
+    hierarchyRun = vi.fn(async () => hierarchyResult);
+    runner = {
+      configuration: () => DEFAULT_RAG_PIPELINE_CONFIGURATION,
+      ontology: () => ontology,
+      ragPipeline: vi.fn(() => ({ run: ragRun })),
+      hierarchyPipeline: vi.fn(() => ({ run: hierarchyRun })),
+      embedder: () => ({
+        embed: async (texts: readonly string[]) =>
+          texts.map((text) =>
+            text === "Who was engaged?"
+              ? [0, 1]
+              : text === "Was it adopted?"
+                ? [0.1, 1]
+                : [1, 0],
+          ),
+      }),
+      promptHash: () => "prompt-hash",
+    };
+  });
+
+  it("runs a RAG job in the user's collection and saves what was shown", async () => {
+    queue("job-1", "rag");
+    await worker().wake();
+
+    const job = findJob(db, "job-1")!;
+    expect(job).toMatchObject({ status: "done", progressDone: 3 });
+    expect(runner.ragPipeline).toHaveBeenCalledWith(
+      expect.objectContaining({ collection: "m4i_alice" }),
+    );
+
+    const run = loadSnapshot(db, job.runId!, userId)!;
+    const [question] = run.questions;
+    expect(run.run).toMatchObject({ mode: "rag", documents: ["report.pdf"] });
+    expect(question).toMatchObject({
+      question: "Was it adopted?",
+      nearestOntologyQuestion: "Who was engaged?",
+    });
+    expect(question.items).toMatchObject([{ answer: "Yes, it was adopted." }]);
+    expect(question.chunks.map((c) => [c.chunkId, c.status])).toEqual([
+      ["chunk-1", "sent"],
+      ["chunk-2", "outside_top_k"],
+      ["chunk-3", "outside_top_k"],
+    ]);
+    expect(removeUploads).toHaveBeenCalledWith("job-1");
+    expect(
+      db
+        .prepare("SELECT document_id, collection, chunk_count FROM documents")
+        .all(),
+    ).toEqual([
+      { document_id: "document-1", collection: "m4i_alice", chunk_count: 3 },
+    ]);
+  });
+
+  it("saves every ontology question with its matches and dropped chunks", async () => {
+    queue("job-1", "ontology");
+    await worker().wake();
+
+    const run = loadSnapshot(db, findJob(db, "job-1")!.runId!, userId)!;
+    const [adopted, engaged] = run.questions;
+
+    expect(adopted).toMatchObject({
+      dimensionName: "Political",
+      categoryName: "Advocacy",
+      categoryDefinition: "Influence on policy.",
+    });
+    expect(adopted.items).toMatchObject([
+      { kind: "ontology_match", explicitness: "explicit" },
+    ]);
+    expect(adopted.items[0].evidence).toEqual([
+      { runChunkId: adopted.chunks[0].id, quote: "adopted" },
+    ]);
+    expect(adopted.chunks.map((c) => [c.status, c.rerankedRank])).toEqual([
+      ["sent", 1],
+      ["below_cutoff", 2],
+    ]);
+    expect(engaged.items).toEqual([]);
+    expect(engaged.chunks.map((c) => c.status)).toEqual(["outside_top_k"]);
+  });
+
+  it("marks a failed run and still removes its uploads", async () => {
+    ragRun.mockRejectedValueOnce(new Error("Ollama is not running"));
+    queue("job-1", "rag");
+    await worker().wake();
+
+    expect(findJob(db, "job-1")).toMatchObject({
+      status: "failed",
+      error: "Ollama is not running",
+    });
+    expect(listRuns(db, userId)).toEqual([]);
+    expect(removeUploads).toHaveBeenCalledWith("job-1");
+  });
+
+  it("runs queued jobs one after another, never two at once", async () => {
+    let running = 0;
+    let mostAtOnce = 0;
+    ragRun.mockImplementation(async () => {
+      running += 1;
+      mostAtOnce = Math.max(mostAtOnce, running);
+      await new Promise((resolve) => setTimeout(resolve, 5));
+      running -= 1;
+      return ragResult;
+    });
+    queue("job-1", "rag");
+    queue("job-2", "rag");
+    const jobs = worker();
+
+    await Promise.all([jobs.wake(), jobs.wake()]);
+    queue("job-3", "rag");
+    await jobs.wake();
+
+    expect(ragRun).toHaveBeenCalledTimes(3);
+    expect(mostAtOnce).toBe(1);
+    expect(
+      ["job-1", "job-2", "job-3"].map((id) => findJob(db, id)!.status),
+    ).toEqual(["done", "done", "done"]);
+  });
+});

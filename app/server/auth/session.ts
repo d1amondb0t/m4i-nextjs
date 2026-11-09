@@ -41,6 +41,12 @@ export async function endSession(): Promise<void> {
   (await cookies()).delete(SESSION_COOKIE);
 }
 
+export async function adminOnly(): Promise<Response | null> {
+  const user = await currentUser();
+  if (!user) return unauthorized();
+  return user.isAdmin ? null : forbidden();
+}
+
 export function unauthorized(message = "Sign in with your access code first.") {
   return Response.json({ ok: false, message }, { status: 401 });
 }

@@ -1,3 +1,6 @@
+// Makes Excel read the file as UTF-8.
+export const UTF8_BYTE_ORDER_MARK = String.fromCharCode(0xfeff);
+
 function csvCell(value: unknown): string {
   if (value === null || value === undefined) return "";
 
@@ -20,8 +23,7 @@ export function toCsv(rows: readonly Record<string, unknown>[]): string {
     ),
   ];
 
-  // The byte-order mark makes Excel read the file as UTF-8.
-  return `﻿${lines.join("\r\n")}\r\n`;
+  return `${UTF8_BYTE_ORDER_MARK}${lines.join("\r\n")}\r\n`;
 }
 
 export function csvResponse(

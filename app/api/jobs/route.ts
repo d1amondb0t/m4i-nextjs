@@ -1,0 +1,62 @@
+import { randomUUID } from "node:crypto";
+
+import { validateRagDocumentSelection } from "@/app/server/documents/upload-policy";
+import { currentUser, unauthorized } from "@/app/server/auth/session";
+import { getDatabase } from "@/app/server/db/database";
+import { createJob } from "@/app/server/db/jobs-repository";
+import { jobWorker } from "@/app/server/jobs/job-worker";
+import { removeUploads, saveUploads } from "@/app/server/jobs/upload-store";
+import type { CreateJobResponse, RunMode } from "@/types/feedback-types";
+import { validateQuestion } from "@/types/rag-pipeline-type";
+
+export const runtime = "nodejs";
+
+function badRequest(message: string) {
+  return Response.json({ ok: false, message } satisfies CreateJobResponse, {
+    status: 400,
+  });
+}
+
+export async function POST(request: Request) {
+  const user = await currentUser();
+  if (!user) return unauthorized();
+
+  const formData = await request.formData();
+  const mode = formData.get("mode");
+
+  if (mode !== "rag" && mode !== "ontology") {
+    return badRequest("mode must be rag or ontology.");
+  }
+
+  const documents = formData
+    .getAll("documents")
+    .filter((entry): entry is File => entry instanceof File);
+  const questionEntry = formData.get("question");
+  const question =
+    mode === "rag" && typeof questionEntry === "string"
+      ? questionEntry.trim()
+      : null;
+  const error =
+    validateRagDocumentSelection(documents) ??
+    (mode === "rag" ? validateQuestion(question ?? "") : null);
+
+  if (error) return badRequest(error);
+
+  const id = randomUUID();
+  const uploads = await saveUploads(id, documents).catch(async (cause) => {
+    await removeUploads(id);
+    throw cause;
+  });
+  createJob(getDatabase(), {
+    id,
+    userId: user.id,
+    mode: mode satisfies RunMode,
+    question,
+    uploads,
+  });
+  void jobWorker().wake();
+
+  return Response.json({ ok: true, jobId: id } satisfies CreateJobResponse, {
+    status: 202,
+  });
+}

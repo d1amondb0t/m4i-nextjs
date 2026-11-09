@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { toCsv } from "./csv-helper";
+import { UTF8_BYTE_ORDER_MARK, toCsv } from "./csv-helper";
 import {
   MAX_COMMENT_LENGTH,
   allowedVerdicts,
@@ -87,12 +87,15 @@ describe("toCsv", () => {
         { a: 'say "hi"', b: "x,y", c: null },
         { a: "line\nbreak", b: 0.5, c: undefined },
       ]),
-    ).toBe('﻿a,b,c\r\n"say ""hi""","x,y",\r\n"line\nbreak",0.5,\r\n');
+    ).toBe(
+      UTF8_BYTE_ORDER_MARK +
+        'a,b,c\r\n"say ""hi""","x,y",\r\n"line\nbreak",0.5,\r\n',
+    );
   });
 
   it("neutralises spreadsheet formulas but keeps negative numbers", () => {
     expect(toCsv([{ a: "=HYPERLINK(1)", b: "-0.25", c: "@x" }])).toBe(
-      "﻿a,b,c\r\n'=HYPERLINK(1),-0.25,'@x\r\n",
+      UTF8_BYTE_ORDER_MARK + "a,b,c\r\n'=HYPERLINK(1),-0.25,'@x\r\n",
     );
   });
 
