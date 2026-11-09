@@ -55,3 +55,6 @@ next-env.d.ts
 
 # presentation
 /presentation
+
+# Feedback database, uploads and session secret
+/data/
