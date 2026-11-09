@@ -7,6 +7,13 @@ import type {
 
 export const MAX_COMMENT_LENGTH = 4_000;
 
+export function feedbackKey(
+  targetType: FeedbackTargetType,
+  targetId: number,
+): string {
+  return `${targetType}:${targetId}`;
+}
+
 const TARGET_TYPES: readonly FeedbackTargetType[] = ["run_item", "run_chunk"];
 
 const VERDICTS: readonly Verdict[] = [

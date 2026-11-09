@@ -5,6 +5,11 @@ import type { FrameworkOntology } from "@/types/hierarchy-types";
 import { parseFrameworkOntology } from "../rag/hierarchy/hierarchy-helper";
 
 export function loadOntology(): FrameworkOntology {
-  const path = resolve(process.env.ONTOLOGY_PATH?.trim() || "ontology.json");
-  return parseFrameworkOntology(JSON.parse(readFileSync(path, "utf8")));
+  const path = resolve(
+    /*turbopackIgnore: true*/ process.env.ONTOLOGY_PATH?.trim() ||
+      "ontology.json",
+  );
+  return parseFrameworkOntology(
+    JSON.parse(readFileSync(/*turbopackIgnore: true*/ path, "utf8")),
+  );
 }

@@ -9,7 +9,10 @@ const globalForDatabase = globalThis as typeof globalThis & {
 };
 
 export function dataDirectory(): string {
-  return resolve(process.env.DATA_DIR?.trim() || "data");
+  // The data directory is a runtime volume, not part of the build output.
+  return resolve(
+    /*turbopackIgnore: true*/ process.env.DATA_DIR?.trim() || "data",
+  );
 }
 
 function migrate(db: DatabaseSync): void {

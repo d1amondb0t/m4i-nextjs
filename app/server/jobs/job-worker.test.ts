@@ -1,5 +1,5 @@
 import type { DatabaseSync } from "node:sqlite";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { type Mock, beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { DocumentChunk } from "@/types/chunk-type";
 import type {
@@ -16,6 +16,11 @@ import { DEFAULT_RAG_PIPELINE_CONFIGURATION } from "../rag/pipeline/rag-pipeline
 import type { SearchResult } from "../rag/storage/storage-types";
 import type { JobRunnerDependencies } from "./job-runner";
 import { JobWorker } from "./job-worker";
+
+type RagRun = ReturnType<JobRunnerDependencies["ragPipeline"]>["run"];
+type HierarchyRun = ReturnType<
+  JobRunnerDependencies["hierarchyPipeline"]
+>["run"];
 
 function chunk(chunkId: string): DocumentChunk {
   return {
@@ -140,9 +145,9 @@ describe("JobWorker", () => {
   let db: DatabaseSync;
   let userId: number;
   let runner: JobRunnerDependencies;
-  let removeUploads: ReturnType<typeof vi.fn>;
-  let ragRun: ReturnType<typeof vi.fn>;
-  let hierarchyRun: ReturnType<typeof vi.fn>;
+  let removeUploads: Mock<(jobId: string) => Promise<void>>;
+  let ragRun: Mock<RagRun>;
+  let hierarchyRun: Mock<HierarchyRun>;
 
   function worker() {
     return new JobWorker({
@@ -168,11 +173,11 @@ describe("JobWorker", () => {
     db = openDatabase(":memory:");
     userId = createUser(db, "Alice").user.id;
     removeUploads = vi.fn(async () => {});
-    ragRun = vi.fn(async (_documents, _question, onProgress) => {
+    ragRun = vi.fn<RagRun>(async (_documents, _question, onProgress) => {
       onProgress(3, 3);
       return ragResult;
     });
-    hierarchyRun = vi.fn(async () => hierarchyResult);
+    hierarchyRun = vi.fn<HierarchyRun>(async () => hierarchyResult);
     runner = {
       configuration: () => DEFAULT_RAG_PIPELINE_CONFIGURATION,
       ontology: () => ontology,

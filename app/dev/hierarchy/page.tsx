@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-import { HierarchyUpload } from "../components/hierarchy-upload";
+import { HierarchyUpload } from "@/app/components/hierarchy-upload";
 
 export default function HierarchyPage() {
   return (
@@ -8,7 +8,7 @@ export default function HierarchyPage() {
       <div className="mx-auto max-w-6xl">
         <header className="mb-10 max-w-3xl">
           <Link
-            href="/"
+            href="/dev/rag"
             className="text-sm font-medium text-blue-700 hover:text-blue-900"
           >
             ← Standard RAG tester

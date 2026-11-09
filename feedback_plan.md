@@ -29,16 +29,16 @@ Needed first: testers can only mark "should have been used" on chunks they can s
 
 Tables:
 
-| Table | Columns |
-| --- | --- |
-| `users` | `id`, `name`, `access_code_hash`, `collection`, `is_admin`, `created_at` |
-| `documents` | `id` (document ID), `user_id`, `collection`, `file_name`, `source_hash`, `index_fingerprint`, `chunk_count`, `uploaded_at` |
-| `jobs` | `id`, `user_id`, `mode` (`rag` / `ontology`), `status` (`queued` / `running` / `done` / `failed`), `progress_done`, `progress_total`, `error`, `created_at`, `started_at`, `finished_at` |
-| `runs` | `id`, `job_id`, `user_id`, `collection`, `mode`, `generation_model`, `reranking_model`, `embedding_model`, `settings_json` (top-K, cutoff, candidates), `prompt_hash`, `created_at` |
-| `run_documents` | `run_id`, `document_id` |
-| `run_items` | `id`, `run_id`, `kind` (`rag_answer` / `ontology_match`), `question`, `dimension_id`, `category_id`, `answer` (RAG answer, or the match's reason), `explicitness`, `nearest_ontology_question`, `nearest_ontology_similarity` |
-| `run_chunks` | `id`, `run_id`, `run_item_id` (nullable), `question`, `chunk_id`, `document_id`, `source`, `page`, `chunk_number`, `text`, `quote`, `status` (`sent` / `below_cutoff` / `outside_top_k`), `retrieval_rank`, `reranked_rank`, `dense_score`, `sparse_score`, `rrf_score`, `reranker_score` |
-| `feedback` | `id`, `user_id`, `run_id`, `target_type` (`run_item` / `run_chunk`), `target_id`, `verdict`, `comment`, `created_at`, `updated_at` |
+| Table           | Columns                                                                                                                                                                                                                                                                                   |
+| --------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `users`         | `id`, `name`, `access_code_hash`, `collection`, `is_admin`, `created_at`                                                                                                                                                                                                                  |
+| `documents`     | `id` (document ID), `user_id`, `collection`, `file_name`, `source_hash`, `index_fingerprint`, `chunk_count`, `uploaded_at`                                                                                                                                                                |
+| `jobs`          | `id`, `user_id`, `mode` (`rag` / `ontology`), `status` (`queued` / `running` / `done` / `failed`), `progress_done`, `progress_total`, `error`, `created_at`, `started_at`, `finished_at`                                                                                                  |
+| `runs`          | `id`, `job_id`, `user_id`, `collection`, `mode`, `generation_model`, `reranking_model`, `embedding_model`, `settings_json` (top-K, cutoff, candidates), `prompt_hash`, `created_at`                                                                                                       |
+| `run_documents` | `run_id`, `document_id`                                                                                                                                                                                                                                                                   |
+| `run_items`     | `id`, `run_id`, `kind` (`rag_answer` / `ontology_match`), `question`, `dimension_id`, `category_id`, `answer` (RAG answer, or the match's reason), `explicitness`, `nearest_ontology_question`, `nearest_ontology_similarity`                                                             |
+| `run_chunks`    | `id`, `run_id`, `run_item_id` (nullable), `question`, `chunk_id`, `document_id`, `source`, `page`, `chunk_number`, `text`, `quote`, `status` (`sent` / `below_cutoff` / `outside_top_k`), `retrieval_rank`, `reranked_rank`, `dense_score`, `sparse_score`, `rrf_score`, `reranker_score` |
+| `feedback`      | `id`, `user_id`, `run_id`, `target_type` (`run_item` / `run_chunk`), `target_id`, `verdict`, `comment`, `created_at`, `updated_at`                                                                                                                                                        |
 
 - `feedback` is unique on `(user_id, target_type, target_id)`, so clicking again changes the verdict instead of adding a row.
 - Verdicts: `accepted` / `rejected` on run items; `relevant` / `irrelevant` on sent chunks; `should_have_been_used` on dropped chunks.

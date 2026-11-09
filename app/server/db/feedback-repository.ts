@@ -5,6 +5,7 @@ import type {
   FeedbackTargetType,
   Verdict,
 } from "@/types/feedback-types";
+import { feedbackKey } from "../feedback/feedback-helper.ts";
 import { now } from "./database.ts";
 
 type FeedbackRow = {
@@ -14,13 +15,6 @@ type FeedbackRow = {
   comment: string;
   updated_at: string;
 };
-
-export function feedbackKey(
-  targetType: FeedbackTargetType,
-  targetId: number,
-): string {
-  return `${targetType}:${targetId}`;
-}
 
 function toEntry(row: FeedbackRow): FeedbackEntry {
   return {
