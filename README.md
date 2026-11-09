@@ -13,6 +13,40 @@ This Next.js application runs the current RAG implementation end to end:
 coordinates these components. The browser submits the files and question to
 `POST /api/rag`; Ollama and Qdrant remain server-side.
 
+## Feedback collection
+
+This branch hosts the pipelines for a few invited testers and stores their
+verdicts in SQLite (`DATA_DIR`, default `./data`).
+
+- A tester signs in with an access code. Admins create codes with
+  `npm run users -- <name>`. Add `--admin` for an admin, and use
+  `--reset <name>` for a new code or `--list` to see users. Each user indexes
+  into their own Qdrant collection, `m4i_<name>`.
+- A run is either one RAG question or the whole ontology (`ontology.json`, or
+  `ONTOLOGY_PATH`). It is queued as a job, and one job runs at a time. The page
+  shows its progress and picks it up again after a reload.
+- When a run finishes, the server saves a snapshot of everything that was
+  shown. Testers accept or reject each answer or proposed match, mark chunks
+  the model saw as relevant or irrelevant, and mark dropped chunks as "should
+  have been used".
+- Admins download `feedback.csv`, `chunks.csv` and `questions.csv` from
+  `/admin`. The experiment pages are at `/dev/rag` and `/dev/hierarchy`, and
+  only admins can open them.
+
+In Docker, the app runs next to the existing Qdrant service and reaches Ollama
+on the host:
+
+```bash
+docker compose up -d --build app
+docker compose exec app node scripts/create-user.ts <name>
+tailscale funnel --bg 3080
+```
+
+`compose.yaml` keeps the project name `m4i-nextjs`, so the app joins the
+existing Qdrant container instead of starting a second one. Ollama must accept
+connections from Docker. If it only listens on `127.0.0.1`, set
+`OLLAMA_HOST=0.0.0.0` for the Ollama service on the host.
+
 ## Run the live pipeline
 
 Prerequisites: Node.js, Docker, and Ollama. The Qdrant instance must support
