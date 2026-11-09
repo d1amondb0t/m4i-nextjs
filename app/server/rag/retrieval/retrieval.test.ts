@@ -359,7 +359,7 @@ describe("Retriever", () => {
       embedder.embedQuery.mockResolvedValue([0.1, 0.2]);
       store.denseSearch.mockResolvedValue(results);
 
-      await expect(retriever.retrieve("question")).resolves.toBe(results);
+      await expect(retriever.retrieve("question")).resolves.toEqual(results);
       expect(store.denseSearch).toHaveBeenCalledWith([0.1, 0.2], 5);
       expect(store.sparseSearch).not.toHaveBeenCalled();
     });
@@ -377,7 +377,7 @@ describe("Retriever", () => {
         },
       );
 
-      await expect(retriever.retrieve("question")).resolves.toBe(results);
+      await expect(retriever.retrieve("question")).resolves.toEqual(results);
       expect(store.sparseSearch).toHaveBeenCalledWith("question", 3);
       expect(embedder.embedQuery).not.toHaveBeenCalled();
     });
@@ -397,7 +397,7 @@ describe("Retriever", () => {
         { ...DEFAULT_RETRIEVAL_CONFIGURATION, strategy: "hybrid" },
       );
 
-      await expect(retriever.retrieve("question", scope)).resolves.toBe(
+      await expect(retriever.retrieve("question", scope)).resolves.toEqual(
         results,
       );
       expect(store.hybridSearch).toHaveBeenCalledWith(

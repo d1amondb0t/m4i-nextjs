@@ -31,6 +31,13 @@ export type PipelineRetriever = {
   retrieve(question: string, scope?: RetrievalScope): Promise<SearchResult[]>;
 };
 
+export type RankingRetriever = {
+  rankCandidates(
+    question: string,
+    scope?: RetrievalScope,
+  ): Promise<SearchResult[]>;
+};
+
 export type ComparingRetriever = {
   retrieveWithComparison(
     question: string,
@@ -57,6 +64,7 @@ export type RagPipelineResult = {
   rerankingModel: string;
   results: RerankedResult[];
   withoutReranking: RerankedResult[];
+  outsideTopK: RerankedResult[];
 };
 
 export type RagPipelineConfiguration = {

@@ -83,6 +83,7 @@ describe("RagPipeline", () => {
             candidateCount: 1,
             reranked: [result],
             withoutReranking: [result],
+            outsideTopK: [],
           };
         }),
       },

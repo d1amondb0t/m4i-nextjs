@@ -79,7 +79,7 @@ describe("HierarchyPipeline", () => {
       chunker: { chunkDocuments: vi.fn(async () => [chunk()]) },
       embedder: { embed: vi.fn(async () => [[0.1, 0.2]]) },
       store: { upsert: vi.fn(async () => undefined) },
-      retriever: { retrieve: vi.fn(async () => [searchResult()]) },
+      retriever: { rankCandidates: vi.fn(async () => [searchResult()]) },
       analyzer: { match: vi.fn(async () => [match]) },
     };
   });
@@ -112,12 +112,15 @@ describe("HierarchyPipeline", () => {
 
     expect(dependencies.chunker.chunkDocuments).toHaveBeenCalledTimes(1);
     expect(dependencies.store.upsert).toHaveBeenCalledTimes(1);
-    expect(dependencies.retriever.retrieve).toHaveBeenCalledTimes(3);
+    expect(dependencies.retriever.rankCandidates).toHaveBeenCalledTimes(3);
     for (const question of questions) {
-      expect(dependencies.retriever.retrieve).toHaveBeenCalledWith(question, {
-        documentIds: ["document-1"],
-        indexFingerprints: ["fingerprint"],
-      });
+      expect(dependencies.retriever.rankCandidates).toHaveBeenCalledWith(
+        question,
+        {
+          documentIds: ["document-1"],
+          indexFingerprints: ["fingerprint"],
+        },
+      );
       expect(dependencies.analyzer.match).toHaveBeenCalledWith(
         expect.objectContaining({ id: "advocacy" }),
         question,
@@ -146,10 +149,12 @@ describe("HierarchyPipeline", () => {
 
   it("finishes reranking across every dimension before the first generation", async () => {
     const calls: string[] = [];
-    vi.mocked(dependencies.retriever.retrieve).mockImplementation(async () => {
-      calls.push("retrieve");
-      return [searchResult()];
-    });
+    vi.mocked(dependencies.retriever.rankCandidates).mockImplementation(
+      async () => {
+        calls.push("retrieve");
+        return [searchResult()];
+      },
+    );
     vi.mocked(dependencies.analyzer.match).mockImplementation(async () => {
       calls.push("generate");
       return [match];
@@ -173,7 +178,7 @@ describe("HierarchyPipeline", () => {
   });
 
   it("skips the model and preserves empty categories when retrieval is below the cutoff", async () => {
-    vi.mocked(dependencies.retriever.retrieve).mockResolvedValue([
+    vi.mocked(dependencies.retriever.rankCandidates).mockResolvedValue([
       { ...searchResult(), score: 0.01, denseScore: 0.01 },
     ]);
     const result = await pipeline().run(
@@ -184,6 +189,54 @@ describe("HierarchyPipeline", () => {
     expect(dependencies.analyzer.match).not.toHaveBeenCalled();
     expect(result.framework.dimensions[0].categories[0].matches).toEqual([]);
     expect(result.diagnostics[0].retrievedChunks).toBe(0);
+  });
+
+  it("keeps chunks dropped by the cutoff and by the top-K limit", async () => {
+    const ranked = Array.from({ length: 14 }, (_, index) => ({
+      ...searchResult(),
+      chunk: { ...chunk(), chunkId: `chunk-${index}` },
+      score: index < 10 ? 0.9 : 0.01,
+    }));
+    vi.mocked(dependencies.retriever.rankCandidates).mockResolvedValue(ranked);
+
+    const result = await pipeline().run(
+      [new File(["content"], "report.txt")],
+      ontology,
+    );
+    const [first] = result.retrievals[0].questions;
+
+    expect(result.retrievals[0]).toMatchObject({
+      dimensionId: "political",
+      categoryId: "advocacy",
+    });
+    expect(first.results.map((r) => r.chunk.chunkId)).toEqual(
+      ranked.slice(0, 10).map((r) => r.chunk.chunkId),
+    );
+    expect(first.droppedBelowCutoff.map((r) => r.chunk.chunkId)).toEqual([
+      "chunk-10",
+      "chunk-11",
+    ]);
+    expect(first.droppedOutsideTopK.map((r) => r.chunk.chunkId)).toEqual([
+      "chunk-12",
+      "chunk-13",
+    ]);
+    expect(result.diagnostics[0].questions[0]).toMatchObject({
+      candidates: 14,
+      droppedBelowCutoff: 2,
+      droppedOutsideTopK: 2,
+    });
+  });
+
+  it("reports progress once per question for retrieval and for analysis", async () => {
+    const progress: [number, number][] = [];
+
+    await pipeline().run(
+      [new File(["content"], "report.txt")],
+      ontology,
+      (done, total) => progress.push([done, total]),
+    );
+
+    expect(progress).toEqual(Array.from({ length: 7 }, (_, done) => [done, 6]));
   });
 
   it.each([
@@ -272,6 +325,9 @@ describe("HierarchyPipeline", () => {
             scores,
           },
         ],
+        candidates: 1,
+        droppedBelowCutoff: 0,
+        droppedOutsideTopK: 0,
         generatedCandidates: 3,
         acceptedCandidates: 2,
       })),

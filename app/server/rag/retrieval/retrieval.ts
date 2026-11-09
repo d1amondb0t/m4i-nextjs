@@ -168,7 +168,7 @@ export class Retriever {
       : this.crossEncoderRerank(question, candidates);
   }
 
-  async retrieve(
+  async rankCandidates(
     question: string,
     scope?: RetrievalScope,
   ): Promise<SearchResult[]> {
@@ -178,8 +178,17 @@ export class Retriever {
       return candidates;
     }
 
-    const reranked = await this.rerank(question, candidates);
-    return reranked.slice(0, this.retrievalConfig.topK);
+    return this.rerank(question, candidates);
+  }
+
+  async retrieve(
+    question: string,
+    scope?: RetrievalScope,
+  ): Promise<SearchResult[]> {
+    return (await this.rankCandidates(question, scope)).slice(
+      0,
+      this.retrievalConfig.topK,
+    );
   }
 
   async retrieveWithComparison(

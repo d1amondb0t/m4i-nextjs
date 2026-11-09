@@ -157,5 +157,6 @@ export function rerankingComparison(
     candidateCount: candidates.length,
     reranked: reranked.slice(0, topK).map(withRanks),
     withoutReranking: candidates.slice(0, topK).map(withRanks),
+    outsideTopK: reranked.slice(topK).map(withRanks),
   };
 }

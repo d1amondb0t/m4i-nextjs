@@ -36,6 +36,7 @@ export type RerankingComparison = {
   candidateCount: number;
   reranked: RerankedResult[];
   withoutReranking: RerankedResult[];
+  outsideTopK: RerankedResult[];
 };
 
 export type OllamaTokenLogprob = {

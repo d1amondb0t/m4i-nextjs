@@ -37,6 +37,35 @@ export function hierarchyRetrievedChunk(
   };
 }
 
+export function splitRankedCandidates(
+  ranked: readonly SearchResult[],
+  { topKPerQuery, minimumRetrievalScore }: HierarchyConfiguration,
+) {
+  const topRanked = ranked.slice(0, topKPerQuery);
+
+  return {
+    results: topRanked.filter(
+      (result) => result.score >= minimumRetrievalScore,
+    ),
+    droppedBelowCutoff: topRanked.filter(
+      (result) => result.score < minimumRetrievalScore,
+    ),
+    droppedOutsideTopK: ranked.slice(topKPerQuery),
+  };
+}
+
+export function countOntologyQuestions(ontology: FrameworkOntology): number {
+  return ontology.dimensions.reduce(
+    (total, dimension) =>
+      total +
+      dimension.categories.reduce(
+        (sum, category) => sum + category.questions.length,
+        0,
+      ),
+    0,
+  );
+}
+
 export function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 }

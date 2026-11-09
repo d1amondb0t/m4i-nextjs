@@ -67,6 +67,8 @@ export type HierarchyDimensionResult = Omit<
 export type QuestionRetrieval = {
   question: string;
   results: SearchResult[];
+  droppedBelowCutoff: SearchResult[];
+  droppedOutsideTopK: SearchResult[];
 };
 
 export type HierarchyCategoryDiagnostics = {
@@ -78,11 +80,22 @@ export type HierarchyCategoryDiagnostics = {
     question: string;
     retrievedChunks: number;
     chunks: HierarchyRetrievedChunk[];
+    candidates: number;
+    droppedBelowCutoff: number;
+    droppedOutsideTopK: number;
     generatedCandidates: number;
     acceptedCandidates: number;
   }[];
   rejected: { question: string; reason: string }[];
 };
+
+export type CategoryRetrievals = {
+  dimensionId: string;
+  categoryId: string;
+  questions: QuestionRetrieval[];
+};
+
+export type HierarchyProgress = (done: number, total: number) => void;
 
 export type HierarchyPipelineResult = {
   framework: {
@@ -90,6 +103,7 @@ export type HierarchyPipelineResult = {
   };
   diagnostics: HierarchyCategoryDiagnostics[];
   chunks: DocumentChunk[];
+  retrievals: CategoryRetrievals[];
 };
 
 export type HierarchyConfiguration = {
