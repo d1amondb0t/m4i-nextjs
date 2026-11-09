@@ -5,6 +5,7 @@ import type { DocumentChunk } from "@/types/chunk-type";
 import {
   DEFAULT_RERANKING_CONFIGURATION,
   type CrossEncoder,
+  type RerankingComparison,
   type RerankingConfiguration,
   type RetrievalConfiguration,
   type RetrievalScope,
@@ -15,6 +16,7 @@ import type { QdrantStore } from "../storage/vector-storage";
 import {
   loadCrossEncoder,
   ollamaRerankerScore,
+  rerankingComparison,
   sortByRerankerScore,
 } from "./reranker-helper";
 
@@ -135,39 +137,58 @@ export class Retriever {
         );
   }
 
-  async retrieve(
+  private async candidates(
     question: string,
     scope?: RetrievalScope,
   ): Promise<SearchResult[]> {
     const limit = this.rerankingConfig.enabled
       ? this.rerankingConfig.candidates
       : this.retrievalConfig.topK;
-    let results: SearchResult[];
 
     switch (this.retrievalConfig.strategy) {
       case "dense":
-        results = await this.dense(question, limit, scope);
-        break;
+        return this.dense(question, limit, scope);
       case "sparse":
-        results = await this.sparse(question, limit, scope);
-        break;
+        return this.sparse(question, limit, scope);
       case "hybrid":
-        results = await this.hybrid(question, limit, scope);
-        break;
+        return this.hybrid(question, limit, scope);
     }
+  }
 
-    if (!this.rerankingConfig.enabled) {
-      return results;
-    }
-
+  private async rerank(
+    question: string,
+    candidates: SearchResult[],
+  ): Promise<SearchResult[]> {
     if (this.rerankingConfig.strategy !== "cross_encoder") {
       throw new Error("Lexical reranking is not implemented yet.");
     }
 
-    const reranked =
-      this.rerankingConfig.runtime === "ollama"
-        ? await this.ollamaRerank(question, results)
-        : await this.crossEncoderRerank(question, results);
+    return this.rerankingConfig.runtime === "ollama"
+      ? this.ollamaRerank(question, candidates)
+      : this.crossEncoderRerank(question, candidates);
+  }
+
+  async retrieve(
+    question: string,
+    scope?: RetrievalScope,
+  ): Promise<SearchResult[]> {
+    const candidates = await this.candidates(question, scope);
+
+    if (!this.rerankingConfig.enabled) {
+      return candidates;
+    }
+
+    const reranked = await this.rerank(question, candidates);
     return reranked.slice(0, this.retrievalConfig.topK);
+  }
+
+  async retrieveWithComparison(
+    question: string,
+    scope?: RetrievalScope,
+  ): Promise<RerankingComparison> {
+    const candidates = await this.candidates(question, scope);
+    const reranked = await this.rerank(question, candidates);
+
+    return rerankingComparison(candidates, reranked, this.retrievalConfig.topK);
   }
 }

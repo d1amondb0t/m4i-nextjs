@@ -3,6 +3,8 @@ import type {
   PreTrainedTokenizer,
 } from "@huggingface/transformers";
 
+import type { SearchResult } from "@/app/server/rag/storage/storage-types";
+
 export type RetrievalConfiguration = {
   strategy: "dense" | "sparse" | "hybrid";
   topK: number; // default = 5
@@ -23,6 +25,17 @@ export type RetrievalScores = {
   sparseScore: number | null;
   rrfScore: number | null;
   rerankerScore: number | null;
+};
+
+export type RerankedResult = SearchResult & {
+  retrievalRank: number;
+  rerankedRank: number;
+};
+
+export type RerankingComparison = {
+  candidateCount: number;
+  reranked: RerankedResult[];
+  withoutReranking: RerankedResult[];
 };
 
 export type OllamaTokenLogprob = {

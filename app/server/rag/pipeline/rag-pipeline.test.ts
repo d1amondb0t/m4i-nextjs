@@ -1,12 +1,22 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { DocumentChunk } from "@/types/chunk-type";
-import type { SearchResult } from "../storage/storage-types";
+import type { RerankedResult } from "@/types/retrieval-types";
 import {
   DEFAULT_RAG_PIPELINE_CONFIGURATION,
   RagPipeline,
   type RagPipelineDependencies,
 } from "./rag-pipeline";
+
+const retrieverConstructor = vi.hoisted(() => vi.fn());
+
+vi.mock("../retrieval/retrieval", () => ({
+  Retriever: class {
+    constructor(...args: unknown[]) {
+      retrieverConstructor(...args);
+    }
+  },
+}));
 
 function chunk(): DocumentChunk {
   return {
@@ -26,14 +36,16 @@ function chunk(): DocumentChunk {
   };
 }
 
-function searchResult(currentChunk: DocumentChunk): SearchResult {
+function searchResult(currentChunk: DocumentChunk): RerankedResult {
   return {
     chunk: currentChunk,
     score: 0.92,
     denseScore: 0.92,
     sparseScore: null,
     rrfScore: null,
-    rerankerScore: null,
+    rerankerScore: 0.92,
+    retrievalRank: 1,
+    rerankedRank: 1,
   };
 }
 
@@ -65,9 +77,13 @@ describe("RagPipeline", () => {
         }),
       },
       retriever: {
-        retrieve: vi.fn(async () => {
+        retrieveWithComparison: vi.fn(async () => {
           events.push("retrieve");
-          return [result];
+          return {
+            candidateCount: 1,
+            reranked: [result],
+            withoutReranking: [result],
+          };
         }),
       },
       generator: {
@@ -96,7 +112,7 @@ describe("RagPipeline", () => {
     expect(dependencies.store.upsert).toHaveBeenCalledWith(result.chunks, [
       [0.1, 0.2, 0.3],
     ]);
-    expect(dependencies.retriever.retrieve).toHaveBeenCalledWith(
+    expect(dependencies.retriever.retrieveWithComparison).toHaveBeenCalledWith(
       "When is launch?",
       {
         documentIds: [result.chunks[0].documentId],
@@ -108,6 +124,34 @@ describe("RagPipeline", () => {
       result.results,
     );
     expect(result.answer).toBe("The launch date is Friday.");
+    expect(result).toMatchObject({
+      candidateCount: 1,
+      rerankingModel: DEFAULT_RAG_PIPELINE_CONFIGURATION.reranking.model,
+      withoutReranking: result.results,
+    });
+  });
+
+  it("enables the configured reranker on the pipeline's Ollama client", () => {
+    new RagPipeline({
+      ...DEFAULT_RAG_PIPELINE_CONFIGURATION,
+      reranking: {
+        ...DEFAULT_RAG_PIPELINE_CONFIGURATION.reranking,
+        runtime: "ollama",
+        model: "zerank-2-score",
+        candidates: 50,
+      },
+      ollamaHost: "http://ollama:11434",
+    });
+
+    const [, , , reranking, client] = retrieverConstructor.mock.lastCall!;
+
+    expect(reranking).toMatchObject({
+      enabled: true,
+      runtime: "ollama",
+      model: "zerank-2-score",
+      candidates: 50,
+    });
+    expect(client.config.host).toBe("http://ollama:11434");
   });
 
   it("rejects missing documents before starting work", async () => {
@@ -147,7 +191,9 @@ describe("RagPipeline", () => {
       pipeline.run([new File(["content"], "notes.txt")], "Question"),
     ).rejects.toThrow("Ollama unavailable");
     expect(dependencies.store.upsert).not.toHaveBeenCalled();
-    expect(dependencies.retriever.retrieve).not.toHaveBeenCalled();
+    expect(
+      dependencies.retriever.retrieveWithComparison,
+    ).not.toHaveBeenCalled();
     expect(dependencies.generator.generate).not.toHaveBeenCalled();
   });
 });

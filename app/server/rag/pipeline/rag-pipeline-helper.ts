@@ -1,12 +1,17 @@
 import { DEFAULT_CHUNK_CONFIG } from "@/types/chunk-type";
 import { DEFAULT_GENERATION_CONFIGURATION } from "@/types/generation-type";
-import type { RagPipelineConfiguration } from "@/types/rag-pipeline-type";
+import type {
+  RagPipelineConfiguration,
+  RagSource,
+} from "@/types/rag-pipeline-type";
 import {
   DEFAULT_RERANKING_CONFIGURATION,
   DEFAULT_RETRIEVAL_CONFIGURATION,
   ZERANK_RERANKING_CANDIDATES,
+  type RerankedResult,
   type RerankingConfiguration,
 } from "@/types/retrieval-types";
+import { retrievalScores } from "../storage/storage-helper";
 import {
   DEFAULT_STORAGE_CONFIGURATION,
   type StorageConfiguration,
@@ -26,6 +31,19 @@ export const DEFAULT_RAG_PIPELINE_CONFIGURATION = {
   retrieval: DEFAULT_RETRIEVAL_CONFIGURATION,
   storage: DEFAULT_STORAGE_CONFIGURATION,
 } as const satisfies RagPipelineConfiguration;
+
+export function ragSource(result: RerankedResult): RagSource {
+  return {
+    source: result.chunk.source,
+    page: result.chunk.page,
+    chunk: result.chunk.number,
+    score: result.score,
+    scores: retrievalScores(result),
+    text: result.chunk.text,
+    retrievalRank: result.retrievalRank,
+    rerankedRank: result.rerankedRank,
+  };
+}
 
 export function rerankingRuntime(
   value: string | undefined,

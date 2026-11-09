@@ -3,9 +3,9 @@ import { resolve } from "node:path";
 
 import {
   type Chunker,
+  type ComparingRetriever,
   type Embedder,
   type Generator,
-  type PipelineRetriever,
   type RagPipelineConfiguration,
   type RagPipelineDependencies,
   type RagPipelineResult,
@@ -35,7 +35,8 @@ export class RagPipeline {
   private readonly chunker: Chunker;
   private readonly embedder: Embedder;
   private readonly generator: Generator;
-  private readonly retriever: PipelineRetriever;
+  private readonly rerankingModel: string;
+  private readonly retriever: ComparingRetriever;
   private readonly store: Store;
 
   constructor(
@@ -56,9 +57,16 @@ export class RagPipeline {
     this.chunker = dependencies.chunker ?? new DocumentChunker(config.chunking);
     this.embedder = dependencies.embedder ?? concreteEmbedder;
     this.store = dependencies.store ?? concreteStore;
+    this.rerankingModel = config.reranking.model;
     this.retriever =
       dependencies.retriever ??
-      new Retriever(concreteStore, concreteEmbedder, config.retrieval);
+      new Retriever(
+        concreteStore,
+        concreteEmbedder,
+        config.retrieval,
+        { ...config.reranking, enabled: true },
+        ollamaClient,
+      );
     this.generator =
       dependencies.generator ??
       new OllamaGenerator(
@@ -92,14 +100,22 @@ export class RagPipeline {
     await this.store.upsert(chunks, vectors);
 
     // Answer from the uploaded documents only, not everything in the collection.
-    const results = await this.retriever.retrieve(normalizedQuestion, {
-      documentIds: [...new Set(chunks.map((chunk) => chunk.documentId))],
-      indexFingerprints: [
-        ...new Set(chunks.map((chunk) => chunk.metadata.indexFingerprint)),
-      ],
-    });
-    const answer = await this.generator.generate(normalizedQuestion, results);
+    const { candidateCount, reranked, withoutReranking } =
+      await this.retriever.retrieveWithComparison(normalizedQuestion, {
+        documentIds: [...new Set(chunks.map((chunk) => chunk.documentId))],
+        indexFingerprints: [
+          ...new Set(chunks.map((chunk) => chunk.metadata.indexFingerprint)),
+        ],
+      });
+    const answer = await this.generator.generate(normalizedQuestion, reranked);
 
-    return { answer, chunks, results };
+    return {
+      answer,
+      candidateCount,
+      chunks,
+      rerankingModel: this.rerankingModel,
+      results: reranked,
+      withoutReranking,
+    };
   }
 }

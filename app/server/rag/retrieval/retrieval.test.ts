@@ -441,4 +441,54 @@ describe("Retriever", () => {
       expect(store.denseSearch).toHaveBeenCalledWith([0.1, 0.2], 10);
     });
   });
+
+  describe("retrieveWithComparison", () => {
+    it("returns the top K before and after reranking with both ranks", async () => {
+      const candidates = ["a", "b", "c"].map((id): SearchResult => ({
+        ...searchResults()[0],
+        chunk: { ...chunk(), chunkId: id, text: id },
+      }));
+      const generate = vi
+        .fn()
+        .mockResolvedValueOnce(logprobs(["Yes", -11], ["#", -12], ["%", -12]))
+        .mockResolvedValueOnce(logprobs(["Yes", -9], ["#", -12], ["%", -12]))
+        .mockResolvedValueOnce(logprobs(["Yes", -6], ["#", -12], ["%", -12]));
+      embedder.embedQuery.mockResolvedValue([0.1, 0.2]);
+      store.denseSearch.mockResolvedValue(candidates);
+
+      const comparison = await new Retriever(
+        store as unknown as QdrantStore,
+        embedder as unknown as OllamaEmbedder,
+        { ...DEFAULT_RETRIEVAL_CONFIGURATION, strategy: "dense", topK: 2 },
+        {
+          enabled: true,
+          strategy: "cross_encoder",
+          runtime: "ollama",
+          model: "zerank-2",
+          candidates: 10,
+        },
+        { generate } as unknown as Ollama,
+      ).retrieveWithComparison("question");
+
+      const ranks = (results: typeof comparison.reranked) =>
+        results.map(({ chunk: { chunkId }, retrievalRank, rerankedRank }) => [
+          chunkId,
+          retrievalRank,
+          rerankedRank,
+        ]);
+
+      expect(comparison.candidateCount).toBe(3);
+      expect(ranks(comparison.reranked)).toEqual([
+        ["c", 3, 1],
+        ["b", 2, 2],
+      ]);
+      expect(ranks(comparison.withoutReranking)).toEqual([
+        ["a", 1, 3],
+        ["b", 2, 2],
+      ]);
+      expect(comparison.withoutReranking[0].rerankerScore).toBeCloseTo(
+        1 / (1 + Math.exp(-1 / 5)),
+      );
+    });
+  });
 });
