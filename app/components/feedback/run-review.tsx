@@ -4,7 +4,12 @@ import { useState } from "react";
 
 import type { RunSnapshot, SnapshotQuestion } from "@/types/feedback-types";
 import { QuestionReview } from "./question-review";
-import { groupByCategory, itemKey, reviewCounts } from "./review-helper";
+import {
+  countLabel,
+  groupByCategory,
+  itemKey,
+  reviewCounts,
+} from "./review-helper";
 import { useFeedback, type FeedbackController } from "./use-feedback";
 
 type QuestionFilter = "all" | "matched" | "unreviewed";
@@ -45,7 +50,7 @@ function ReviewSummary({
           {noun} reviewed
         </span>
         <span>{counts.rejectedItems} rejected</span>
-        <span>{counts.labelledChunks} chunks labelled</span>
+        <span>{countLabel(counts.labelledChunks, "chunk")} labelled</span>
         <span className="text-zinc-400">
           Every click is saved straight away.
         </span>
@@ -169,8 +174,8 @@ function OntologyReview({
                   {group.categoryName}
                 </h2>
                 <span className="text-xs text-zinc-500">
-                  {matches} proposed match{matches === 1 ? "" : "es"} ·{" "}
-                  {group.questions.length} questions
+                  {countLabel(matches, "proposed match", "proposed matches")} ·{" "}
+                  {countLabel(group.questions.length, "question")}
                 </span>
               </div>
               <p className="mt-1 text-xs leading-5 text-zinc-500">

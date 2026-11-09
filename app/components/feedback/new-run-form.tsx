@@ -13,7 +13,7 @@ import {
   MAX_QUESTION_LENGTH,
   validateQuestion,
 } from "@/types/rag-pipeline-type";
-import { ACTIVE_JOB_KEY, writeStorage } from "./review-helper";
+import { ACTIVE_JOB_KEY, countLabel, writeStorage } from "./review-helper";
 
 type NewRunFormProps = {
   ontologyQuestions: number;
@@ -124,7 +124,7 @@ export function NewRunForm({
               </span>
               <span className="mt-1 block text-xs leading-5 text-zinc-600">
                 {option.value === "ontology"
-                  ? `${option.description} ${ontologyQuestions} questions across ${ontologyCategories} categories; this takes a while.`
+                  ? `${option.description} ${countLabel(ontologyQuestions, "question")} across ${countLabel(ontologyCategories, "category", "categories")}; this takes a while.`
                   : option.description}
               </span>
             </label>

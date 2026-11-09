@@ -30,6 +30,14 @@ export type ReviewCounts = {
   labelledChunks: number;
 };
 
+export function countLabel(
+  count: number,
+  singular: string,
+  plural = `${singular}s`,
+): string {
+  return `${count} ${count === 1 ? singular : plural}`;
+}
+
 export function itemKey(id: number): string {
   return feedbackKey("run_item", id);
 }
