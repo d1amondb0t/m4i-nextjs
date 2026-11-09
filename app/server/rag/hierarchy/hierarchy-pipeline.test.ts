@@ -172,6 +172,33 @@ describe("HierarchyPipeline", () => {
     ]);
   });
 
+  it("keeps question order when concurrent analyzer calls finish out of order", async () => {
+    const delays = [30, 1, 10];
+    vi.mocked(dependencies.analyzer.match).mockImplementation(
+      async (_category, question) => {
+        const index = questions.indexOf(question);
+        await new Promise((resolve) => setTimeout(resolve, delays[index]));
+        return [{ ...match, reason: `reason ${index}` }];
+      },
+    );
+
+    const result = await pipeline().run(
+      [new File(["content"], "report.txt")],
+      ontology,
+    );
+
+    expect(
+      result.framework.dimensions[0].categories[0].matches.map(
+        ({ question, reason }) => ({ question, reason }),
+      ),
+    ).toEqual(
+      questions.map((question, index) => ({
+        question,
+        reason: `reason ${index}`,
+      })),
+    );
+  });
+
   it("skips the model and preserves empty categories when retrieval is below the cutoff", async () => {
     vi.mocked(dependencies.retriever.retrieve).mockResolvedValue([
       { ...searchResult(), score: 0.01, denseScore: 0.01 },

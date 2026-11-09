@@ -96,6 +96,9 @@ export type HierarchyConfiguration = {
   topKPerQuery: number;
   minimumRetrievalScore: number;
   maxContextWords: number;
+  retrievalConcurrency: number;
+  analysisConcurrency: number;
+  analyzerContextTokens: number;
 };
 
 export const DEFAULT_HIERARCHY_CONFIGURATION = {
@@ -106,6 +109,13 @@ export const DEFAULT_HIERARCHY_CONFIGURATION = {
   // TODO (REVIEW minimumRetrievalScore)
   minimumRetrievalScore: 0.05,
   maxContextWords: 4_000,
+  // Questions retrieved and analyzed at once. Ollama only runs them together
+  // when OLLAMA_NUM_PARALLEL is at least this; beyond that they queue.
+  retrievalConcurrency: 4,
+  analysisConcurrency: 4,
+  // Ollama's default context is 4,096 tokens on GPUs under 24 GB, which cuts
+  // off a 4,000-word context. This covers it plus the prompt and the answer.
+  analyzerContextTokens: 12_288,
 } as const satisfies HierarchyConfiguration;
 
 // zerank-2's probability, sigmoid(logit / 5), sits higher than mxbai's: 0.05
