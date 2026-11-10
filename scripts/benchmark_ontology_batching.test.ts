@@ -275,7 +275,7 @@ it(`benchmarks the hierarchy pipeline (${variant})`, async () => {
       },
       analyzerCalls: calls
         .filter((call) => call.kind === "chat")
-        .map(({ startMs: _startMs, ...call }) => call),
+        .map((call) => ({ ...call, startMs: undefined })),
       loadedModels: modelSnapshots,
       matches,
       diagnostics: result.diagnostics,

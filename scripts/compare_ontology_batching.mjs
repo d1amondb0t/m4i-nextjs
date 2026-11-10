@@ -4,7 +4,10 @@
 import { readdirSync, readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
 
-const root = path.resolve(import.meta.dirname, "../calibration/results/ontology-batching");
+const root = path.resolve(
+  import.meta.dirname,
+  "../calibration/results/ontology-batching",
+);
 const [reference, ...variants] = process.argv.slice(2);
 const TRUNCATION_TOKENS = 4096;
 
@@ -12,11 +15,15 @@ const load = (variant) =>
   Object.fromEntries(
     readdirSync(path.join(root, variant))
       .filter((name) => name.endsWith(".json"))
-      .map((name) => [name, JSON.parse(readFileSync(path.join(root, variant, name), "utf8"))]),
+      .map((name) => [
+        name,
+        JSON.parse(readFileSync(path.join(root, variant, name), "utf8")),
+      ]),
   );
 
 const normalize = (text) => text.replace(/\s+/g, " ").trim().toLowerCase();
-const matchKey = (match) => `${match.question}|${match.chunkId}|${normalize(match.quote)}`;
+const matchKey = (match) =>
+  `${match.question}|${match.chunkId}|${normalize(match.quote)}`;
 const passageKey = (match) => `${match.question}|${match.chunkId}`;
 
 function questionChunks(report) {
@@ -33,7 +40,11 @@ function overlap(left, right) {
   const a = new Set(left);
   const b = new Set(right);
   const shared = [...a].filter((key) => b.has(key)).length;
-  return { shared, onlyReference: a.size - shared, onlyVariant: b.size - shared };
+  return {
+    shared,
+    onlyReference: a.size - shared,
+    onlyVariant: b.size - shared,
+  };
 }
 
 function compareRetrieval(referenceReport, variantReport) {
@@ -49,8 +60,15 @@ function compareRetrieval(referenceReport, variantReport) {
     const { shared, onlyReference, onlyVariant } = overlap(ids, otherIds);
     const union = shared + onlyReference + onlyVariant;
     jaccardSum += union === 0 ? 1 : shared / union;
-    if (onlyReference === 0 && onlyVariant === 0 && ids.join() === otherIds.join()) identicalQuestions += 1;
-    const otherScores = new Map(other.map((chunk) => [chunk.chunkId, chunk.scores.rerankerScore]));
+    if (
+      onlyReference === 0 &&
+      onlyVariant === 0 &&
+      ids.join() === otherIds.join()
+    )
+      identicalQuestions += 1;
+    const otherScores = new Map(
+      other.map((chunk) => [chunk.chunkId, chunk.scores.rerankerScore]),
+    );
     for (const chunk of chunks) {
       if (otherScores.has(chunk.chunkId)) {
         maxScoreDifference = Math.max(
@@ -72,14 +90,23 @@ function compareMatches(referenceReport, variantReport) {
   return {
     referenceMatches: referenceReport.matches.length,
     variantMatches: variantReport.matches.length,
-    exact: overlap(referenceReport.matches.map(matchKey), variantReport.matches.map(matchKey)),
+    exact: overlap(
+      referenceReport.matches.map(matchKey),
+      variantReport.matches.map(matchKey),
+    ),
     sameQuestionAndChunk: overlap(
       referenceReport.matches.map(passageKey),
       variantReport.matches.map(passageKey),
     ),
     rejected: {
-      reference: referenceReport.diagnostics.reduce((n, c) => n + c.rejected.length, 0),
-      variant: variantReport.diagnostics.reduce((n, c) => n + c.rejected.length, 0),
+      reference: referenceReport.diagnostics.reduce(
+        (n, c) => n + c.rejected.length,
+        0,
+      ),
+      variant: variantReport.diagnostics.reduce(
+        (n, c) => n + c.rejected.length,
+        0,
+      ),
     },
   };
 }
@@ -96,7 +123,9 @@ function timing(report) {
     analyzerMaxPromptTokens: analyzer.maxPromptTokens,
     analyzerEvalTokens: analyzer.evalTokens,
     truncatedAnalyzerCalls: report.analyzerCalls.filter(
-      (call) => (call.numCtx ?? TRUNCATION_TOKENS) <= TRUNCATION_TOKENS && call.promptTokens >= TRUNCATION_TOKENS - 8,
+      (call) =>
+        (call.numCtx ?? TRUNCATION_TOKENS) <= TRUNCATION_TOKENS &&
+        call.promptTokens >= TRUNCATION_TOKENS - 8,
     ).length,
   };
 }
@@ -105,7 +134,10 @@ const referenceReports = load(reference);
 const output = { reference, documents: {}, totals: {} };
 
 for (const [name, report] of Object.entries(referenceReports)) {
-  output.documents[name] = { chunks: report.chunks, [reference]: timing(report) };
+  output.documents[name] = {
+    chunks: report.chunks,
+    [reference]: timing(report),
+  };
 }
 
 for (const variant of variants) {
@@ -124,7 +156,8 @@ for (const variant of variants) {
 
 for (const variant of [reference, ...variants]) {
   const rows = Object.values(output.documents).filter((row) => row[variant]);
-  const total = (field) => rows.reduce((sum, row) => sum + row[variant][field], 0);
+  const total = (field) =>
+    rows.reduce((sum, row) => sum + row[variant][field], 0);
   output.totals[variant] = {
     documents: rows.length,
     totalS: total("totalS"),
@@ -138,7 +171,9 @@ for (const variant of [reference, ...variants]) {
     Object.assign(output.totals[variant], {
       identicalChunkLists: sum((row) => row.retrieval.identicalChunkLists),
       questions: sum((row) => row.retrieval.questions),
-      maxRerankerScoreDifference: Math.max(...rows.map((row) => row[variant].retrieval.maxRerankerScoreDifference)),
+      maxRerankerScoreDifference: Math.max(
+        ...rows.map((row) => row[variant].retrieval.maxRerankerScoreDifference),
+      ),
       referenceMatches: sum((row) => row.matches.referenceMatches),
       variantMatches: sum((row) => row.matches.variantMatches),
       exactShared: sum((row) => row.matches.exact.shared),
@@ -147,5 +182,8 @@ for (const variant of [reference, ...variants]) {
   }
 }
 
-writeFileSync(path.join(root, "comparison.json"), JSON.stringify(output, null, 2));
+writeFileSync(
+  path.join(root, "comparison.json"),
+  JSON.stringify(output, null, 2),
+);
 console.log(JSON.stringify(output.totals, null, 2));
