@@ -91,7 +91,7 @@ describe("ragPipelineConfigurationFromEnvironment", () => {
       ollamaHost: "http://ollama:11434",
       queryPrefix: "query: ",
       reranking: {
-        enabled: false,
+        enabled: true,
         runtime: "ollama",
         model: "reranking-model",
         candidates: 50,
@@ -108,6 +108,7 @@ describe("ragPipelineConfigurationFromEnvironment", () => {
     vi.stubEnv("RERANKING_MODEL", "");
 
     expect(ragPipelineConfigurationFromEnvironment().reranking).toMatchObject({
+      enabled: false,
       runtime: "transformers",
       model: "mixedbread-ai/mxbai-rerank-xsmall-v1",
       candidates: 20,

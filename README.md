@@ -100,7 +100,9 @@ models do not need to share GPU memory, so Ollama swaps them only once per run.
    documents. The question is used alone: adding the category definition made
    every tested reranker close to random. To rerank with zerank-2 instead, build
    its score-head Ollama model with `scripts/build_zerank_ollama.py` and set
-   `RERANKING_RUNTIME=ollama` and `RERANKING_MODEL` (see `.env.example`). A
+   `RERANKING_RUNTIME=ollama` and `RERANKING_MODEL` (see `.env.example`).
+   Setting `RERANKING_RUNTIME` also turns on reranking for document questions
+   (`/api/rag`), which otherwise use the hybrid ranking alone. A
    plain zerank-2 GGUF does not work: its score is the raw "Yes" logit, which
    Ollama's top log-probabilities never include. The probability is
    `sigmoid(logit / 5)`, as on the model card, and the floor is `0.3` instead
