@@ -28,8 +28,8 @@ function chunk(): DocumentChunk {
 
 const scores = {
   denseScore: 0.72,
-  sparseScore: 6.4,
-  rrfScore: 0.03,
+  sparseScore: 0.64,
+  rrfScore: 0.9,
   rerankerScore: 0.91,
 };
 
@@ -144,7 +144,7 @@ describe("HierarchyPipeline", () => {
     });
   });
 
-  it("finishes reranking across every dimension before the first generation", async () => {
+  it("finishes reranking across every dimension before the first generation, retrieving a repeated question once", async () => {
     const calls: string[] = [];
     vi.mocked(dependencies.retriever.retrieve).mockImplementation(async () => {
       calls.push("retrieve");
@@ -167,7 +167,7 @@ describe("HierarchyPipeline", () => {
     await pipeline().run([new File(["content"], "report.txt")], twoDimensions);
 
     expect(calls).toEqual([
-      ...Array<string>(6).fill("retrieve"),
+      ...Array<string>(3).fill("retrieve"),
       ...Array<string>(6).fill("generate"),
     ]);
   });
