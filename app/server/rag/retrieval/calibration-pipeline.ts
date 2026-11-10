@@ -1,5 +1,4 @@
-import { Ollama } from "ollama";
-
+import { createOllamaClient } from "../ollama/ollama-client-helper";
 import { DocumentChunker } from "../chunking/chunk-documents";
 import { OllamaEmbedder } from "../embeddings/ollama-embedder";
 import {
@@ -152,9 +151,7 @@ export class CalibrationPipeline {
       if (error) throw new Error(error);
     }
     const config = this.configuration.rag;
-    const ollama = new Ollama(
-      config.ollamaHost ? { host: config.ollamaHost } : undefined,
-    );
+    const ollama = createOllamaClient(config.ollamaHost);
     const embedder =
       this.dependencies.embedder ??
       new OllamaEmbedder(

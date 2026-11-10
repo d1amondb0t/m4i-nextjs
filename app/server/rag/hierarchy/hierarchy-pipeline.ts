@@ -1,5 +1,4 @@
 import { resolve } from "node:path";
-import { Ollama } from "ollama";
 
 import type {
   Chunker,
@@ -17,6 +16,7 @@ import {
   type HierarchyConfiguration,
   type HierarchyPipelineResult,
 } from "@/types/hierarchy-types";
+import { createOllamaClient } from "../ollama/ollama-client-helper";
 import { DocumentChunker } from "../chunking/chunk-documents";
 import { OllamaEmbedder } from "../embeddings/ollama-embedder";
 import { ragPipelineConfigurationFromEnvironment } from "../pipeline/rag-pipeline-helper";
@@ -89,11 +89,7 @@ export class HierarchyPipeline {
     validateConfiguration(configuration);
     this.configuration = configuration;
 
-    const client = new Ollama(
-      ragConfiguration.ollamaHost
-        ? { host: ragConfiguration.ollamaHost }
-        : undefined,
-    );
+    const client = createOllamaClient(ragConfiguration.ollamaHost);
     const concreteEmbedder = new OllamaEmbedder(
       ragConfiguration.embeddingModel,
       ragConfiguration.embeddingBatchSize,
