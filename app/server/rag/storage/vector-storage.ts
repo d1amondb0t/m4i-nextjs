@@ -1,4 +1,4 @@
-import { QdrantClient } from "@qdrant/js-client-rest";
+import type { QdrantClient } from "@qdrant/js-client-rest";
 import {
   DEFAULT_STORAGE_CONFIGURATION,
   SearchResult,
@@ -6,6 +6,7 @@ import {
 } from "./storage-types";
 import { DocumentChunk } from "@/types/chunk-type";
 import type { RetrievalScope } from "@/types/retrieval-types";
+import { createQdrantClient } from "./qdrant-client-helper";
 import {
   normalizedRrfScore,
   pointId,
@@ -43,7 +44,7 @@ export class QdrantStore {
     client?: QdrantClient,
     private readonly bm25: Bm25Options = DEFAULT_BM25_OPTIONS,
   ) {
-    this.client = client ?? new QdrantClient(config);
+    this.client = client ?? createQdrantClient(config);
   }
 
   async exists(): Promise<boolean> {
