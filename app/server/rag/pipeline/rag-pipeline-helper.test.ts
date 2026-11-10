@@ -114,6 +114,15 @@ describe("ragPipelineConfigurationFromEnvironment", () => {
     });
   });
 
+  it("requires a reranking model for the ollama runtime", () => {
+    vi.stubEnv("RERANKING_RUNTIME", "ollama");
+    vi.stubEnv("RERANKING_MODEL", " ");
+
+    expect(() => ragPipelineConfigurationFromEnvironment()).toThrow(
+      "RERANKING_MODEL is required when RERANKING_RUNTIME is ollama.",
+    );
+  });
+
   it("rejects an unknown reranking runtime", () => {
     vi.stubEnv("RERANKING_RUNTIME", "vllm");
 

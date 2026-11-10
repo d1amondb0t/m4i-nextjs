@@ -15,7 +15,7 @@ export type RerankingConfiguration = {
   strategy: "cross_encoder" | "lexical";
   runtime: "transformers" | "ollama"; // ollama: zerank-2 score-head model
   model: string;
-  candidates: number; // default = 20
+  candidates: number;
 };
 
 export type RetrievalScores = {
