@@ -26,8 +26,8 @@ describe("CalibrationPipeline", () => {
           chunk,
           score: 0.8,
           denseScore: 0.7,
-          sparseScore: 5.2,
-          rrfScore: 0.03,
+          sparseScore: 0.52,
+          rrfScore: 0.9,
           rerankerScore: 0.8,
         },
       ]),
@@ -65,8 +65,8 @@ describe("CalibrationPipeline", () => {
       score: 0.8,
       scores: {
         denseScore: 0.7,
-        sparseScore: 5.2,
-        rrfScore: 0.03,
+        sparseScore: 0.52,
+        rrfScore: 0.9,
         rerankerScore: 0.8,
       },
       source: "first.pdf",
@@ -92,6 +92,27 @@ describe("CalibrationPipeline", () => {
     ).toThrow("retrieval.strategy must be dense, sparse, or hybrid.");
   });
 
+  it("defaults the reranker to the runtime, model, and candidates of the environment", () => {
+    expect(
+      calibrationConfiguration(
+        {},
+        {
+          ...DEFAULT_RAG_PIPELINE_CONFIGURATION,
+          reranking: {
+            ...DEFAULT_RAG_PIPELINE_CONFIGURATION.reranking,
+            runtime: "ollama",
+            model: "zerank-2-score",
+            candidates: 50,
+          },
+        },
+      ).reranking,
+    ).toMatchObject({
+      runtime: "ollama",
+      model: "zerank-2-score",
+      candidates: 50,
+    });
+  });
+
   it("accepts an Ollama reranking runtime and rejects unknown runtimes", () => {
     expect(
       calibrationConfiguration({}, DEFAULT_RAG_PIPELINE_CONFIGURATION).reranking
@@ -102,7 +123,18 @@ describe("CalibrationPipeline", () => {
         { reranking: { enabled: true, runtime: "ollama", model: "zerank-2" } },
         DEFAULT_RAG_PIPELINE_CONFIGURATION,
       ).reranking,
-    ).toMatchObject({ enabled: true, runtime: "ollama", model: "zerank-2" });
+    ).toMatchObject({
+      enabled: true,
+      runtime: "ollama",
+      model: "zerank-2",
+      candidates: 50,
+    });
+    expect(() =>
+      calibrationConfiguration(
+        { reranking: { runtime: "ollama" } },
+        DEFAULT_RAG_PIPELINE_CONFIGURATION,
+      ),
+    ).toThrow("reranking.model must be a non-empty string.");
     expect(() =>
       calibrationConfiguration(
         { reranking: { runtime: "vllm" } },

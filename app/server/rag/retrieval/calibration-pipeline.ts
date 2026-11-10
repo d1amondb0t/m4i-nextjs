@@ -2,7 +2,11 @@ import { Ollama } from "ollama";
 
 import { DocumentChunker } from "../chunking/chunk-documents";
 import { OllamaEmbedder } from "../embeddings/ollama-embedder";
-import { ragPipelineConfigurationFromEnvironment } from "../pipeline/rag-pipeline-helper";
+import {
+  isRerankingRuntime,
+  ragPipelineConfigurationFromEnvironment,
+  rerankingCandidates,
+} from "../pipeline/rag-pipeline-helper";
 import { Retriever } from "./retrieval";
 import { retrievalScores } from "../storage/storage-helper";
 import { QdrantStore } from "../storage/vector-storage";
@@ -80,16 +84,24 @@ export function calibrationConfiguration(
 
   if (rerankingStrategy !== "cross_encoder")
     throw new Error("Only cross_encoder reranking is implemented.");
-  const runtime = reranking.runtime ?? DEFAULT_RERANKING_CONFIGURATION.runtime;
+  const runtime = reranking.runtime ?? base.reranking.runtime;
 
-  if (runtime !== "transformers" && runtime !== "ollama")
+  if (!isRerankingRuntime(runtime))
     throw new Error("reranking.runtime must be transformers or ollama.");
+  const transformersModel =
+    runtime === "transformers"
+      ? DEFAULT_RERANKING_CONFIGURATION.model
+      : undefined;
   const rerankingModel =
-    reranking.model ?? DEFAULT_RERANKING_CONFIGURATION.model;
+    reranking.model ??
+    (runtime === base.reranking.runtime
+      ? base.reranking.model
+      : transformersModel);
 
   if (typeof rerankingModel !== "string" || !rerankingModel.trim())
     throw new Error("reranking.model must be a non-empty string.");
-  const candidates = reranking.candidates ?? Math.max(20, topK);
+  const candidates =
+    reranking.candidates ?? Math.max(rerankingCandidates(runtime), topK);
 
   if (
     !Number.isSafeInteger(candidates) ||
