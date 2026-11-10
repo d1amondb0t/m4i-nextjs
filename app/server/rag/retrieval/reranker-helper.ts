@@ -4,6 +4,8 @@ import type {
   CrossEncoder,
   OllamaLogprobs,
   OllamaTokenLogprob,
+  RerankedResult,
+  RerankingComparison,
   RerankingConfiguration,
 } from "@/types/retrieval-types";
 import type { SearchResult } from "../storage/storage-types";
@@ -130,4 +132,30 @@ export function sortByRerankerScore(
   });
 
   return [...results].sort((left, right) => right.score - left.score);
+}
+
+function ranksByChunkId(results: readonly SearchResult[]): Map<string, number> {
+  return new Map(
+    results.map((result, index) => [result.chunk.chunkId, index + 1]),
+  );
+}
+
+export function rerankingComparison(
+  candidates: readonly SearchResult[],
+  reranked: readonly SearchResult[],
+  topK: number,
+): RerankingComparison {
+  const retrievalRanks = ranksByChunkId(candidates);
+  const rerankedRanks = ranksByChunkId(reranked);
+  const withRanks = (result: SearchResult): RerankedResult => ({
+    ...result,
+    retrievalRank: retrievalRanks.get(result.chunk.chunkId)!,
+    rerankedRank: rerankedRanks.get(result.chunk.chunkId)!,
+  });
+
+  return {
+    candidateCount: candidates.length,
+    reranked: reranked.slice(0, topK).map(withRanks),
+    withoutReranking: candidates.slice(0, topK).map(withRanks),
+  };
 }

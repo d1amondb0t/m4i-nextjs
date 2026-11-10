@@ -27,6 +27,7 @@ export class OllamaHierarchyAnalyzer implements HierarchyAnalyzer {
     private readonly model: string,
     promptPath: string,
     private readonly maximumContextWords: number,
+    private readonly contextTokens: number,
     private readonly client: Ollama,
   ) {
     this.matchingPrompt = readFileSync(promptPath, "utf8");
@@ -52,7 +53,7 @@ export class OllamaHierarchyAnalyzer implements HierarchyAnalyzer {
           ].join("\n\n"),
         },
       ],
-      options: { temperature: 0 },
+      options: { temperature: 0, num_ctx: this.contextTokens },
     });
 
     return parseMatchResponse(response.message.content);

@@ -10,6 +10,7 @@ import type {
 } from "@/types/rag-pipeline-type";
 import type { RetrievalScope } from "@/types/retrieval-types";
 import {
+  type ExtractedHierarchyMatch,
   type FrameworkCategory,
   type FrameworkOntology,
   type HierarchyCategoryDiagnostics,
@@ -18,6 +19,7 @@ import {
   type HierarchyPipelineResult,
   type QuestionRetrieval,
 } from "@/types/hierarchy-types";
+import { mapWithConcurrency } from "../concurrency-helper";
 import { DocumentChunker } from "../chunking/chunk-documents";
 import { OllamaEmbedder } from "../embeddings/ollama-embedder";
 import { ragPipelineConfigurationFromEnvironment } from "../pipeline/rag-pipeline-helper";
@@ -42,6 +44,14 @@ export type HierarchyPipelineDependencies = {
   analyzer?: HierarchyAnalyzer;
 };
 
+const POSITIVE_INTEGER_SETTINGS = [
+  "topKPerQuery",
+  "maxContextWords",
+  "retrievalConcurrency",
+  "analysisConcurrency",
+  "analyzerContextTokens",
+] as const satisfies readonly (keyof HierarchyConfiguration)[];
+
 function validateConfiguration(configuration: HierarchyConfiguration): void {
   for (const [name, value] of Object.entries(configuration)) {
     if (!Number.isFinite(value)) {
@@ -49,18 +59,13 @@ function validateConfiguration(configuration: HierarchyConfiguration): void {
     }
   }
 
-  if (
-    !Number.isSafeInteger(configuration.topKPerQuery) ||
-    configuration.topKPerQuery <= 0
-  ) {
-    throw new Error("topKPerQuery must be a positive integer.");
-  }
-
-  if (
-    !Number.isSafeInteger(configuration.maxContextWords) ||
-    configuration.maxContextWords <= 0
-  ) {
-    throw new Error("maxContextWords must be a positive integer.");
+  for (const name of POSITIVE_INTEGER_SETTINGS) {
+    if (
+      !Number.isSafeInteger(configuration[name]) ||
+      configuration[name] <= 0
+    ) {
+      throw new Error(`${name} must be a positive integer.`);
+    }
   }
 
   if (
@@ -130,6 +135,7 @@ export class HierarchyPipeline {
         ragConfiguration.generation.model,
         resolve("prompts/hierarchy-extract.txt"),
         configuration.maxContextWords,
+        configuration.analyzerContextTokens,
         client,
       );
   }
@@ -138,38 +144,74 @@ export class HierarchyPipeline {
     ontology: FrameworkOntology,
     scope: RetrievalScope,
   ): Promise<Map<string, QuestionRetrieval[]>> {
+    const jobs = ontology.dimensions.flatMap((dimension) =>
+      dimension.categories.flatMap((category) =>
+        category.questions.map((question) => ({
+          categoryId: category.id,
+          question,
+        })),
+      ),
+    );
+    // Retrieve and rerank with the question alone: adding the category
+    // definition and include/exclude lists made every tested cross-encoder
+    // close to random. The analyzer still receives the full category.
+    const results = await mapWithConcurrency(
+      jobs,
+      this.configuration.retrievalConcurrency,
+      async ({ question }) =>
+        (await this.retriever.retrieve(question, scope)).filter(
+          (result) => result.score >= this.configuration.minimumRetrievalScore,
+        ),
+    );
+
     const retrievals = new Map<string, QuestionRetrieval[]>();
-
-    for (const dimension of ontology.dimensions) {
-      for (const category of dimension.categories) {
-        const questions: QuestionRetrieval[] = [];
-        for (const question of category.questions) {
-          // Retrieve and rerank with the question alone: adding the category
-          // definition and include/exclude lists made every tested
-          // cross-encoder close to random. The analyzer still receives the
-          // full category.
-          const results = (
-            await this.retriever.retrieve(question, scope)
-          ).filter(
-            (result) =>
-              result.score >= this.configuration.minimumRetrievalScore,
-          );
-          questions.push({ question, results });
-        }
-        retrievals.set(category.id, questions);
-      }
-    }
-
+    jobs.forEach(({ categoryId, question }, index) => {
+      const questions = retrievals.get(categoryId) ?? [];
+      questions.push({ question, results: results[index] });
+      retrievals.set(categoryId, questions);
+    });
     return retrievals;
   }
 
-  private async analyzeCategory(
+  private async matchCandidates(
+    categories: readonly FrameworkCategory[],
+    retrievals: ReadonlyMap<string, QuestionRetrieval[]>,
+  ): Promise<Map<string, ExtractedHierarchyMatch[][]>> {
+    const jobs = categories.flatMap((category) =>
+      retrievals
+        .get(category.id)!
+        .map((retrieval) => ({ category, retrieval })),
+    );
+    const candidates = await mapWithConcurrency(
+      jobs,
+      this.configuration.analysisConcurrency,
+      async ({ category, retrieval }) =>
+        retrieval.results.length === 0
+          ? []
+          : this.analyzer.match(
+              category,
+              retrieval.question,
+              retrieval.results,
+            ),
+    );
+
+    const byCategory = new Map<string, ExtractedHierarchyMatch[][]>();
+    jobs.forEach(({ category }, index) => {
+      const questions = byCategory.get(category.id) ?? [];
+      questions.push(candidates[index]);
+      byCategory.set(category.id, questions);
+    });
+    return byCategory;
+  }
+
+  private analyzeCategory(
     category: FrameworkCategory,
     retrievals: readonly QuestionRetrieval[],
-  ): Promise<{
+    candidatesPerQuestion: readonly ExtractedHierarchyMatch[][],
+  ): {
     category: HierarchyCategoryResult;
     diagnostics: HierarchyCategoryDiagnostics;
-  }> {
+  } {
     const matches: HierarchyCategoryResult["matches"] = [];
     const retrievedChunkIds = new Set<string>();
     const diagnostics: HierarchyCategoryDiagnostics = {
@@ -181,7 +223,7 @@ export class HierarchyPipeline {
       rejected: [],
     };
 
-    for (const { question, results } of retrievals) {
+    for (const [index, { question, results }] of retrievals.entries()) {
       for (const result of results) retrievedChunkIds.add(result.chunk.chunkId);
       const questionDiagnostics = {
         question,
@@ -193,7 +235,7 @@ export class HierarchyPipeline {
       diagnostics.questions.push(questionDiagnostics);
       if (results.length === 0) continue;
 
-      const candidates = await this.analyzer.match(category, question, results);
+      const candidates = candidatesPerQuestion[index];
       questionDiagnostics.generatedCandidates = candidates.length;
 
       const resultsByChunkId = new Map(
@@ -270,6 +312,10 @@ export class HierarchyPipeline {
     // Reranker and generation models do not fit in VRAM together, so all
     // reranking finishes before the first generation to avoid swapping them.
     const retrievals = await this.retrieveOntology(ontology, scope);
+    const candidates = await this.matchCandidates(
+      ontology.dimensions.flatMap((dimension) => dimension.categories),
+      retrievals,
+    );
 
     const dimensions: HierarchyPipelineResult["framework"]["dimensions"] = [];
     const diagnostics: HierarchyCategoryDiagnostics[] = [];
@@ -277,9 +323,10 @@ export class HierarchyPipeline {
     for (const dimension of ontology.dimensions) {
       const categories: HierarchyCategoryResult[] = [];
       for (const category of dimension.categories) {
-        const result = await this.analyzeCategory(
+        const result = this.analyzeCategory(
           category,
           retrievals.get(category.id)!,
+          candidates.get(category.id)!,
         );
         categories.push(result.category);
         diagnostics.push(result.diagnostics);
