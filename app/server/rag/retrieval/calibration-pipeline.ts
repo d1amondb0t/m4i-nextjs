@@ -102,6 +102,10 @@ export function calibrationConfiguration(
       ? base.reranking.model
       : transformersModel);
 
+  if (rerankingModel === undefined)
+    throw new Error(
+      `reranking.model is required for the ${runtime} runtime, because the server's RERANKING_RUNTIME is ${base.reranking.runtime} and gives no ${runtime} model to fall back to.`,
+    );
   if (typeof rerankingModel !== "string" || !rerankingModel.trim())
     throw new Error("reranking.model must be a non-empty string.");
   const candidates =
