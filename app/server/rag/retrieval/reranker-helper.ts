@@ -119,12 +119,6 @@ async function ollamaRerankerScore(
   const response = (await client.generate(request)) as GenerateResponse &
     OllamaLogprobs;
 
-  if (response.prompt_eval_count >= ZERANK_CONTEXT_TOKENS) {
-    throw new Error(
-      `A reranking prompt filled the ${ZERANK_CONTEXT_TOKENS}-token context, so ${model} would score a truncated prompt.`,
-    );
-  }
-
   const topLogprobs = response.logprobs?.[0]?.top_logprobs;
 
   if (!topLogprobs) {

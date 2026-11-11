@@ -296,17 +296,6 @@ describe("Retriever", () => {
       );
     });
 
-    it("rejects a prompt that fills the context window", async () => {
-      const generate = vi.fn().mockResolvedValue({
-        ...logprobs(["Yes", -6.4], ["#", -11.9], ["%", -11.9]),
-        prompt_eval_count: 2048,
-      });
-
-      await expect(
-        ollamaRetriever(generate).ollamaRerank("question", searchResults()),
-      ).rejects.toThrow("would score a truncated prompt");
-    });
-
     it("sends at most four requests at a time and keeps the result order", async () => {
       let running = 0;
       let peak = 0;

@@ -92,6 +92,21 @@ describe("CalibrationPipeline", () => {
     ).toThrow("retrieval.strategy must be dense, sparse, or hybrid.");
   });
 
+  it("accepts chunks of up to 400 words and rejects larger ones", () => {
+    expect(
+      calibrationConfiguration(
+        { chunkSize: 400 },
+        DEFAULT_RAG_PIPELINE_CONFIGURATION,
+      ).rag.chunking.wordSize,
+    ).toBe(400);
+    expect(() =>
+      calibrationConfiguration(
+        { chunkSize: 401 },
+        DEFAULT_RAG_PIPELINE_CONFIGURATION,
+      ),
+    ).toThrow("Chunk size must be at most 400 words");
+  });
+
   it("defaults the reranker to the runtime, model, and candidates of the environment", () => {
     expect(
       calibrationConfiguration(

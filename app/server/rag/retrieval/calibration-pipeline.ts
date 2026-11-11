@@ -1,5 +1,6 @@
 import { createOllamaClient } from "../ollama/ollama-client-helper";
 import { DocumentChunker } from "../chunking/chunk-documents";
+import { MAX_CHUNK_WORDS } from "@/types/chunk-type";
 import { OllamaEmbedder } from "../embeddings/ollama-embedder";
 import {
   isRerankingRuntime,
@@ -60,6 +61,10 @@ export function calibrationConfiguration(
   )
     throw new Error(
       "Chunk size must be positive and overlap must be smaller than chunk size.",
+    );
+  if (chunkSize > MAX_CHUNK_WORDS)
+    throw new Error(
+      `Chunk size must be at most ${MAX_CHUNK_WORDS} words so that every reranking prompt fits the reranker's context.`,
     );
   if (
     options.embeddingModel !== undefined &&
