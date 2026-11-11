@@ -1,8 +1,12 @@
-import { Ollama } from "ollama";
-
+import { createOllamaClient } from "../ollama/ollama-client-helper";
 import { DocumentChunker } from "../chunking/chunk-documents";
+import { MAX_CHUNK_WORDS } from "@/types/chunk-type";
 import { OllamaEmbedder } from "../embeddings/ollama-embedder";
-import { ragPipelineConfigurationFromEnvironment } from "../pipeline/rag-pipeline-helper";
+import {
+  isRerankingRuntime,
+  ragPipelineConfigurationFromEnvironment,
+  rerankingCandidates,
+} from "../pipeline/rag-pipeline-helper";
 import { Retriever } from "./retrieval";
 import { retrievalScores } from "../storage/storage-helper";
 import { QdrantStore } from "../storage/vector-storage";
@@ -58,6 +62,10 @@ export function calibrationConfiguration(
     throw new Error(
       "Chunk size must be positive and overlap must be smaller than chunk size.",
     );
+  if (chunkSize > MAX_CHUNK_WORDS)
+    throw new Error(
+      `Chunk size must be at most ${MAX_CHUNK_WORDS} words so that every reranking prompt fits the reranker's context.`,
+    );
   if (
     options.embeddingModel !== undefined &&
     (typeof options.embeddingModel !== "string" ||
@@ -80,16 +88,31 @@ export function calibrationConfiguration(
 
   if (rerankingStrategy !== "cross_encoder")
     throw new Error("Only cross_encoder reranking is implemented.");
-  const runtime = reranking.runtime ?? DEFAULT_RERANKING_CONFIGURATION.runtime;
+  const runtime = reranking.runtime ?? base.reranking.runtime;
 
-  if (runtime !== "transformers" && runtime !== "ollama")
+  if (!isRerankingRuntime(runtime))
     throw new Error("reranking.runtime must be transformers or ollama.");
+  const transformersModel =
+    runtime === "transformers"
+      ? DEFAULT_RERANKING_CONFIGURATION.model
+      : undefined;
+  const fallbackModel =
+    runtime === base.reranking.runtime
+      ? base.reranking.model
+      : transformersModel;
   const rerankingModel =
-    reranking.model ?? DEFAULT_RERANKING_CONFIGURATION.model;
+    reranking.model ??
+    fallbackModel ??
+    (enabled ? undefined : base.reranking.model);
 
+  if (rerankingModel === undefined)
+    throw new Error(
+      `reranking.model is required for the ${runtime} runtime, because the server's RERANKING_RUNTIME is ${base.reranking.runtime} and gives no ${runtime} model to fall back to.`,
+    );
   if (typeof rerankingModel !== "string" || !rerankingModel.trim())
     throw new Error("reranking.model must be a non-empty string.");
-  const candidates = reranking.candidates ?? Math.max(20, topK);
+  const candidates =
+    reranking.candidates ?? Math.max(rerankingCandidates(runtime), topK);
 
   if (
     !Number.isSafeInteger(candidates) ||
@@ -140,9 +163,7 @@ export class CalibrationPipeline {
       if (error) throw new Error(error);
     }
     const config = this.configuration.rag;
-    const ollama = new Ollama(
-      config.ollamaHost ? { host: config.ollamaHost } : undefined,
-    );
+    const ollama = createOllamaClient(config.ollamaHost);
     const embedder =
       this.dependencies.embedder ??
       new OllamaEmbedder(

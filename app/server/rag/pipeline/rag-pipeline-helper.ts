@@ -27,16 +27,30 @@ export const DEFAULT_RAG_PIPELINE_CONFIGURATION = {
   storage: DEFAULT_STORAGE_CONFIGURATION,
 } as const satisfies RagPipelineConfiguration;
 
+export function isRerankingRuntime(
+  value: unknown,
+): value is RerankingConfiguration["runtime"] {
+  return value === "transformers" || value === "ollama";
+}
+
 export function rerankingRuntime(
   value: string | undefined,
 ): RerankingConfiguration["runtime"] {
   const runtime = value?.trim() || DEFAULT_RERANKING_CONFIGURATION.runtime;
 
-  if (runtime !== "transformers" && runtime !== "ollama") {
+  if (!isRerankingRuntime(runtime)) {
     throw new Error("RERANKING_RUNTIME must be transformers or ollama.");
   }
 
   return runtime;
+}
+
+export function rerankingCandidates(
+  runtime: RerankingConfiguration["runtime"],
+): number {
+  return runtime === "ollama"
+    ? ZERANK_RERANKING_CANDIDATES
+    : DEFAULT_RERANKING_CONFIGURATION.candidates;
 }
 
 export function positiveInteger(
@@ -78,17 +92,20 @@ export function storageFromEnvironment(): StorageConfiguration {
 
 export function rerankingFromEnvironment(): RerankingConfiguration {
   const runtime = rerankingRuntime(process.env.RERANKING_RUNTIME);
+  const model = process.env.RERANKING_MODEL?.trim();
+
+  if (runtime === "ollama" && !model) {
+    throw new Error(
+      "RERANKING_MODEL is required when RERANKING_RUNTIME is ollama.",
+    );
+  }
 
   return {
     ...DEFAULT_RERANKING_CONFIGURATION,
+    enabled: process.env.RAG_RERANKING?.trim() !== "false",
     runtime,
-    model:
-      process.env.RERANKING_MODEL?.trim() ||
-      DEFAULT_RERANKING_CONFIGURATION.model,
-    candidates:
-      runtime === "ollama"
-        ? ZERANK_RERANKING_CANDIDATES
-        : DEFAULT_RERANKING_CONFIGURATION.candidates,
+    model: model || DEFAULT_RERANKING_CONFIGURATION.model,
+    candidates: rerankingCandidates(runtime),
   };
 }
 

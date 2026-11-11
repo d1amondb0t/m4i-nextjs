@@ -66,9 +66,27 @@ export function scoresRelativeToTopByPointId(
   return new Map(points.map(({ id, score }) => [id, score / top]));
 }
 
+export function reciprocalRankFusion(
+  rankings: readonly (readonly { id: string | number }[])[],
+  k: number,
+  limit: number,
+): { id: string | number; score: number }[] {
+  const scores = new Map<string | number, number>();
+
+  for (const ranking of rankings) {
+    ranking.forEach(({ id }, position) => {
+      scores.set(id, (scores.get(id) ?? 0) + 1 / (k + position));
+    });
+  }
+
+  return [...scores]
+    .map(([id, score]) => ({ id, score }))
+    .sort((left, right) => right.score - left.score)
+    .slice(0, limit);
+}
+
 export function normalizedRrfScore(score: number, k: number): number {
-  // Qdrant's float32 score for first place in both lists scales to just over 1.
-  return Math.min(1, (score * k) / RRF_FUSED_LISTS);
+  return (score * k) / RRF_FUSED_LISTS;
 }
 
 export function retrievalScores(result: SearchResult): RetrievalScores {

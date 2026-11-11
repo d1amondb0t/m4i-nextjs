@@ -11,9 +11,13 @@ import type { SearchResult } from "../storage/storage-types";
 const ZERANK_TRUE_TOKEN = "Yes";
 const ZERANK_FALSE_TOKEN = "No";
 const ZERANK_SCORE_SCALE = 5;
-// Chunks are at most about 250 words. Ollama's default context is far larger
-// and pushes part of the model off the GPU, making reranking slower.
+// A 200-word chunk with its question measured at most about 1,270 tokens, and
+// calibration chunks are capped at MAX_CHUNK_WORDS. Ollama's default context is
+// far larger and pushes part of the model off the GPU, slowing reranking.
 const ZERANK_CONTEXT_TOKENS = 2048;
+// Ollama queues requests beyond OLLAMA_NUM_PARALLEL, and a queued request can
+// outlast the HTTP client's timeout.
+const ZERANK_CONCURRENT_REQUESTS = 4;
 
 async function load(
   rerankingConfig: RerankingConfiguration,
@@ -44,10 +48,14 @@ export async function loadCrossEncoder(
   }
 }
 
+function withoutChatMarkers(text: string): string {
+  return text.replaceAll("<|", "< |");
+}
+
 export function zerankPrompt(question: string, passage: string): string {
   return (
-    `<|im_start|>system\n${question}<|im_end|>\n` +
-    `<|im_start|>user\n${passage}<|im_end|>\n` +
+    `<|im_start|>system\n${withoutChatMarkers(question)}<|im_end|>\n` +
+    `<|im_start|>user\n${withoutChatMarkers(passage)}<|im_end|>\n` +
     "<|im_start|>assistant\n"
   );
 }
@@ -89,7 +97,7 @@ export function zerankLogit(
   return 0;
 }
 
-export async function ollamaRerankerScore(
+async function ollamaRerankerScore(
   client: Ollama,
   model: string,
   question: string,
@@ -111,6 +119,7 @@ export async function ollamaRerankerScore(
   };
   const response = (await client.generate(request)) as GenerateResponse &
     OllamaLogprobs;
+
   const topLogprobs = response.logprobs?.[0]?.top_logprobs;
 
   if (!topLogprobs) {
@@ -120,14 +129,41 @@ export async function ollamaRerankerScore(
   return 1 / (1 + Math.exp(-zerankLogit(topLogprobs) / ZERANK_SCORE_SCALE));
 }
 
+export async function ollamaRerankerScores(
+  client: Ollama,
+  model: string,
+  question: string,
+  passages: readonly string[],
+): Promise<number[]> {
+  const scores: number[] = [];
+
+  for (
+    let start = 0;
+    start < passages.length;
+    start += ZERANK_CONCURRENT_REQUESTS
+  ) {
+    const batch = passages.slice(start, start + ZERANK_CONCURRENT_REQUESTS);
+    scores.push(
+      ...(await Promise.all(
+        batch.map((passage) =>
+          ollamaRerankerScore(client, model, question, passage),
+        ),
+      )),
+    );
+  }
+
+  return scores;
+}
+
 export function sortByRerankerScore(
-  results: SearchResult[],
+  results: readonly SearchResult[],
   scores: readonly number[],
 ): SearchResult[] {
-  results.forEach((result, index) => {
-    result.rerankerScore = scores[index];
-    result.score = scores[index];
-  });
-
-  return [...results].sort((left, right) => right.score - left.score);
+  return results
+    .map((result, index) => ({
+      ...result,
+      rerankerScore: scores[index],
+      score: scores[index],
+    }))
+    .sort((left, right) => right.score - left.score);
 }

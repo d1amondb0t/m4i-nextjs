@@ -9,7 +9,7 @@ and gives it an output layer that keeps only the "Yes" row, plus its negation on
 score exactly: logprob("Yes") - logprob(any other token) when it is positive,
 logprob(any other token) - logprob("No") when it is negative.
 
-    pip install gguf numpy
+    pip install "gguf>=0.19" numpy
     ollama pull hf.co/mradermacher/zerank-2-GGUF:Q8_0
     python scripts/build_zerank_ollama.py <that model's GGUF blob> zerank-2-score.gguf
     echo FROM ./zerank-2-score.gguf > Modelfile
@@ -30,8 +30,7 @@ NO_TOKEN = "No"
 
 
 def token_id(reader, token):
-    tokens = reader.get_field(gguf.Keys.Tokenizer.LIST)
-    return next(i for i in range(len(tokens.data)) if tokens.contents(i) == token)
+    return reader.get_field(gguf.Keys.Tokenizer.LIST).contents().index(token)
 
 
 def score_head(reader):
@@ -58,6 +57,8 @@ def build(source: Path, output: Path):
         value_type = field.types[0]
         sub_type = field.types[-1] if value_type == gguf.GGUFValueType.ARRAY else None
         writer.add_key_value(field.name, field.contents(), value_type, sub_type=sub_type)
+
+    writer.data_alignment = reader.alignment
 
     head = score_head(reader)
     tensors = [tensor for tensor in reader.tensors if tensor.name != "output.weight"]

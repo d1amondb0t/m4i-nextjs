@@ -1,5 +1,5 @@
 import type { Tensor } from "@huggingface/transformers";
-import { Ollama } from "ollama";
+import type { Ollama } from "ollama";
 
 import type { DocumentChunk } from "@/types/chunk-type";
 import {
@@ -14,7 +14,7 @@ import type { SearchResult } from "../storage/storage-types";
 import type { QdrantStore } from "../storage/vector-storage";
 import {
   loadCrossEncoder,
-  ollamaRerankerScore,
+  ollamaRerankerScores,
   sortByRerankerScore,
 } from "./reranker-helper";
 
@@ -27,7 +27,7 @@ export class Retriever {
     private readonly embedder: OllamaEmbedder,
     private readonly retrievalConfig: RetrievalConfiguration,
     private readonly rerankingConfig: RerankingConfiguration = DEFAULT_RERANKING_CONFIGURATION,
-    private readonly ollama: Ollama = new Ollama(),
+    private readonly ollama?: Ollama,
   ) {}
 
   private async getCrossEncoder(): Promise<CrossEncoder> {
@@ -79,15 +79,17 @@ export class Retriever {
     question: string,
     results: SearchResult[],
   ): Promise<SearchResult[]> {
-    const scores = await Promise.all(
-      results.map((result) =>
-        ollamaRerankerScore(
-          this.ollama,
-          this.rerankingConfig.model,
-          question,
-          result.chunk.text,
-        ),
-      ),
+    if (!this.ollama) {
+      throw new Error(
+        "The ollama reranking runtime requires an Ollama client.",
+      );
+    }
+
+    const scores = await ollamaRerankerScores(
+      this.ollama,
+      this.rerankingConfig.model,
+      question,
+      results.map((result) => result.chunk.text),
     );
 
     return sortByRerankerScore(results, scores);

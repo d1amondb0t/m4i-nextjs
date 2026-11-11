@@ -1,4 +1,3 @@
-import type { SearchResult } from "@/app/server/rag/storage/storage-types";
 import type { DocumentChunk } from "./chunk-type";
 import type { RetrievalScores } from "./retrieval-types";
 
@@ -62,11 +61,6 @@ export type HierarchyDimensionResult = Omit<
   "categories"
 > & {
   categories: HierarchyCategoryResult[];
-};
-
-export type QuestionRetrieval = {
-  question: string;
-  results: SearchResult[];
 };
 
 export type HierarchyCategoryDiagnostics = {

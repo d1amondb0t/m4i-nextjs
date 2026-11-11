@@ -1,5 +1,4 @@
 import { resolve } from "node:path";
-import { Ollama } from "ollama";
 
 import type {
   Chunker,
@@ -16,13 +15,14 @@ import {
   type HierarchyCategoryResult,
   type HierarchyConfiguration,
   type HierarchyPipelineResult,
-  type QuestionRetrieval,
 } from "@/types/hierarchy-types";
+import { createOllamaClient } from "../ollama/ollama-client-helper";
 import { DocumentChunker } from "../chunking/chunk-documents";
 import { OllamaEmbedder } from "../embeddings/ollama-embedder";
 import { ragPipelineConfigurationFromEnvironment } from "../pipeline/rag-pipeline-helper";
 import { Retriever } from "../retrieval/retrieval";
 import { QdrantStore } from "../storage/vector-storage";
+import type { QuestionRetrieval } from "./hierarchy-pipeline-types";
 import {
   evidenceIsGrounded,
   hierarchyConfigurationFor,
@@ -89,11 +89,7 @@ export class HierarchyPipeline {
     validateConfiguration(configuration);
     this.configuration = configuration;
 
-    const client = new Ollama(
-      ragConfiguration.ollamaHost
-        ? { host: ragConfiguration.ollamaHost }
-        : undefined,
-    );
+    const client = createOllamaClient(ragConfiguration.ollamaHost);
     const concreteEmbedder = new OllamaEmbedder(
       ragConfiguration.embeddingModel,
       ragConfiguration.embeddingBatchSize,
@@ -139,6 +135,7 @@ export class HierarchyPipeline {
     scope: RetrievalScope,
   ): Promise<Map<string, QuestionRetrieval[]>> {
     const retrievals = new Map<string, QuestionRetrieval[]>();
+    const resultsByQuestion = new Map<string, QuestionRetrieval["results"]>();
 
     for (const dimension of ontology.dimensions) {
       for (const category of dimension.categories) {
@@ -148,12 +145,13 @@ export class HierarchyPipeline {
           // definition and include/exclude lists made every tested
           // cross-encoder close to random. The analyzer still receives the
           // full category.
-          const results = (
-            await this.retriever.retrieve(question, scope)
-          ).filter(
-            (result) =>
-              result.score >= this.configuration.minimumRetrievalScore,
-          );
+          const results =
+            resultsByQuestion.get(question) ??
+            (await this.retriever.retrieve(question, scope)).filter(
+              (result) =>
+                result.score >= this.configuration.minimumRetrievalScore,
+            );
+          resultsByQuestion.set(question, results);
           questions.push({ question, results });
         }
         retrievals.set(category.id, questions);

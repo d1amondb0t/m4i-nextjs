@@ -1,4 +1,4 @@
-import { QdrantClient } from "@qdrant/js-client-rest";
+import type { QdrantClient } from "@qdrant/js-client-rest";
 import {
   DEFAULT_STORAGE_CONFIGURATION,
   SearchResult,
@@ -6,9 +6,11 @@ import {
 } from "./storage-types";
 import { DocumentChunk } from "@/types/chunk-type";
 import type { RetrievalScope } from "@/types/retrieval-types";
+import { createQdrantClient } from "./qdrant-client-helper";
 import {
   normalizedRrfScore,
   pointId,
+  reciprocalRankFusion,
   retrievalFilter,
   scoresByPointId,
   scoresRelativeToTopByPointId,
@@ -43,7 +45,7 @@ export class QdrantStore {
     client?: QdrantClient,
     private readonly bm25: Bm25Options = DEFAULT_BM25_OPTIONS,
   ) {
-    this.client = client ?? new QdrantClient(config);
+    this.client = client ?? createQdrantClient(config);
   }
 
   async exists(): Promise<boolean> {
@@ -227,54 +229,50 @@ export class QdrantStore {
 
     const filter = retrievalFilter(scope);
     const scoped = filter ? { filter } : {};
-    const denseSearch = {
-      query: queryVector,
-      using: "dense",
-      limit: candidates.dense,
-      ...scoped,
-    };
-    const sparseSearch = {
-      query: {
-        text: query,
-        model: "qdrant/bm25",
-        options: { ...this.bm25 },
-      },
-      using: "sparse",
-      limit: candidates.sparse,
-      ...scoped,
-    };
-
-    // Qdrant returns only the fused score, so the two prefetches run again on
-    // their own to recover each chunk's dense and BM25 scores.
-    const [fused, dense, sparse] = await this.client.queryBatch(
-      this.collection,
-      {
-        searches: [
-          {
-            prefetch: [denseSearch, sparseSearch],
-            query: { rrf: { k: RRF_K } },
-            limit,
-            with_payload: true,
-            ...scoped,
+    // Fused here rather than with Qdrant's rrf query, which returns only the
+    // fused score, so that each search runs once and keeps its own scores.
+    const [dense, sparse] = await this.client.queryBatch(this.collection, {
+      searches: [
+        {
+          query: queryVector,
+          using: "dense",
+          limit: candidates.dense,
+          with_payload: true,
+          ...scoped,
+        },
+        {
+          query: {
+            text: query,
+            model: "qdrant/bm25",
+            options: { ...this.bm25 },
           },
-          { ...denseSearch, with_payload: false },
-          { ...sparseSearch, with_payload: false },
-        ],
-      },
+          using: "sparse",
+          limit: candidates.sparse,
+          with_payload: true,
+          ...scoped,
+        },
+      ],
+    });
+    const points = new Map(
+      [...dense.points, ...sparse.points].map((point) => [point.id, point]),
     );
     const denseScores = scoresByPointId(dense.points);
     const sparseScores = scoresRelativeToTopByPointId(sparse.points);
 
-    return fused.points.map((point) => {
-      if (!point.payload)
-        throw new Error(`Qdrant point ${point.id} has no payload`);
+    return reciprocalRankFusion(
+      [dense.points, sparse.points],
+      RRF_K,
+      limit,
+    ).map(({ id, score }) => {
+      const { payload } = points.get(id)!;
+      if (!payload) throw new Error(`Qdrant point ${id} has no payload`);
 
       return {
-        chunk: point.payload as DocumentChunk,
-        score: point.score,
-        denseScore: denseScores.get(point.id) ?? null,
-        sparseScore: sparseScores.get(point.id) ?? null,
-        rrfScore: normalizedRrfScore(point.score, RRF_K),
+        chunk: payload as DocumentChunk,
+        score,
+        denseScore: denseScores.get(id) ?? null,
+        sparseScore: sparseScores.get(id) ?? null,
+        rrfScore: normalizedRrfScore(score, RRF_K),
         rerankerScore: null,
       };
     });

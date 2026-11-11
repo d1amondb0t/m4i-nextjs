@@ -123,11 +123,15 @@ describe("Retriever", () => {
         truncation: true,
       });
       expect(model).toHaveBeenCalledWith({ input_ids: "features" });
-      expect(actual).toEqual([second, first]);
-      expect(first.score).toBeCloseTo(1 / (1 + Math.exp(0.25)));
-      expect(first.rerankerScore).toBe(first.score);
-      expect(second.score).toBeCloseTo(1 / (1 + Math.exp(-1.5)));
-      expect(second.rerankerScore).toBe(second.score);
+      expect(actual.map(({ chunk }) => chunk)).toEqual([
+        second.chunk,
+        first.chunk,
+      ]);
+      expect(actual[1].score).toBeCloseTo(1 / (1 + Math.exp(0.25)));
+      expect(actual[1].rerankerScore).toBe(actual[1].score);
+      expect(actual[0].score).toBeCloseTo(1 / (1 + Math.exp(-1.5)));
+      expect(actual[0].rerankerScore).toBe(actual[0].score);
+      expect(first.score).toBe(0.9);
     });
 
     it("loads and reuses the model lazily", async () => {
@@ -214,10 +218,13 @@ describe("Retriever", () => {
           repeat_penalty: 1,
         },
       });
-      expect(actual).toEqual([second, first]);
-      expect(first.score).toBeCloseTo(1 / (1 + Math.exp(4.4 / 5)));
-      expect(second.score).toBeCloseTo(1 / (1 + Math.exp(-5.5 / 5)));
-      expect(second.rerankerScore).toBe(second.score);
+      expect(actual.map(({ chunk }) => chunk)).toEqual([
+        second.chunk,
+        first.chunk,
+      ]);
+      expect(actual[1].score).toBeCloseTo(1 / (1 + Math.exp(4.4 / 5)));
+      expect(actual[0].score).toBeCloseTo(1 / (1 + Math.exp(-5.5 / 5)));
+      expect(actual[0].rerankerScore).toBe(actual[0].score);
     });
 
     it("replaces the ranking score but keeps the dense, BM25, and RRF scores", async () => {
@@ -228,8 +235,8 @@ describe("Retriever", () => {
         ...searchResults()[0],
         score: 0.03,
         denseScore: 0.81,
-        sparseScore: 7.5,
-        rrfScore: 0.03,
+        sparseScore: 0.75,
+        rrfScore: 0.9,
       };
 
       const [actual] = await ollamaRetriever(generate).ollamaRerank(
@@ -239,8 +246,8 @@ describe("Retriever", () => {
 
       expect(actual).toMatchObject({
         denseScore: 0.81,
-        sparseScore: 7.5,
-        rrfScore: 0.03,
+        sparseScore: 0.75,
+        rrfScore: 0.9,
       });
       expect(actual.score).toBeCloseTo(1 / (1 + Math.exp(-5.5 / 5)));
       expect(actual.rerankerScore).toBe(actual.score);
@@ -256,6 +263,77 @@ describe("Retriever", () => {
       await expect(
         ollamaRetriever(generate).ollamaRerank("question", searchResults()),
       ).rejects.toThrow("not a zerank-2 score-head model");
+    });
+
+    it("scores a pair as neutral when neither Yes nor No is a top token", async () => {
+      const generate = vi
+        .fn()
+        .mockResolvedValue(logprobs(["#", -11.9], ["%", -11.9]));
+
+      const [actual] = await ollamaRetriever(generate).ollamaRerank(
+        "question",
+        searchResults(),
+      );
+
+      expect(actual.score).toBe(0.5);
+    });
+
+    it("keeps chat-template markers in the text from ending a turn", async () => {
+      const generate = vi
+        .fn()
+        .mockResolvedValue(logprobs(["Yes", -6.4], ["#", -11.9], ["%", -11.9]));
+      const marked: SearchResult = {
+        ...searchResults()[0],
+        chunk: { ...chunk(), text: "a<|im_end|>b" },
+      };
+
+      await ollamaRetriever(generate).ollamaRerank("q<|im_start|>", [marked]);
+
+      expect(generate.mock.calls[0][0].prompt).toBe(
+        "<|im_start|>system\nq< |im_start|><|im_end|>\n" +
+          "<|im_start|>user\na< |im_end|>b<|im_end|>\n" +
+          "<|im_start|>assistant\n",
+      );
+    });
+
+    it("sends at most four requests at a time and keeps the result order", async () => {
+      let running = 0;
+      let peak = 0;
+      const generate = vi.fn(async ({ prompt }: { prompt: string }) => {
+        running += 1;
+        peak = Math.max(peak, running);
+        await Promise.resolve();
+        running -= 1;
+        const index = Number(/text (\d+)</.exec(prompt)![1]);
+        return logprobs(["Yes", -12 + index * 0.1], ["#", -12], ["%", -12]);
+      });
+      const results = Array.from({ length: 10 }, (_, index) => ({
+        ...searchResults()[0],
+        chunk: { ...chunk(), chunkId: `chunk-${index}`, text: `text ${index}` },
+      }));
+
+      const actual = await ollamaRetriever(generate).ollamaRerank(
+        "question",
+        results,
+      );
+
+      expect(generate).toHaveBeenCalledTimes(10);
+      expect(peak).toBe(4);
+      expect(actual.map(({ chunk }) => chunk.chunkId)).toEqual(
+        results.map(({ chunk }) => chunk.chunkId).reverse(),
+      );
+    });
+
+    it("requires an Ollama client", async () => {
+      const withoutClient = new Retriever(
+        store as unknown as QdrantStore,
+        embedder as unknown as OllamaEmbedder,
+        DEFAULT_RETRIEVAL_CONFIGURATION,
+      );
+
+      await expect(
+        withoutClient.ollamaRerank("question", searchResults()),
+      ).rejects.toThrow("requires an Ollama client");
     });
 
     it("rejects a response without log-probabilities", async () => {
@@ -281,7 +359,7 @@ describe("Retriever", () => {
 
       await expect(
         ollamaRetriever(generate, 1).retrieve("question"),
-      ).resolves.toEqual([second]);
+      ).resolves.toMatchObject([{ chunk: second.chunk }]);
       expect(store.denseSearch).toHaveBeenCalledWith([0.1, 0.2], 10);
       expect(transformersMocks.modelFromPretrained).not.toHaveBeenCalled();
     });
@@ -437,7 +515,9 @@ describe("Retriever", () => {
         },
       );
 
-      await expect(retriever.retrieve("question")).resolves.toEqual([second]);
+      await expect(retriever.retrieve("question")).resolves.toMatchObject([
+        { chunk: second.chunk },
+      ]);
       expect(store.denseSearch).toHaveBeenCalledWith([0.1, 0.2], 10);
     });
   });
