@@ -41,7 +41,7 @@ async function responseDetail(response: Response): Promise<string> {
   if (!text) return "the response had no details";
   if (!response.headers.get("content-type")?.includes("application/json"))
     return shortened(text);
-  return shortened(errorMessage(JSON.parse(text)) ?? text);
+  return shortened(errorMessage(parsedJson(text)) ?? text);
 }
 
 export async function fetchWithOllamaContext(

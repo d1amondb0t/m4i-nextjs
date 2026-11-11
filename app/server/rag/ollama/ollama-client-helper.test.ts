@@ -92,6 +92,23 @@ describe("createOllamaClient", () => {
     );
   });
 
+  it("keeps the request context when a JSON error body is malformed", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue(
+        new Response("<html>upstream unavailable</html>", {
+          status: 502,
+          statusText: "Bad Gateway",
+          headers: { "content-type": "application/json" },
+        }),
+      ),
+    );
+
+    await expect(generate()).rejects.toThrow(
+      'Ollama at http://ollama.test:11434 returned HTTP 502 Bad Gateway (/api/generate for model "zerank-2-score"): <html>upstream unavailable</html>',
+    );
+  });
+
   it("says when a failed response has no details", async () => {
     vi.stubGlobal(
       "fetch",
