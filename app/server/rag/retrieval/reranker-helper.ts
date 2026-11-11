@@ -11,8 +11,9 @@ import type { SearchResult } from "../storage/storage-types";
 const ZERANK_TRUE_TOKEN = "Yes";
 const ZERANK_FALSE_TOKEN = "No";
 const ZERANK_SCORE_SCALE = 5;
-// Chunks are at most about 250 words. Ollama's default context is far larger
-// and pushes part of the model off the GPU, making reranking slower.
+// A 200-word chunk with its question measured at most about 1,270 tokens, and
+// calibration chunks are capped at MAX_CHUNK_WORDS. Ollama's default context is
+// far larger and pushes part of the model off the GPU, slowing reranking.
 const ZERANK_CONTEXT_TOKENS = 2048;
 // Ollama queues requests beyond OLLAMA_NUM_PARALLEL, and a queued request can
 // outlast the HTTP client's timeout.
