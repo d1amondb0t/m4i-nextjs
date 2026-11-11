@@ -1,5 +1,7 @@
 import { Ollama } from "ollama";
 
+import { fetchFailureCause } from "../fetch-failure-helper";
+
 const MAX_DETAIL_CHARACTERS = 500;
 
 function requestedModel(init: RequestInit | undefined): string {
@@ -9,9 +11,10 @@ function requestedModel(init: RequestInit | undefined): string {
 }
 
 function connectionFailure(error: unknown): string {
-  const cause = error instanceof Error ? error.cause : undefined;
-  if (cause instanceof Error) return cause.message || String(cause);
-  return error instanceof Error ? error.message : String(error);
+  return (
+    fetchFailureCause(error) ??
+    (error instanceof Error ? error.message : String(error))
+  );
 }
 
 function shortened(text: string): string {

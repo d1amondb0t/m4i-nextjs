@@ -1,5 +1,6 @@
 import { QdrantClient } from "@qdrant/js-client-rest";
 
+import { fetchFailureCause } from "../fetch-failure-helper";
 import { isCloudInstance } from "./storage-helper";
 import type { StorageConfiguration } from "./storage-types";
 
@@ -30,9 +31,7 @@ function httpDetail(error: QdrantHttpError): string {
 }
 
 function connectionFailure(error: Error): string | undefined {
-  return error instanceof TypeError && error.cause instanceof Error
-    ? error.cause.message || String(error.cause)
-    : undefined;
+  return error instanceof TypeError ? fetchFailureCause(error) : undefined;
 }
 
 function qdrantError(error: unknown, endpoint: string, request: string): Error {
