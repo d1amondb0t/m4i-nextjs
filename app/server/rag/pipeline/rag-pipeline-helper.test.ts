@@ -103,12 +103,24 @@ describe("ragPipelineConfigurationFromEnvironment", () => {
     });
   });
 
-  it("defaults to the transformers reranker", () => {
-    vi.stubEnv("RERANKING_RUNTIME", "");
-    vi.stubEnv("RERANKING_MODEL", "");
+  it("turns document-question reranking off with RAG_RERANKING=false", () => {
+    vi.stubEnv("RERANKING_RUNTIME", "ollama");
+    vi.stubEnv("RERANKING_MODEL", "reranking-model");
+    vi.stubEnv("RAG_RERANKING", " false ");
 
     expect(ragPipelineConfigurationFromEnvironment().reranking).toMatchObject({
       enabled: false,
+      runtime: "ollama",
+    });
+  });
+
+  it("defaults to the transformers reranker, turned on", () => {
+    vi.stubEnv("RERANKING_RUNTIME", "");
+    vi.stubEnv("RERANKING_MODEL", "");
+    vi.stubEnv("RAG_RERANKING", "");
+
+    expect(ragPipelineConfigurationFromEnvironment().reranking).toMatchObject({
+      enabled: true,
       runtime: "transformers",
       model: "mixedbread-ai/mxbai-rerank-xsmall-v1",
       candidates: 20,

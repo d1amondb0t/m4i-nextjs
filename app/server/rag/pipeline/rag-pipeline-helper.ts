@@ -102,7 +102,7 @@ export function rerankingFromEnvironment(): RerankingConfiguration {
 
   return {
     ...DEFAULT_RERANKING_CONFIGURATION,
-    enabled: Boolean(process.env.RERANKING_RUNTIME?.trim()),
+    enabled: process.env.RAG_RERANKING?.trim() !== "false",
     runtime,
     model: model || DEFAULT_RERANKING_CONFIGURATION.model,
     candidates: rerankingCandidates(runtime),
