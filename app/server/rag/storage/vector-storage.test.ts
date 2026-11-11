@@ -579,13 +579,12 @@ describe("QdrantStore", () => {
   });
 
   describe("hybridSearch", () => {
-    it("fuses scoped dense and BM25 candidates with reciprocal rank fusion", async () => {
+    it("runs the scoped dense and BM25 searches once each and fuses them", async () => {
       client.queryBatch.mockResolvedValue([
         {
-          points: [{ id: "point-1", score: 0.03, payload: chunk(1, "match") }],
+          points: [{ id: "point-1", score: 0.81, payload: chunk(1, "match") }],
         },
-        { points: [{ id: "point-1", score: 0.81 }] },
-        { points: [{ id: "point-1", score: 7.5 }] },
+        { points: [{ id: "point-1", score: 7.5, payload: chunk(1, "match") }] },
       ]);
       const filter = {
         must: [{ key: "documentId", match: { any: ["document-1"] } }],
@@ -600,79 +599,76 @@ describe("QdrantStore", () => {
         { documentIds: ["document-1"] },
       );
 
-      const denseSearch = {
-        query: [0.1, 0.2],
-        using: "dense",
-        limit: 100,
-        filter,
-      };
-      const sparseSearch = {
-        query: {
-          text: "search terms",
-          model: "qdrant/bm25",
-          options: BM25,
-        },
-        using: "sparse",
-        limit: 50,
-        filter,
-      };
-
       expect(client.queryBatch).toHaveBeenCalledWith(COLLECTION, {
         searches: [
           {
-            prefetch: [denseSearch, sparseSearch],
-            query: { rrf: { k: 60 } },
-            limit: 5,
+            query: [0.1, 0.2],
+            using: "dense",
+            limit: 100,
             with_payload: true,
             filter,
           },
-          { ...denseSearch, with_payload: false },
-          { ...sparseSearch, with_payload: false },
+          {
+            query: {
+              text: "search terms",
+              model: "qdrant/bm25",
+              options: BM25,
+            },
+            using: "sparse",
+            limit: 50,
+            with_payload: true,
+            filter,
+          },
         ],
       });
       expect(results).toEqual([
         {
           chunk: chunk(1, "match"),
-          score: 0.03,
+          score: expect.closeTo(2 / 60, 10),
           denseScore: 0.81,
           sparseScore: 1,
-          rrfScore: expect.closeTo(0.9, 5),
+          rrfScore: expect.closeTo(1, 10),
           rerankerScore: null,
         },
       ]);
     });
 
-    it("scales BM25 by the best candidate, even one outside the fused results", async () => {
+    it("ranks by reciprocal rank, keeps the dense result first on a tie, and applies the limit", async () => {
       client.queryBatch.mockResolvedValue([
         {
-          points: [{ id: "point-1", score: 0.02, payload: chunk(1, "match") }],
+          points: [
+            { id: "dense-first", score: 0.9, payload: chunk(1, "a") },
+            { id: "both", score: 0.8, payload: chunk(2, "b") },
+          ],
         },
-        { points: [] },
         {
           points: [
-            { id: "best-keyword-match", score: 8 },
-            { id: "point-1", score: 6 },
+            { id: "sparse-first", score: 9, payload: chunk(3, "c") },
+            { id: "both", score: 8, payload: chunk(2, "b") },
+            { id: "sparse-last", score: 1, payload: chunk(4, "d") },
           ],
         },
       ]);
 
-      const [result] = await store.hybridSearch([0.1], "terms", 1, {
+      const results = await store.hybridSearch([0.1], "terms", 3, {
         dense: 10,
         sparse: 10,
       });
 
-      expect(result.sparseScore).toBe(0.75);
+      expect(results.map(({ chunk }) => chunk.text)).toEqual(["b", "a", "c"]);
+      expect(results[0].score).toBeCloseTo(2 / 61, 10);
+      expect(results[1].score).toBe(results[2].score);
     });
 
-    it("caps RRF at 1 for Qdrant's rounded score of first place in both lists", async () => {
+    it("scales BM25 by the best candidate, even one outside the fused results", async () => {
       client.queryBatch.mockResolvedValue([
+        { points: [{ id: "point-1", score: 0.7, payload: chunk(1, "match") }] },
         {
           points: [
-            { id: "point-1", score: 0.033333335, payload: chunk(1, "match") },
+            { id: "best-keyword-match", score: 8, payload: chunk(2, "best") },
+            { id: "point-1", score: 6, payload: chunk(1, "match") },
           ],
         },
-        { points: [{ id: "point-1", score: 0.8 }] },
-        { points: [{ id: "point-1", score: 6 }] },
       ]);
 
       const [result] = await store.hybridSearch([0.1], "terms", 1, {
@@ -680,20 +676,22 @@ describe("QdrantStore", () => {
         sparse: 10,
       });
 
-      expect(result.rrfScore).toBe(1);
-      expect(result.score).toBe(0.033333335);
+      expect(result.chunk.text).toBe("match");
+      expect(result.sparseScore).toBe(0.75);
     });
 
     it("leaves a score null for a chunk outside that search's candidates", async () => {
       client.queryBatch.mockResolvedValue([
         {
           points: [
-            { id: "dense-only", score: 0.02, payload: chunk(1, "dense") },
-            { id: "sparse-only", score: 0.01, payload: chunk(2, "sparse") },
+            { id: "dense-only", score: 0.9, payload: chunk(1, "dense") },
           ],
         },
-        { points: [{ id: "dense-only", score: 0.9 }] },
-        { points: [{ id: "sparse-only", score: 4.2 }] },
+        {
+          points: [
+            { id: "sparse-only", score: 4.2, payload: chunk(2, "sparse") },
+          ],
+        },
       ]);
 
       const results = await store.hybridSearch([0.1], "terms", 2, {
@@ -711,16 +709,19 @@ describe("QdrantStore", () => {
         {
           denseScore: 0.9,
           sparseScore: null,
-          rrfScore: expect.closeTo(0.6, 5),
+          rrfScore: expect.closeTo(0.5, 10),
         },
-        { denseScore: null, sparseScore: 1, rrfScore: expect.closeTo(0.3, 5) },
+        {
+          denseScore: null,
+          sparseScore: 1,
+          rrfScore: expect.closeTo(0.5, 10),
+        },
       ]);
     });
 
     it("rejects a fused result without a payload", async () => {
       client.queryBatch.mockResolvedValue([
-        { points: [{ id: "point-3", score: 0.02 }] },
-        { points: [] },
+        { points: [{ id: "point-3", score: 0.5 }] },
         { points: [] },
       ]);
 
