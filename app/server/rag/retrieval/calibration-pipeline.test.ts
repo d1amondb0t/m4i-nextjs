@@ -146,12 +146,18 @@ describe("CalibrationPipeline", () => {
     });
     expect(() =>
       calibrationConfiguration(
-        { reranking: { runtime: "ollama" } },
+        { reranking: { enabled: true, runtime: "ollama" } },
         DEFAULT_RAG_PIPELINE_CONFIGURATION,
       ),
     ).toThrow(
       "reranking.model is required for the ollama runtime, because the server's RERANKING_RUNTIME is transformers and gives no ollama model to fall back to.",
     );
+    expect(
+      calibrationConfiguration(
+        { reranking: { enabled: false, runtime: "ollama" } },
+        DEFAULT_RAG_PIPELINE_CONFIGURATION,
+      ).reranking,
+    ).toMatchObject({ enabled: false, runtime: "ollama" });
     expect(() =>
       calibrationConfiguration(
         { reranking: { runtime: "ollama", model: " " } },

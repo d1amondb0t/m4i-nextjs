@@ -96,11 +96,14 @@ export function calibrationConfiguration(
     runtime === "transformers"
       ? DEFAULT_RERANKING_CONFIGURATION.model
       : undefined;
+  const fallbackModel =
+    runtime === base.reranking.runtime
+      ? base.reranking.model
+      : transformersModel;
   const rerankingModel =
     reranking.model ??
-    (runtime === base.reranking.runtime
-      ? base.reranking.model
-      : transformersModel);
+    fallbackModel ??
+    (enabled ? undefined : base.reranking.model);
 
   if (rerankingModel === undefined)
     throw new Error(
