@@ -505,7 +505,8 @@ def main():
     parser.add_argument(
         "--reranking-model",
         help=f"{DEFAULT_RERANKING_MODEL} if omitted; with the ollama runtime, "
-        "the server's RERANKING_MODEL",
+        "the server's RERANKING_MODEL, which requires the server's "
+        "RERANKING_RUNTIME to be ollama",
     )
     parser.add_argument(
         "--reranking-candidates",
