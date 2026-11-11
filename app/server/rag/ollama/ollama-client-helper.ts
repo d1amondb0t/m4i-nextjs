@@ -47,8 +47,11 @@ export async function fetchWithOllamaContext(
   }
 
   if (!response.ok) {
-    throw new Error(
-      `Ollama at ${url.origin} returned HTTP ${response.status} ${response.statusText} (${request}): ${await responseDetail(response)}`,
+    throw Object.assign(
+      new Error(
+        `Ollama at ${url.origin} returned HTTP ${response.status} ${response.statusText} (${request}): ${await responseDetail(response)}`,
+      ),
+      { status_code: response.status },
     );
   }
 

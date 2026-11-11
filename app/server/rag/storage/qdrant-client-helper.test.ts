@@ -44,6 +44,9 @@ describe("createQdrantClient", () => {
     await expect(client().getCollection("documents")).rejects.toThrow(
       'Qdrant at http://qdrant.test:6333 returned HTTP 404 Not Found (getCollection on collection "documents"): Not found: Collection `documents` doesn\'t exist!',
     );
+    await expect(client().getCollection("documents")).rejects.toMatchObject({
+      status: 404,
+    });
   });
 
   it("returns successful responses unchanged", async () => {

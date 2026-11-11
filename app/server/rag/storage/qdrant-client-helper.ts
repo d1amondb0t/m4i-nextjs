@@ -39,9 +39,12 @@ function qdrantError(error: unknown, endpoint: string, request: string): Error {
   if (!(error instanceof Error)) return new Error(String(error));
 
   if (isHttpError(error)) {
-    return new Error(
-      `Qdrant at ${endpoint} returned HTTP ${error.status} ${error.statusText} (${request}): ${httpDetail(error)}`,
-      { cause: error },
+    return Object.assign(
+      new Error(
+        `Qdrant at ${endpoint} returned HTTP ${error.status} ${error.statusText} (${request}): ${httpDetail(error)}`,
+        { cause: error },
+      ),
+      { status: error.status },
     );
   }
 

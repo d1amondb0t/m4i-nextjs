@@ -35,7 +35,7 @@ describe("createOllamaClient", () => {
       "fetch",
       vi
         .fn()
-        .mockResolvedValue(
+        .mockImplementation(async () =>
           Response.json(
             { error: "model 'zerank-2-score' not found" },
             { status: 404, statusText: "Not Found" },
@@ -46,6 +46,7 @@ describe("createOllamaClient", () => {
     await expect(generate()).rejects.toThrow(
       `Ollama at http://ollama.test:11434 returned HTTP 404 Not Found (/api/generate for model "zerank-2-score"): model 'zerank-2-score' not found`,
     );
+    await expect(generate()).rejects.toMatchObject({ status_code: 404 });
   });
 
   it("shortens a long error page that is not JSON", async () => {
