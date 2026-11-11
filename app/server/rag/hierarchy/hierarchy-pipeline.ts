@@ -42,6 +42,12 @@ export type HierarchyPipelineDependencies = {
   analyzer?: HierarchyAnalyzer;
 };
 
+const POSITIVE_INTEGER_SETTINGS = [
+  "topKPerQuery",
+  "maxContextWords",
+  "analyzerContextTokens",
+] as const satisfies readonly (keyof HierarchyConfiguration)[];
+
 function validateConfiguration(configuration: HierarchyConfiguration): void {
   for (const [name, value] of Object.entries(configuration)) {
     if (!Number.isFinite(value)) {
@@ -49,18 +55,13 @@ function validateConfiguration(configuration: HierarchyConfiguration): void {
     }
   }
 
-  if (
-    !Number.isSafeInteger(configuration.topKPerQuery) ||
-    configuration.topKPerQuery <= 0
-  ) {
-    throw new Error("topKPerQuery must be a positive integer.");
-  }
-
-  if (
-    !Number.isSafeInteger(configuration.maxContextWords) ||
-    configuration.maxContextWords <= 0
-  ) {
-    throw new Error("maxContextWords must be a positive integer.");
+  for (const name of POSITIVE_INTEGER_SETTINGS) {
+    if (
+      !Number.isSafeInteger(configuration[name]) ||
+      configuration[name] <= 0
+    ) {
+      throw new Error(`${name} must be a positive integer.`);
+    }
   }
 
   if (
@@ -126,6 +127,7 @@ export class HierarchyPipeline {
         ragConfiguration.generation.model,
         resolve("prompts/hierarchy-extract.txt"),
         configuration.maxContextWords,
+        configuration.analyzerContextTokens,
         client,
       );
   }

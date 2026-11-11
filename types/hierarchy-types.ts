@@ -90,6 +90,7 @@ export type HierarchyConfiguration = {
   topKPerQuery: number;
   minimumRetrievalScore: number;
   maxContextWords: number;
+  analyzerContextTokens: number;
 };
 
 export const DEFAULT_HIERARCHY_CONFIGURATION = {
@@ -100,6 +101,10 @@ export const DEFAULT_HIERARCHY_CONFIGURATION = {
   // TODO (REVIEW minimumRetrievalScore)
   minimumRetrievalScore: 0.05,
   maxContextWords: 4_000,
+  // Ollama's default context is 4,096 tokens on GPUs under 24 GB, which cuts
+  // off a 4,000-word context. This covers the largest measured prompt (5.7k
+  // tokens) plus the answer (3k) and still fits qwen3.5 9B in 10 GB of VRAM.
+  analyzerContextTokens: 12_288,
 } as const satisfies HierarchyConfiguration;
 
 // zerank-2's probability, sigmoid(logit / 5), sits higher than mxbai's: 0.05
