@@ -493,8 +493,7 @@ def main():
     )
     parser.add_argument(
         "--rerank",
-        action=argparse.BooleanOptionalAction,
-        default=True,
+        action="store_true",
         help="Cross-encoder reranking of the retrieved candidates",
     )
     parser.add_argument(
