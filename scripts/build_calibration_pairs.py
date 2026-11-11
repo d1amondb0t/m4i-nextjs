@@ -408,7 +408,7 @@ def build_pairs(args):
         "retrieval": {"strategy": args.strategy, "topK": TOP_K},
         "reranking": {"enabled": args.rerank},
     }
-    if args.reranking_runtime:
+    if args.reranking_runtime == "ollama":
         configuration["reranking"]["runtime"] = args.reranking_runtime
     if args.reranking_model or args.reranking_runtime != "ollama":
         configuration["reranking"]["model"] = (
