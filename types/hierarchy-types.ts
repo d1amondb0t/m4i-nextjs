@@ -1,4 +1,5 @@
 import type { DocumentChunk } from "./chunk-type";
+import type { RetrievalScores } from "./retrieval-types";
 
 export const MAX_HIERARCHY_DIMENSIONS = 20;
 export const MAX_HIERARCHY_CATEGORIES = 100;
@@ -34,12 +35,15 @@ export type ExtractedHierarchyMatch = {
   evidence: ExtractedHierarchyEvidence[];
 };
 
-export type HierarchyEvidence = {
+export type HierarchyRetrievedChunk = {
   chunkId: string;
   source: string;
   page: number;
   chunk: number;
-  retrievalScore: number;
+  scores: RetrievalScores;
+};
+
+export type HierarchyEvidence = HierarchyRetrievedChunk & {
   quote: string;
 };
 
@@ -67,6 +71,7 @@ export type HierarchyCategoryDiagnostics = {
   questions: {
     question: string;
     retrievedChunks: number;
+    chunks: HierarchyRetrievedChunk[];
     generatedCandidates: number;
     acceptedCandidates: number;
   }[];
@@ -85,6 +90,7 @@ export type HierarchyConfiguration = {
   topKPerQuery: number;
   minimumRetrievalScore: number;
   maxContextWords: number;
+  analyzerContextTokens: number;
 };
 
 export const DEFAULT_HIERARCHY_CONFIGURATION = {
@@ -92,9 +98,19 @@ export const DEFAULT_HIERARCHY_CONFIGURATION = {
   // Reranker probability floor. Rerankers separate relevant passages only
   // weakly on ontology questions, so this drops clear misses and leaves the
   // rest to the analyzer; 0.05 kept 94% of relevant top-12 chunks.
+  // TODO (REVIEW minimumRetrievalScore)
   minimumRetrievalScore: 0.05,
   maxContextWords: 4_000,
+  // Ollama's default context is 4,096 tokens on GPUs under 24 GB, which cuts
+  // off a 4,000-word context. This covers the largest measured prompt (5.7k
+  // tokens) plus the answer (3k) and still fits qwen3.5 9B in 10 GB of VRAM.
+  analyzerContextTokens: 12_288,
 } as const satisfies HierarchyConfiguration;
+
+// zerank-2's probability, sigmoid(logit / 5), sits higher than mxbai's: 0.05
+// keeps 99% of irrelevant chunks. 0.3 kept 97% of relevant top-12 chunks on the
+// Claude-labelled dev split and dropped 28% of all chunks.
+export const ZERANK_MINIMUM_RETRIEVAL_SCORE = 0.3;
 
 export type HierarchyPipelineResponse =
   | {

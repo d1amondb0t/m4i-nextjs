@@ -1,13 +1,15 @@
 import type { DocumentChunk } from "@/types/chunk-type";
-import type { RetrievalScope } from "@/types/retrieval-types";
+import type { RetrievalScope, RetrievalScores } from "@/types/retrieval-types";
 import {
   QdrantCloudStorageConfiguration,
+  SearchResult,
   StorageConfiguration,
 } from "./storage-types";
 import { v5 as uuidv5 } from "uuid";
 
 // node -e "console.log(require('node:crypto').randomUUID())"
 const POINT_NAMESPACE = "47129d6b-906b-4c39-98fd-76c3ac5a0060";
+const RRF_FUSED_LISTS = 2;
 
 export function isCloudInstance(
   config: StorageConfiguration,
@@ -45,6 +47,55 @@ export function retrievalFilter(scope: RetrievalScope | undefined) {
         ...(mustNot.length ? { must_not: mustNot } : {}),
       }
     : undefined;
+}
+
+export function scoresByPointId(
+  points: readonly { id: string | number; score: number }[],
+): Map<string | number, number> {
+  return new Map(points.map(({ id, score }) => [id, score]));
+}
+
+export function topScore(points: readonly { score: number }[]): number {
+  return Math.max(...points.map(({ score }) => score));
+}
+
+export function scoresRelativeToTopByPointId(
+  points: readonly { id: string | number; score: number }[],
+): Map<string | number, number> {
+  const top = topScore(points);
+  return new Map(points.map(({ id, score }) => [id, score / top]));
+}
+
+export function reciprocalRankFusion(
+  rankings: readonly (readonly { id: string | number }[])[],
+  k: number,
+  limit: number,
+): { id: string | number; score: number }[] {
+  const scores = new Map<string | number, number>();
+
+  for (const ranking of rankings) {
+    ranking.forEach(({ id }, position) => {
+      scores.set(id, (scores.get(id) ?? 0) + 1 / (k + position));
+    });
+  }
+
+  return [...scores]
+    .map(([id, score]) => ({ id, score }))
+    .sort((left, right) => right.score - left.score)
+    .slice(0, limit);
+}
+
+export function normalizedRrfScore(score: number, k: number): number {
+  return (score * k) / RRF_FUSED_LISTS;
+}
+
+export function retrievalScores(result: SearchResult): RetrievalScores {
+  return {
+    denseScore: result.denseScore,
+    sparseScore: result.sparseScore,
+    rrfScore: result.rrfScore,
+    rerankerScore: result.rerankerScore,
+  };
 }
 
 export function scopeIsEmpty(scope: RetrievalScope | undefined): boolean {

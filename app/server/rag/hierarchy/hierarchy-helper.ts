@@ -1,12 +1,41 @@
+import { retrievalScores } from "../storage/storage-helper";
 import type { SearchResult } from "../storage/storage-types";
 import {
+  DEFAULT_HIERARCHY_CONFIGURATION,
   MAX_HIERARCHY_CATEGORIES,
   MAX_HIERARCHY_DIMENSIONS,
+  ZERANK_MINIMUM_RETRIEVAL_SCORE,
   type ExtractedHierarchyMatch,
   type FrameworkCategory,
   type FrameworkDimension,
   type FrameworkOntology,
+  type HierarchyConfiguration,
+  type HierarchyRetrievedChunk,
 } from "@/types/hierarchy-types";
+import type { RerankingConfiguration } from "@/types/retrieval-types";
+
+export function hierarchyConfigurationFor(
+  reranking: RerankingConfiguration,
+): HierarchyConfiguration {
+  return reranking.runtime === "ollama"
+    ? {
+        ...DEFAULT_HIERARCHY_CONFIGURATION,
+        minimumRetrievalScore: ZERANK_MINIMUM_RETRIEVAL_SCORE,
+      }
+    : DEFAULT_HIERARCHY_CONFIGURATION;
+}
+
+export function hierarchyRetrievedChunk(
+  result: SearchResult,
+): HierarchyRetrievedChunk {
+  return {
+    chunkId: result.chunk.chunkId,
+    source: result.chunk.source,
+    page: result.chunk.page,
+    chunk: result.chunk.number,
+    scores: retrievalScores(result),
+  };
+}
 
 export function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);

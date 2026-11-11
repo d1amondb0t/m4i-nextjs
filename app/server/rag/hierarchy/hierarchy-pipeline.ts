@@ -1,5 +1,4 @@
 import { resolve } from "node:path";
-import { Ollama } from "ollama";
 
 import type {
   Chunker,
@@ -8,26 +7,28 @@ import type {
   RagPipelineConfiguration,
   Store,
 } from "@/types/rag-pipeline-type";
+import type { RetrievalScope } from "@/types/retrieval-types";
 import {
-  DEFAULT_RERANKING_CONFIGURATION,
-  type RetrievalScope,
-} from "@/types/retrieval-types";
-import {
-  DEFAULT_HIERARCHY_CONFIGURATION,
   type FrameworkCategory,
-  type FrameworkDimension,
   type FrameworkOntology,
   type HierarchyCategoryDiagnostics,
   type HierarchyCategoryResult,
   type HierarchyConfiguration,
   type HierarchyPipelineResult,
 } from "@/types/hierarchy-types";
+import { createOllamaClient } from "../ollama/ollama-client-helper";
 import { DocumentChunker } from "../chunking/chunk-documents";
 import { OllamaEmbedder } from "../embeddings/ollama-embedder";
 import { ragPipelineConfigurationFromEnvironment } from "../pipeline/rag-pipeline-helper";
 import { Retriever } from "../retrieval/retrieval";
 import { QdrantStore } from "../storage/vector-storage";
-import { evidenceIsGrounded, parseFrameworkOntology } from "./hierarchy-helper";
+import type { QuestionRetrieval } from "./hierarchy-pipeline-types";
+import {
+  evidenceIsGrounded,
+  hierarchyConfigurationFor,
+  hierarchyRetrievedChunk,
+  parseFrameworkOntology,
+} from "./hierarchy-helper";
 import {
   type HierarchyAnalyzer,
   OllamaHierarchyAnalyzer,
@@ -41,6 +42,12 @@ export type HierarchyPipelineDependencies = {
   analyzer?: HierarchyAnalyzer;
 };
 
+const POSITIVE_INTEGER_SETTINGS = [
+  "topKPerQuery",
+  "maxContextWords",
+  "analyzerContextTokens",
+] as const satisfies readonly (keyof HierarchyConfiguration)[];
+
 function validateConfiguration(configuration: HierarchyConfiguration): void {
   for (const [name, value] of Object.entries(configuration)) {
     if (!Number.isFinite(value)) {
@@ -48,18 +55,13 @@ function validateConfiguration(configuration: HierarchyConfiguration): void {
     }
   }
 
-  if (
-    !Number.isSafeInteger(configuration.topKPerQuery) ||
-    configuration.topKPerQuery <= 0
-  ) {
-    throw new Error("topKPerQuery must be a positive integer.");
-  }
-
-  if (
-    !Number.isSafeInteger(configuration.maxContextWords) ||
-    configuration.maxContextWords <= 0
-  ) {
-    throw new Error("maxContextWords must be a positive integer.");
+  for (const name of POSITIVE_INTEGER_SETTINGS) {
+    if (
+      !Number.isSafeInteger(configuration[name]) ||
+      configuration[name] <= 0
+    ) {
+      throw new Error(`${name} must be a positive integer.`);
+    }
   }
 
   if (
@@ -80,17 +82,15 @@ export class HierarchyPipeline {
 
   constructor(
     ragConfiguration: RagPipelineConfiguration = ragPipelineConfigurationFromEnvironment(),
-    configuration: HierarchyConfiguration = DEFAULT_HIERARCHY_CONFIGURATION,
+    configuration: HierarchyConfiguration = hierarchyConfigurationFor(
+      ragConfiguration.reranking,
+    ),
     dependencies: HierarchyPipelineDependencies = {},
   ) {
     validateConfiguration(configuration);
     this.configuration = configuration;
 
-    const client = new Ollama(
-      ragConfiguration.ollamaHost
-        ? { host: ragConfiguration.ollamaHost }
-        : undefined,
-    );
+    const client = createOllamaClient(ragConfiguration.ollamaHost);
     const concreteEmbedder = new OllamaEmbedder(
       ragConfiguration.embeddingModel,
       ragConfiguration.embeddingBatchSize,
@@ -116,9 +116,10 @@ export class HierarchyPipeline {
           topK: configuration.topKPerQuery,
         },
         {
-          ...DEFAULT_RERANKING_CONFIGURATION,
+          ...ragConfiguration.reranking,
           enabled: true,
         },
+        client,
       );
     this.analyzer =
       dependencies.analyzer ??
@@ -126,14 +127,45 @@ export class HierarchyPipeline {
         ragConfiguration.generation.model,
         resolve("prompts/hierarchy-extract.txt"),
         configuration.maxContextWords,
+        configuration.analyzerContextTokens,
         client,
       );
   }
 
-  private async processCategory(
-    dimension: FrameworkDimension,
-    category: FrameworkCategory,
+  private async retrieveOntology(
+    ontology: FrameworkOntology,
     scope: RetrievalScope,
+  ): Promise<Map<string, QuestionRetrieval[]>> {
+    const retrievals = new Map<string, QuestionRetrieval[]>();
+    const resultsByQuestion = new Map<string, QuestionRetrieval["results"]>();
+
+    for (const dimension of ontology.dimensions) {
+      for (const category of dimension.categories) {
+        const questions: QuestionRetrieval[] = [];
+        for (const question of category.questions) {
+          // Retrieve and rerank with the question alone: adding the category
+          // definition and include/exclude lists made every tested
+          // cross-encoder close to random. The analyzer still receives the
+          // full category.
+          const results =
+            resultsByQuestion.get(question) ??
+            (await this.retriever.retrieve(question, scope)).filter(
+              (result) =>
+                result.score >= this.configuration.minimumRetrievalScore,
+            );
+          resultsByQuestion.set(question, results);
+          questions.push({ question, results });
+        }
+        retrievals.set(category.id, questions);
+      }
+    }
+
+    return retrievals;
+  }
+
+  private async analyzeCategory(
+    category: FrameworkCategory,
+    retrievals: readonly QuestionRetrieval[],
   ): Promise<{
     category: HierarchyCategoryResult;
     diagnostics: HierarchyCategoryDiagnostics;
@@ -149,17 +181,12 @@ export class HierarchyPipeline {
       rejected: [],
     };
 
-    for (const question of category.questions) {
-      // Retrieve and rerank with the question alone: adding the category
-      // definition and include/exclude lists made every tested cross-encoder
-      // close to random. The analyzer still receives the full category.
-      const results = (await this.retriever.retrieve(question, scope)).filter(
-        (result) => result.score >= this.configuration.minimumRetrievalScore,
-      );
+    for (const { question, results } of retrievals) {
       for (const result of results) retrievedChunkIds.add(result.chunk.chunkId);
       const questionDiagnostics = {
         question,
         retrievedChunks: results.length,
+        chunks: results.map(hierarchyRetrievedChunk),
         generatedCandidates: 0,
         acceptedCandidates: 0,
       };
@@ -202,17 +229,10 @@ export class HierarchyPipeline {
           question,
           explicitness: match.explicitness,
           reason: match.reason,
-          evidence: match.evidence.map((evidence) => {
-            const result = resultsByChunkId.get(evidence.chunkId)!;
-            return {
-              chunkId: evidence.chunkId,
-              source: result.chunk.source,
-              page: result.chunk.page,
-              chunk: result.chunk.number,
-              retrievalScore: result.score,
-              quote: evidence.quote,
-            };
-          }),
+          evidence: match.evidence.map((evidence) => ({
+            ...hierarchyRetrievedChunk(resultsByChunkId.get(evidence.chunkId)!),
+            quote: evidence.quote,
+          })),
         });
         questionDiagnostics.acceptedCandidates += 1;
       }
@@ -247,13 +267,20 @@ export class HierarchyPipeline {
       ],
     } satisfies RetrievalScope;
 
+    // Reranker and generation models do not fit in VRAM together, so all
+    // reranking finishes before the first generation to avoid swapping them.
+    const retrievals = await this.retrieveOntology(ontology, scope);
+
     const dimensions: HierarchyPipelineResult["framework"]["dimensions"] = [];
     const diagnostics: HierarchyCategoryDiagnostics[] = [];
 
     for (const dimension of ontology.dimensions) {
       const categories: HierarchyCategoryResult[] = [];
       for (const category of dimension.categories) {
-        const result = await this.processCategory(dimension, category, scope);
+        const result = await this.analyzeCategory(
+          category,
+          retrievals.get(category.id)!,
+        );
         categories.push(result.category);
         diagnostics.push(result.diagnostics);
       }

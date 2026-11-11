@@ -1,4 +1,5 @@
 import { DocumentChunk } from "@/types/chunk-type";
+import type { RetrievalScores } from "@/types/retrieval-types";
 
 export type QdrantLocalStorageConfiguration = {
   host: string;
@@ -22,10 +23,7 @@ export const DEFAULT_STORAGE_CONFIGURATION = {
   port: 6333,
 } as const satisfies StorageConfiguration;
 
-export type SearchResult = {
+export type SearchResult = RetrievalScores & {
   chunk: DocumentChunk;
   score: number;
-  denseScore: number | null;
-  sparseScore: number | null;
-  rerankerScore?: number;
 };

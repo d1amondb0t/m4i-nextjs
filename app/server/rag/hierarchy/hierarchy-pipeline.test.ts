@@ -26,8 +26,15 @@ function chunk(): DocumentChunk {
   };
 }
 
+const scores = {
+  denseScore: 0.72,
+  sparseScore: 0.64,
+  rrfScore: 0.9,
+  rerankerScore: 0.91,
+};
+
 function searchResult(): SearchResult {
-  return { chunk: chunk(), score: 0.91, denseScore: 0.91, sparseScore: null };
+  return { chunk: chunk(), score: 0.91, ...scores };
 }
 
 const questions = [
@@ -128,13 +135,41 @@ describe("HierarchyPipeline", () => {
       { question: questions[1], explicitness: "implicit" },
     ]);
     expect(category.matches[0].evidence).toMatchObject([
-      { source: "report.txt", page: 4, retrievalScore: 0.91 },
+      { source: "report.txt", page: 4, scores },
     ]);
     expect(result.diagnostics[0]).toMatchObject({
       retrievedChunks: 1,
       matchedQuestions: 2,
       rejected: [],
     });
+  });
+
+  it("finishes reranking across every dimension before the first generation, retrieving a repeated question once", async () => {
+    const calls: string[] = [];
+    vi.mocked(dependencies.retriever.retrieve).mockImplementation(async () => {
+      calls.push("retrieve");
+      return [searchResult()];
+    });
+    vi.mocked(dependencies.analyzer.match).mockImplementation(async () => {
+      calls.push("generate");
+      return [match];
+    });
+    const twoDimensions = {
+      dimensions: ["one", "two"].map((id) => ({
+        ...ontology.dimensions[0],
+        id,
+        categories: [
+          { ...ontology.dimensions[0].categories[0], id: `category-${id}` },
+        ],
+      })),
+    };
+
+    await pipeline().run([new File(["content"], "report.txt")], twoDimensions);
+
+    expect(calls).toEqual([
+      ...Array<string>(3).fill("retrieve"),
+      ...Array<string>(6).fill("generate"),
+    ]);
   });
 
   it("skips the model and preserves empty categories when retrieval is below the cutoff", async () => {
@@ -228,6 +263,15 @@ describe("HierarchyPipeline", () => {
       questions.map((question) => ({
         question,
         retrievedChunks: 1,
+        chunks: [
+          {
+            chunkId: "chunk-1",
+            source: "report.txt",
+            page: 4,
+            chunk: 2,
+            scores,
+          },
+        ],
         generatedCandidates: 3,
         acceptedCandidates: 2,
       })),

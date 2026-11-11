@@ -9,6 +9,8 @@ import {
   validateRagDocumentSelection,
 } from "@/app/server/documents/upload-policy";
 import type { UploadStatus } from "@/types/document-upload";
+
+import { RetrievalScoreList } from "./retrieval-score-list";
 import {
   MAX_QUESTION_LENGTH,
   type RagPipelineResponse,
@@ -284,7 +286,7 @@ export function DocumentUpload() {
                       {source.source} · page {source.page} · chunk{" "}
                       {source.chunk}
                     </span>
-                    <span>score {source.score.toFixed(3)}</span>
+                    <RetrievalScoreList scores={source.scores} />
                   </div>
                   <p className="mt-2 text-sm leading-6 text-zinc-700">
                     {source.text}

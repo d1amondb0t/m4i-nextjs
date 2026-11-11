@@ -1,4 +1,6 @@
-import { Ollama } from "ollama";
+import type { Ollama } from "ollama";
+
+import { createOllamaClient } from "../ollama/ollama-client-helper";
 import { SearchResult } from "../storage/storage-types";
 import { readFileSync } from "fs";
 import { GenerationConfiguration } from "@/types/generation-type";
@@ -12,7 +14,7 @@ export class OllamaGenerator {
     private readonly model: string,
     private readonly promptPath: string,
     private readonly config: GenerationConfiguration,
-    client: Ollama = new Ollama(),
+    client: Ollama = createOllamaClient(),
   ) {
     this.client = client;
     this.systemPrompt = readFileSync(promptPath, "utf-8");

@@ -1,9 +1,14 @@
-import { Ollama } from "ollama";
-
+import { createOllamaClient } from "../ollama/ollama-client-helper";
 import { DocumentChunker } from "../chunking/chunk-documents";
+import { MAX_CHUNK_WORDS } from "@/types/chunk-type";
 import { OllamaEmbedder } from "../embeddings/ollama-embedder";
-import { ragPipelineConfigurationFromEnvironment } from "../pipeline/rag-pipeline-helper";
+import {
+  isRerankingRuntime,
+  ragPipelineConfigurationFromEnvironment,
+  rerankingCandidates,
+} from "../pipeline/rag-pipeline-helper";
 import { Retriever } from "./retrieval";
+import { retrievalScores } from "../storage/storage-helper";
 import { QdrantStore } from "../storage/vector-storage";
 import {
   DEFAULT_RERANKING_CONFIGURATION,
@@ -57,6 +62,10 @@ export function calibrationConfiguration(
     throw new Error(
       "Chunk size must be positive and overlap must be smaller than chunk size.",
     );
+  if (chunkSize > MAX_CHUNK_WORDS)
+    throw new Error(
+      `Chunk size must be at most ${MAX_CHUNK_WORDS} words so that every reranking prompt fits the reranker's context.`,
+    );
   if (
     options.embeddingModel !== undefined &&
     (typeof options.embeddingModel !== "string" ||
@@ -79,12 +88,31 @@ export function calibrationConfiguration(
 
   if (rerankingStrategy !== "cross_encoder")
     throw new Error("Only cross_encoder reranking is implemented.");
-  const rerankingModel =
-    reranking.model ?? DEFAULT_RERANKING_CONFIGURATION.model;
+  const runtime = reranking.runtime ?? base.reranking.runtime;
 
+  if (!isRerankingRuntime(runtime))
+    throw new Error("reranking.runtime must be transformers or ollama.");
+  const transformersModel =
+    runtime === "transformers"
+      ? DEFAULT_RERANKING_CONFIGURATION.model
+      : undefined;
+  const fallbackModel =
+    runtime === base.reranking.runtime
+      ? base.reranking.model
+      : transformersModel;
+  const rerankingModel =
+    reranking.model ??
+    fallbackModel ??
+    (enabled ? undefined : base.reranking.model);
+
+  if (rerankingModel === undefined)
+    throw new Error(
+      `reranking.model is required for the ${runtime} runtime, because the server's RERANKING_RUNTIME is ${base.reranking.runtime} and gives no ${runtime} model to fall back to.`,
+    );
   if (typeof rerankingModel !== "string" || !rerankingModel.trim())
     throw new Error("reranking.model must be a non-empty string.");
-  const candidates = reranking.candidates ?? Math.max(20, topK);
+  const candidates =
+    reranking.candidates ?? Math.max(rerankingCandidates(runtime), topK);
 
   if (
     !Number.isSafeInteger(candidates) ||
@@ -106,6 +134,7 @@ export function calibrationConfiguration(
     reranking: {
       enabled,
       strategy: rerankingStrategy,
+      runtime,
       model: rerankingModel.trim(),
       candidates,
     },
@@ -134,9 +163,7 @@ export class CalibrationPipeline {
       if (error) throw new Error(error);
     }
     const config = this.configuration.rag;
-    const ollama = new Ollama(
-      config.ollamaHost ? { host: config.ollamaHost } : undefined,
-    );
+    const ollama = createOllamaClient(config.ollamaHost);
     const embedder =
       this.dependencies.embedder ??
       new OllamaEmbedder(
@@ -155,6 +182,7 @@ export class CalibrationPipeline {
         embedder as OllamaEmbedder,
         config.retrieval,
         this.configuration.reranking,
+        ollama,
       );
     const chunker =
       this.dependencies.chunker ?? new DocumentChunker(config.chunking);
@@ -172,15 +200,16 @@ export class CalibrationPipeline {
       const matches = await retriever.retrieve(question.trim(), scope);
       results.push({
         question,
-        matches: matches.map(({ chunk, score }, index) => ({
+        matches: matches.map((match, index) => ({
           rank: index + 1,
-          score,
-          chunkId: chunk.chunkId,
-          documentId: chunk.documentId,
-          source: chunk.source,
-          page: chunk.page,
-          chunk: chunk.number,
-          text: chunk.text,
+          score: match.score,
+          scores: retrievalScores(match),
+          chunkId: match.chunk.chunkId,
+          documentId: match.chunk.documentId,
+          source: match.chunk.source,
+          page: match.chunk.page,
+          chunk: match.chunk.number,
+          text: match.chunk.text,
         })),
       });
     }

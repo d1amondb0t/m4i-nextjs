@@ -8,6 +8,10 @@ import {
   type RagPipelineDependencies,
 } from "./rag-pipeline";
 
+const retrieverMock = vi.hoisted(() => vi.fn());
+
+vi.mock("../retrieval/retrieval", () => ({ Retriever: retrieverMock }));
+
 function chunk(): DocumentChunk {
   return {
     chunkId: "chunk-1",
@@ -32,6 +36,8 @@ function searchResult(currentChunk: DocumentChunk): SearchResult {
     score: 0.92,
     denseScore: 0.92,
     sparseScore: null,
+    rrfScore: null,
+    rerankerScore: null,
   };
 }
 
@@ -147,5 +153,25 @@ describe("RagPipeline", () => {
     expect(dependencies.store.upsert).not.toHaveBeenCalled();
     expect(dependencies.retriever.retrieve).not.toHaveBeenCalled();
     expect(dependencies.generator.generate).not.toHaveBeenCalled();
+  });
+
+  it("builds its retriever with the configured reranker", () => {
+    const reranking = {
+      enabled: true,
+      strategy: "cross_encoder",
+      runtime: "ollama",
+      model: "zerank-2-score",
+      candidates: 50,
+    } as const;
+
+    new RagPipeline({ ...DEFAULT_RAG_PIPELINE_CONFIGURATION, reranking });
+
+    expect(retrieverMock).toHaveBeenCalledWith(
+      expect.anything(),
+      expect.anything(),
+      DEFAULT_RAG_PIPELINE_CONFIGURATION.retrieval,
+      reranking,
+      expect.anything(),
+    );
   });
 });

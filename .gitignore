@@ -50,3 +50,8 @@ next-env.d.ts
 # dataset
 /dataset/
 /calibration/
+.claude/launch.json
+.vscode/launch.json
+
+# presentation
+/presentation
