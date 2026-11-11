@@ -1,5 +1,7 @@
 import { Ollama } from "ollama";
 
+const MAX_DETAIL_CHARACTERS = 500;
+
 function requestedModel(init: RequestInit | undefined): string {
   if (typeof init?.body !== "string") return "";
   const { model } = JSON.parse(init.body) as { model?: unknown };
@@ -12,11 +14,17 @@ function connectionFailure(error: unknown): string {
   return error instanceof Error ? error.message : String(error);
 }
 
+function shortened(text: string): string {
+  return text.length > MAX_DETAIL_CHARACTERS
+    ? `${text.slice(0, MAX_DETAIL_CHARACTERS)}… (${text.length} characters)`
+    : text;
+}
+
 async function responseDetail(response: Response): Promise<string> {
   const text = (await response.text()).trim();
   if (!text) return "the response had no details";
   if (!response.headers.get("content-type")?.includes("application/json"))
-    return text;
+    return shortened(text);
   const { error } = JSON.parse(text) as { error?: unknown };
   return typeof error === "string" ? error : text;
 }

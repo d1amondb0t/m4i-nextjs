@@ -48,6 +48,25 @@ describe("createOllamaClient", () => {
     );
   });
 
+  it("shortens a long error page that is not JSON", async () => {
+    const page = `<html>${"x".repeat(10_000)}</html>`;
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockImplementation(
+        async () =>
+          new Response(page, {
+            status: 502,
+            statusText: "Bad Gateway",
+            headers: { "content-type": "text/html" },
+          }),
+      ),
+    );
+
+    await expect(generate()).rejects.toThrow(
+      `Ollama at http://ollama.test:11434 returned HTTP 502 Bad Gateway (/api/generate for model "zerank-2-score"): ${page.slice(0, 500)}… (${page.length} characters)`,
+    );
+  });
+
   it("says when a failed response has no details", async () => {
     vi.stubGlobal(
       "fetch",
