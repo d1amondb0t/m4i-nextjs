@@ -20,13 +20,28 @@ function shortened(text: string): string {
     : text;
 }
 
+function errorMessage(body: unknown): string | undefined {
+  const error = (body as { error?: unknown } | null)?.error;
+  if (typeof error === "string")
+    return errorMessage(parsedJson(error)) ?? error;
+  const message = (error as { message?: unknown } | null)?.message;
+  return typeof message === "string" ? message : undefined;
+}
+
+function parsedJson(text: string): unknown {
+  try {
+    return JSON.parse(text);
+  } catch {
+    return undefined;
+  }
+}
+
 async function responseDetail(response: Response): Promise<string> {
   const text = (await response.text()).trim();
   if (!text) return "the response had no details";
   if (!response.headers.get("content-type")?.includes("application/json"))
     return shortened(text);
-  const { error } = JSON.parse(text) as { error?: unknown };
-  return typeof error === "string" ? error : text;
+  return shortened(errorMessage(JSON.parse(text)) ?? text);
 }
 
 export async function fetchWithOllamaContext(

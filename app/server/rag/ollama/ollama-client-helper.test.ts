@@ -68,6 +68,30 @@ describe("createOllamaClient", () => {
     );
   });
 
+  it("reports the message of an error that Ollama wraps as a JSON string", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue(
+        Response.json(
+          {
+            error: JSON.stringify({
+              error: {
+                code: 400,
+                message: "request (18914 tokens) exceeds the context size",
+                type: "exceed_context_size_error",
+              },
+            }),
+          },
+          { status: 400, statusText: "Bad Request" },
+        ),
+      ),
+    );
+
+    await expect(generate()).rejects.toThrow(
+      'Ollama at http://ollama.test:11434 returned HTTP 400 Bad Request (/api/generate for model "zerank-2-score"): request (18914 tokens) exceeds the context size',
+    );
+  });
+
   it("says when a failed response has no details", async () => {
     vi.stubGlobal(
       "fetch",
