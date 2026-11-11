@@ -4,10 +4,12 @@ import { fetchFailureCause } from "../fetch-failure-helper";
 
 const MAX_DETAIL_CHARACTERS = 500;
 
-function requestedModel(init: RequestInit | undefined): string {
-  if (typeof init?.body !== "string") return "";
+function describedRequest(url: URL, init: RequestInit | undefined): string {
+  if (typeof init?.body !== "string") return url.pathname;
   const { model } = JSON.parse(init.body) as { model?: unknown };
-  return typeof model === "string" ? ` for model "${model}"` : "";
+  return typeof model === "string"
+    ? `${url.pathname} for model "${model}"`
+    : url.pathname;
 }
 
 function connectionFailure(error: unknown): string {
@@ -52,14 +54,13 @@ export async function fetchWithOllamaContext(
   init?: RequestInit,
 ): Promise<Response> {
   const url = new URL(input instanceof Request ? input.url : input);
-  const request = `${url.pathname}${requestedModel(init)}`;
   let response: Response;
 
   try {
     response = await fetch(input, init);
   } catch (error) {
     throw new Error(
-      `Could not reach Ollama at ${url.origin} (${request}): ${connectionFailure(error)}. Check that Ollama is running and that OLLAMA_HOST is correct.`,
+      `Could not reach Ollama at ${url.origin} (${describedRequest(url, init)}): ${connectionFailure(error)}. Check that Ollama is running and that OLLAMA_HOST is correct.`,
       { cause: error },
     );
   }
@@ -67,7 +68,7 @@ export async function fetchWithOllamaContext(
   if (!response.ok) {
     throw Object.assign(
       new Error(
-        `Ollama at ${url.origin} returned HTTP ${response.status} ${response.statusText} (${request}): ${await responseDetail(response)}`,
+        `Ollama at ${url.origin} returned HTTP ${response.status} ${response.statusText} (${describedRequest(url, init)}): ${await responseDetail(response)}`,
       ),
       { status_code: response.status },
     );
