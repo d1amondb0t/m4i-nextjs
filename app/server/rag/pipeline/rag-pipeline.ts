@@ -1,4 +1,3 @@
-import { Ollama } from "ollama";
 import { resolve } from "node:path";
 
 import {
@@ -12,6 +11,7 @@ import {
   type Store,
   validateQuestion,
 } from "@/types/rag-pipeline-type";
+import { createOllamaClient } from "../ollama/ollama-client-helper";
 import { DocumentChunker } from "../chunking/chunk-documents";
 import { OllamaEmbedder } from "../embeddings/ollama-embedder";
 import { OllamaGenerator } from "../generation/ollama-generator";
@@ -46,9 +46,7 @@ export class RagPipeline {
     config: RagPipelineConfiguration = ragPipelineConfigurationFromEnvironment(),
     dependencies: RagPipelineDependencies = {},
   ) {
-    const ollamaClient = new Ollama(
-      config.ollamaHost ? { host: config.ollamaHost } : undefined,
-    );
+    const ollamaClient = createOllamaClient(config.ollamaHost);
     const concreteEmbedder = new OllamaEmbedder(
       config.embeddingModel,
       config.embeddingBatchSize,
@@ -67,7 +65,7 @@ export class RagPipeline {
         concreteStore,
         concreteEmbedder,
         config.retrieval,
-        { ...config.reranking, enabled: true },
+        config.reranking,
         ollamaClient,
       );
     this.generator =

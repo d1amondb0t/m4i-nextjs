@@ -114,6 +114,7 @@ export type HierarchyConfiguration = {
   retrievalScoreFloor: number;
   relativeRetrievalScore: number;
   maxContextWords: number;
+  analyzerContextTokens: number;
 };
 
 export const DEFAULT_HIERARCHY_CONFIGURATION = {
@@ -126,6 +127,11 @@ export const DEFAULT_HIERARCHY_CONFIGURATION = {
   retrievalScoreFloor: 0.05,
   relativeRetrievalScore: 0,
   maxContextWords: 4_000,
+  // Ollama's default context is 4,096 tokens on GPUs under 24 GB, which cuts
+  // off a 4,000-word context. The context plus the system prompt is about
+  // 6,000 tokens and a full 8-match reply can add about 2,000 more; this
+  // leaves room to spare so the reply is not cut off.
+  analyzerContextTokens: 16_384,
 } as const satisfies HierarchyConfiguration;
 
 // zerank-2's probability, sigmoid(logit / 5), sits higher than mxbai's: 0.05

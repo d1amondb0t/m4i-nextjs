@@ -107,3 +107,5 @@ export const DEFAULT_CHUNK_CONFIG: ChunkConfiguration = {
   wordSize: 200,
   assembly: "flow",
 } as const;
+
+export const MAX_CHUNK_WORDS = 400;

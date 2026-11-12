@@ -9,7 +9,6 @@ import type { SearchResult } from "../storage/storage-types";
 import { buildHierarchyContext } from "./hierarchy-helper";
 import {
   analyzerCategory,
-  HIERARCHY_CONTEXT_TOKENS,
   MATCH_SCHEMA,
   parseMatchResponse,
   requireCompleteResponse,
@@ -30,6 +29,7 @@ export class OllamaHierarchyAnalyzer implements HierarchyAnalyzer {
     private readonly model: string,
     promptPath: string,
     private readonly maximumContextWords: number,
+    private readonly contextTokens: number,
     private readonly client: Ollama,
   ) {
     this.matchingPrompt = readFileSync(promptPath, "utf8");
@@ -55,10 +55,10 @@ export class OllamaHierarchyAnalyzer implements HierarchyAnalyzer {
           ].join("\n\n"),
         },
       ],
-      options: { temperature: 0, num_ctx: HIERARCHY_CONTEXT_TOKENS },
+      options: { temperature: 0, num_ctx: this.contextTokens },
     });
 
-    requireCompleteResponse(response);
+    requireCompleteResponse(response, this.contextTokens);
     return parseMatchResponse(response.message.content);
   }
 }

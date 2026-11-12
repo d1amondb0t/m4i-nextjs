@@ -17,12 +17,6 @@ export function analyzerCategory(
   return { id, name, definition, questions: [question] };
 }
 
-// The 4,000-word context plus the system prompt is about 6,000 tokens, and a
-// full 8-match reply can add about 2,000 more. Without this Ollama uses its
-// VRAM-based default (4,096 on a 10 GB GPU) and silently drops part of the
-// prompt, which leaves too little room for the reply.
-export const HIERARCHY_CONTEXT_TOKENS = 16_384;
-
 const REPLY_ENDING_CHARACTERS = 200;
 
 type ChatCompletion = Pick<
@@ -30,13 +24,16 @@ type ChatCompletion = Pick<
   "model" | "done_reason" | "prompt_eval_count" | "eval_count"
 >;
 
-export function requireCompleteResponse(response: ChatCompletion): void {
+export function requireCompleteResponse(
+  response: ChatCompletion,
+  contextTokens: number,
+): void {
   if (response.done_reason !== "length") return;
 
   throw new Error(
     `The hierarchy model ${response.model} stopped at its token limit before finishing its reply ` +
       `(${response.prompt_eval_count} prompt tokens, ${response.eval_count} reply tokens, ` +
-      `context ${HIERARCHY_CONTEXT_TOKENS} tokens).`,
+      `context ${contextTokens} tokens).`,
   );
 }
 

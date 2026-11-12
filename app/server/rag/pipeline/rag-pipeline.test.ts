@@ -8,15 +8,9 @@ import {
   type RagPipelineDependencies,
 } from "./rag-pipeline";
 
-const retrieverConstructor = vi.hoisted(() => vi.fn());
+const retrieverMock = vi.hoisted(() => vi.fn());
 
-vi.mock("../retrieval/retrieval", () => ({
-  Retriever: class {
-    constructor(...args: unknown[]) {
-      retrieverConstructor(...args);
-    }
-  },
-}));
+vi.mock("../retrieval/retrieval", () => ({ Retriever: retrieverMock }));
 
 function chunk(): DocumentChunk {
   return {
@@ -132,26 +126,14 @@ describe("RagPipeline", () => {
     });
   });
 
-  it("enables the configured reranker on the pipeline's Ollama client", () => {
+  it("gives its retriever the pipeline's Ollama client", () => {
     new RagPipeline({
       ...DEFAULT_RAG_PIPELINE_CONFIGURATION,
-      reranking: {
-        ...DEFAULT_RAG_PIPELINE_CONFIGURATION.reranking,
-        runtime: "ollama",
-        model: "zerank-2-score",
-        candidates: 50,
-      },
       ollamaHost: "http://ollama:11434",
     });
 
-    const [, , , reranking, client] = retrieverConstructor.mock.lastCall!;
+    const [, , , , client] = retrieverMock.mock.lastCall!;
 
-    expect(reranking).toMatchObject({
-      enabled: true,
-      runtime: "ollama",
-      model: "zerank-2-score",
-      candidates: 50,
-    });
     expect(client.config.host).toBe("http://ollama:11434");
   });
 
@@ -196,5 +178,25 @@ describe("RagPipeline", () => {
       dependencies.retriever.retrieveWithComparison,
     ).not.toHaveBeenCalled();
     expect(dependencies.generator.generate).not.toHaveBeenCalled();
+  });
+
+  it("builds its retriever with the configured reranker", () => {
+    const reranking = {
+      enabled: true,
+      strategy: "cross_encoder",
+      runtime: "ollama",
+      model: "zerank-2-score",
+      candidates: 50,
+    } as const;
+
+    new RagPipeline({ ...DEFAULT_RAG_PIPELINE_CONFIGURATION, reranking });
+
+    expect(retrieverMock).toHaveBeenCalledWith(
+      expect.anything(),
+      expect.anything(),
+      DEFAULT_RAG_PIPELINE_CONFIGURATION.retrieval,
+      reranking,
+      expect.anything(),
+    );
   });
 });

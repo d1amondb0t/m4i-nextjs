@@ -26,8 +26,8 @@ describe("CalibrationPipeline", () => {
           chunk,
           score: 0.8,
           denseScore: 0.7,
-          sparseScore: 5.2,
-          rrfScore: 0.03,
+          sparseScore: 0.52,
+          rrfScore: 0.9,
           rerankerScore: 0.8,
         },
       ]),
@@ -65,8 +65,8 @@ describe("CalibrationPipeline", () => {
       score: 0.8,
       scores: {
         denseScore: 0.7,
-        sparseScore: 5.2,
-        rrfScore: 0.03,
+        sparseScore: 0.52,
+        rrfScore: 0.9,
         rerankerScore: 0.8,
       },
       source: "first.pdf",
@@ -92,6 +92,42 @@ describe("CalibrationPipeline", () => {
     ).toThrow("retrieval.strategy must be dense, sparse, or hybrid.");
   });
 
+  it("accepts chunks of up to 400 words and rejects larger ones", () => {
+    expect(
+      calibrationConfiguration(
+        { chunkSize: 400 },
+        DEFAULT_RAG_PIPELINE_CONFIGURATION,
+      ).rag.chunking.wordSize,
+    ).toBe(400);
+    expect(() =>
+      calibrationConfiguration(
+        { chunkSize: 401 },
+        DEFAULT_RAG_PIPELINE_CONFIGURATION,
+      ),
+    ).toThrow("Chunk size must be at most 400 words");
+  });
+
+  it("defaults the reranker to the runtime, model, and candidates of the environment", () => {
+    expect(
+      calibrationConfiguration(
+        {},
+        {
+          ...DEFAULT_RAG_PIPELINE_CONFIGURATION,
+          reranking: {
+            ...DEFAULT_RAG_PIPELINE_CONFIGURATION.reranking,
+            runtime: "ollama",
+            model: "zerank-2-score",
+            candidates: 50,
+          },
+        },
+      ).reranking,
+    ).toMatchObject({
+      runtime: "ollama",
+      model: "zerank-2-score",
+      candidates: 50,
+    });
+  });
+
   it("accepts an Ollama reranking runtime and rejects unknown runtimes", () => {
     expect(
       calibrationConfiguration({}, DEFAULT_RAG_PIPELINE_CONFIGURATION).reranking
@@ -102,7 +138,32 @@ describe("CalibrationPipeline", () => {
         { reranking: { enabled: true, runtime: "ollama", model: "zerank-2" } },
         DEFAULT_RAG_PIPELINE_CONFIGURATION,
       ).reranking,
-    ).toMatchObject({ enabled: true, runtime: "ollama", model: "zerank-2" });
+    ).toMatchObject({
+      enabled: true,
+      runtime: "ollama",
+      model: "zerank-2",
+      candidates: 50,
+    });
+    expect(() =>
+      calibrationConfiguration(
+        { reranking: { enabled: true, runtime: "ollama" } },
+        DEFAULT_RAG_PIPELINE_CONFIGURATION,
+      ),
+    ).toThrow(
+      "reranking.model is required for the ollama runtime, because the server's RERANKING_RUNTIME is transformers and gives no ollama model to fall back to.",
+    );
+    expect(
+      calibrationConfiguration(
+        { reranking: { enabled: false, runtime: "ollama" } },
+        DEFAULT_RAG_PIPELINE_CONFIGURATION,
+      ).reranking,
+    ).toMatchObject({ enabled: false, runtime: "ollama" });
+    expect(() =>
+      calibrationConfiguration(
+        { reranking: { runtime: "ollama", model: " " } },
+        DEFAULT_RAG_PIPELINE_CONFIGURATION,
+      ),
+    ).toThrow("reranking.model must be a non-empty string.");
     expect(() =>
       calibrationConfiguration(
         { reranking: { runtime: "vllm" } },

@@ -1,4 +1,6 @@
-import { EmbedResponse, Ollama } from "ollama";
+import type { EmbedResponse, Ollama } from "ollama";
+
+import { createOllamaClient } from "../ollama/ollama-client-helper";
 
 export class OllamaEmbedder {
   private readonly client: Ollama;
@@ -7,7 +9,7 @@ export class OllamaEmbedder {
     private readonly model: string,
     private readonly batchSize: number = 16,
     private readonly queryPrefix: string = "",
-    client: Ollama = new Ollama(),
+    client: Ollama = createOllamaClient(),
   ) {
     if (!Number.isInteger(batchSize) || batchSize <= 0) {
       throw new RangeError(`batchSize parameter must be a positive integer.`);

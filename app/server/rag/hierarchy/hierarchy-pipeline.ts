@@ -1,5 +1,4 @@
 import { resolve } from "node:path";
-import { Ollama } from "ollama";
 
 import type {
   Chunker,
@@ -20,6 +19,7 @@ import {
   type HierarchyProgress,
   type QuestionRetrieval,
 } from "@/types/hierarchy-types";
+import { createOllamaClient } from "../ollama/ollama-client-helper";
 import { DocumentChunker } from "../chunking/chunk-documents";
 import { OllamaEmbedder } from "../embeddings/ollama-embedder";
 import { ragPipelineConfigurationFromEnvironment } from "../pipeline/rag-pipeline-helper";
@@ -46,6 +46,12 @@ export type HierarchyPipelineDependencies = {
   analyzer?: HierarchyAnalyzer;
 };
 
+const POSITIVE_INTEGER_SETTINGS = [
+  "topKPerQuery",
+  "maxContextWords",
+  "analyzerContextTokens",
+] as const satisfies readonly (keyof HierarchyConfiguration)[];
+
 function validateConfiguration(configuration: HierarchyConfiguration): void {
   for (const [name, value] of Object.entries(configuration)) {
     if (!Number.isFinite(value)) {
@@ -53,18 +59,13 @@ function validateConfiguration(configuration: HierarchyConfiguration): void {
     }
   }
 
-  if (
-    !Number.isSafeInteger(configuration.topKPerQuery) ||
-    configuration.topKPerQuery <= 0
-  ) {
-    throw new Error("topKPerQuery must be a positive integer.");
-  }
-
-  if (
-    !Number.isSafeInteger(configuration.maxContextWords) ||
-    configuration.maxContextWords <= 0
-  ) {
-    throw new Error("maxContextWords must be a positive integer.");
+  for (const name of POSITIVE_INTEGER_SETTINGS) {
+    if (
+      !Number.isSafeInteger(configuration[name]) ||
+      configuration[name] <= 0
+    ) {
+      throw new Error(`${name} must be a positive integer.`);
+    }
   }
 
   if (
@@ -109,11 +110,7 @@ export class HierarchyPipeline {
     validateConfiguration(configuration);
     this.configuration = configuration;
 
-    const client = new Ollama(
-      ragConfiguration.ollamaHost
-        ? { host: ragConfiguration.ollamaHost }
-        : undefined,
-    );
+    const client = createOllamaClient(ragConfiguration.ollamaHost);
     const concreteEmbedder = new OllamaEmbedder(
       ragConfiguration.embeddingModel,
       ragConfiguration.embeddingBatchSize,
@@ -150,6 +147,7 @@ export class HierarchyPipeline {
         ragConfiguration.generation.model,
         resolve("prompts/hierarchy-extract.txt"),
         configuration.maxContextWords,
+        configuration.analyzerContextTokens,
         client,
       );
   }
@@ -160,6 +158,10 @@ export class HierarchyPipeline {
     onQuestionDone: () => void,
   ): Promise<Map<string, CategoryRetrievals>> {
     const retrievals = new Map<string, CategoryRetrievals>();
+    const splitsByQuestion = new Map<
+      string,
+      Omit<QuestionRetrieval, "question">
+    >();
 
     for (const dimension of ontology.dimensions) {
       for (const category of dimension.categories) {
@@ -169,11 +171,14 @@ export class HierarchyPipeline {
           // definition and include/exclude lists made every tested
           // cross-encoder close to random. The analyzer still receives the
           // category's name and definition.
-          const ranked = await this.retriever.rankCandidates(question, scope);
-          questions.push({
-            question,
-            ...splitRankedCandidates(ranked, this.configuration),
-          });
+          const split =
+            splitsByQuestion.get(question) ??
+            splitRankedCandidates(
+              await this.retriever.rankCandidates(question, scope),
+              this.configuration,
+            );
+          splitsByQuestion.set(question, split);
+          questions.push({ question, ...split });
           onQuestionDone();
         }
         retrievals.set(category.id, {
