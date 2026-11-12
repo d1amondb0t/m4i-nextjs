@@ -168,7 +168,7 @@ export class HierarchyPipeline {
           // Retrieve and rerank with the question alone: adding the category
           // definition and include/exclude lists made every tested
           // cross-encoder close to random. The analyzer still receives the
-          // full category.
+          // category's name and definition.
           const ranked = await this.retriever.rankCandidates(question, scope);
           questions.push({
             question,
@@ -208,6 +208,7 @@ export class HierarchyPipeline {
 
     for (const {
       question,
+      cutoff,
       results,
       droppedBelowCutoff,
       droppedOutsideTopK,
@@ -221,8 +222,9 @@ export class HierarchyPipeline {
           results.length +
           droppedBelowCutoff.length +
           droppedOutsideTopK.length,
-        droppedBelowCutoff: droppedBelowCutoff.length,
-        droppedOutsideTopK: droppedOutsideTopK.length,
+        cutoff,
+        droppedBelowCutoff: droppedBelowCutoff.map(hierarchyRetrievedChunk),
+        droppedOutsideTopK: droppedOutsideTopK.map(hierarchyRetrievedChunk),
         generatedCandidates: 0,
         acceptedCandidates: 0,
       };

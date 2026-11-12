@@ -59,6 +59,7 @@ export function splitRankedCandidates(
   );
 
   return {
+    cutoff,
     results: topRanked.filter((result) => result.score >= cutoff),
     droppedBelowCutoff: topRanked.filter((result) => result.score < cutoff),
     droppedOutsideTopK: ranked.slice(configuration.topKPerQuery),

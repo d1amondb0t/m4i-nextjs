@@ -126,12 +126,14 @@ const hierarchyResult: HierarchyPipelineResult = {
       questions: [
         {
           question: "Was the policy adopted?",
+          cutoff: 0.3,
           results: [result("chunk-1", 0.9)],
           droppedBelowCutoff: [result("chunk-2", 0.1)],
           droppedOutsideTopK: [],
         },
         {
           question: "Who was engaged?",
+          cutoff: 0.3,
           results: [],
           droppedBelowCutoff: [],
           droppedOutsideTopK: [result("chunk-2", 0.05)],

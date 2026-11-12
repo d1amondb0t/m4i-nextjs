@@ -66,6 +66,7 @@ export type HierarchyDimensionResult = Omit<
 
 export type QuestionRetrieval = {
   question: string;
+  cutoff: number;
   results: SearchResult[];
   droppedBelowCutoff: SearchResult[];
   droppedOutsideTopK: SearchResult[];
@@ -81,8 +82,9 @@ export type HierarchyCategoryDiagnostics = {
     retrievedChunks: number;
     chunks: HierarchyRetrievedChunk[];
     candidates: number;
-    droppedBelowCutoff: number;
-    droppedOutsideTopK: number;
+    cutoff: number;
+    droppedBelowCutoff: HierarchyRetrievedChunk[];
+    droppedOutsideTopK: HierarchyRetrievedChunk[];
     generatedCandidates: number;
     acceptedCandidates: number;
   }[];

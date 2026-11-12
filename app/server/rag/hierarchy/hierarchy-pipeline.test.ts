@@ -234,11 +234,16 @@ describe("HierarchyPipeline", () => {
       "chunk-12",
       "chunk-13",
     ]);
-    expect(result.diagnostics[0].questions[0]).toMatchObject({
-      candidates: 14,
-      droppedBelowCutoff: 2,
-      droppedOutsideTopK: 2,
-    });
+    const [diagnostics] = result.diagnostics[0].questions;
+    expect(diagnostics).toMatchObject({ candidates: 14, cutoff: 0.05 });
+    expect(diagnostics.droppedBelowCutoff.map((c) => c.chunkId)).toEqual([
+      "chunk-10",
+      "chunk-11",
+    ]);
+    expect(diagnostics.droppedOutsideTopK.map((c) => c.chunkId)).toEqual([
+      "chunk-12",
+      "chunk-13",
+    ]);
   });
 
   it("reports progress once per question for retrieval and for analysis", async () => {
@@ -340,8 +345,9 @@ describe("HierarchyPipeline", () => {
           },
         ],
         candidates: 1,
-        droppedBelowCutoff: 0,
-        droppedOutsideTopK: 0,
+        cutoff: 0.05,
+        droppedBelowCutoff: [],
+        droppedOutsideTopK: [],
         generatedCandidates: 3,
         acceptedCandidates: 2,
       })),
