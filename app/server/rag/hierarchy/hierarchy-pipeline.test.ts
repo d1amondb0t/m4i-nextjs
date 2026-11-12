@@ -92,6 +92,20 @@ describe("HierarchyPipeline", () => {
     );
   }
 
+  it.each([
+    [{ retrievalScoreFloor: 0.5 }, "retrievalScoreFloor must be between"],
+    [{ relativeRetrievalScore: 1.5 }, "relativeRetrievalScore must be between"],
+  ])("rejects an invalid cutoff setting %o", (override, message) => {
+    expect(
+      () =>
+        new HierarchyPipeline(
+          DEFAULT_RAG_PIPELINE_CONFIGURATION,
+          { ...DEFAULT_HIERARCHY_CONFIGURATION, ...override },
+          dependencies,
+        ),
+    ).toThrow(message);
+  });
+
   it("matches every supplied question, preserving explicit and implicit support", async () => {
     vi.mocked(dependencies.analyzer.match)
       .mockResolvedValueOnce([match])

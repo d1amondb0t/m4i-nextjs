@@ -9,6 +9,8 @@ import {
   evidenceIsGrounded,
   hierarchyConfigurationFor,
   parseFrameworkOntology,
+  retrievalScoreCutoff,
+  splitRankedCandidates,
 } from "./hierarchy-helper";
 
 function result(
@@ -53,7 +55,55 @@ describe("hierarchyConfigurationFor", () => {
         runtime: "ollama",
         model: "zerank-2-score",
       }),
-    ).toMatchObject({ topKPerQuery: 12, minimumRetrievalScore: 0.3 });
+    ).toMatchObject({
+      topKPerQuery: 12,
+      minimumRetrievalScore: 0.3,
+      retrievalScoreFloor: 0.15,
+      relativeRetrievalScore: 0.6,
+    });
+  });
+});
+
+describe("retrievalScoreCutoff", () => {
+  const zerank = hierarchyConfigurationFor({
+    ...DEFAULT_RERANKING_CONFIGURATION,
+    runtime: "ollama",
+    model: "zerank-2-score",
+  });
+
+  it.each([
+    [0.9, 0.3],
+    [0.4, 0.24],
+    [0.2, 0.15],
+  ])("with zerank and a best score of %s is %s", (best, cutoff) => {
+    expect(retrievalScoreCutoff(best, zerank)).toBeCloseTo(cutoff);
+  });
+
+  it("stays at the fixed floor for the default reranker", () => {
+    const configuration = hierarchyConfigurationFor(
+      DEFAULT_RERANKING_CONFIGURATION,
+    );
+
+    expect(retrievalScoreCutoff(0.9, configuration)).toBe(0.05);
+    expect(retrievalScoreCutoff(0.01, configuration)).toBe(0.05);
+  });
+
+  it("keeps chunks at the cutoff relative to the best chunk", () => {
+    const ranked = [
+      result("best", 0.4),
+      result("at-cutoff", 0.24),
+      result("below", 0.2),
+    ];
+
+    const split = splitRankedCandidates(ranked, zerank);
+
+    expect(split.results.map((r) => r.chunk.chunkId)).toEqual([
+      "best",
+      "at-cutoff",
+    ]);
+    expect(split.droppedBelowCutoff.map((r) => r.chunk.chunkId)).toEqual([
+      "below",
+    ]);
   });
 });
 

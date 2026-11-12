@@ -141,14 +141,20 @@ models do not need to share GPU memory, so Ollama swaps them only once per run.
    `RERANKING_RUNTIME=ollama` and `RERANKING_MODEL` (see `.env.example`). A
    plain zerank-2 GGUF does not work: its score is the raw "Yes" logit, which
    Ollama's top log-probabilities never include. The probability is
-   `sigmoid(logit / 5)`, as on the model card, and the floor is `0.3` instead
-   of `0.05`. zerank-2 reranks 50 hybrid candidates instead of 20: on two
+   `sigmoid(logit / 5)`, as on the model card. Instead of the fixed `0.05`,
+   zerank-2 keeps chunks scoring at least 0.6 of the question's best score,
+   with that cutoff kept between `0.15` and `0.3`. Relevant chunks in indicator
+   lists and short web pages often rank first but score under `0.3`.
+   zerank-2 reranks 50 hybrid candidates instead of 20: on two
    calibration batches that gave 47% more relevant matches than mxbai with 20,
    while mxbai itself did worse with 50.
-2. Asks Ollama for up to 20 distinct candidate passages relevant to the question, with
-   a brief explanation and supporting quotes. Partial answers, proposed outcomes,
+2. Asks Ollama for up to 8 distinct candidate passages relevant to the question, strongest
+   first, with a brief explanation and supporting quotes. Partial answers, proposed outcomes,
    indicators, and measurement criteria can qualify; a complete answer or an
-   achieved intervention is not required. A question can return multiple candidates.
+   achieved intervention is not required. An indicator or data source counts even when
+   it is listed without values. The model receives the category's name and definition
+   with only the question being asked, without the sibling questions or the
+   include and exclude lists. A question can return multiple candidates.
 3. Checks each candidate's cited chunk and quote independently against retrieval,
    removing repeated citations within the same question. Short quotes and one-sentence
    explanations keep the response within the model's context budget.

@@ -1,10 +1,24 @@
 import type { ChatResponse } from "ollama";
 
-import type { ExtractedHierarchyMatch } from "@/types/hierarchy-types";
+import type {
+  ExtractedHierarchyMatch,
+  FrameworkCategory,
+} from "@/types/hierarchy-types";
 import { isRecord, requireNonEmptyText } from "./hierarchy-helper";
 
+export const MAX_MATCHES_PER_QUESTION = 8;
+
+// Sibling questions and the include/exclude lists made qwen3.5:9b return no
+// matches for indicator evidence it accepted once they were left out.
+export function analyzerCategory(
+  { id, name, definition }: FrameworkCategory,
+  question: string,
+) {
+  return { id, name, definition, questions: [question] };
+}
+
 // The 4,000-word context plus the system prompt is about 6,000 tokens, and a
-// full 20-match reply can add about 5,000 more. Without this Ollama uses its
+// full 8-match reply can add about 2,000 more. Without this Ollama uses its
 // VRAM-based default (4,096 on a 10 GB GPU) and silently drops part of the
 // prompt, which leaves too little room for the reply.
 export const HIERARCHY_CONTEXT_TOKENS = 16_384;
@@ -40,7 +54,7 @@ export const MATCH_SCHEMA = {
   properties: {
     matches: {
       type: "array",
-      maxItems: 20,
+      maxItems: MAX_MATCHES_PER_QUESTION,
       items: {
         type: "object",
         additionalProperties: false,

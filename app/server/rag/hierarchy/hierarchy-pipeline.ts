@@ -73,6 +73,22 @@ function validateConfiguration(configuration: HierarchyConfiguration): void {
   ) {
     throw new Error("minimumRetrievalScore must be between 0 and 1.");
   }
+
+  if (
+    configuration.retrievalScoreFloor < 0 ||
+    configuration.retrievalScoreFloor > configuration.minimumRetrievalScore
+  ) {
+    throw new Error(
+      "retrievalScoreFloor must be between 0 and minimumRetrievalScore.",
+    );
+  }
+
+  if (
+    configuration.relativeRetrievalScore < 0 ||
+    configuration.relativeRetrievalScore > 1
+  ) {
+    throw new Error("relativeRetrievalScore must be between 0 and 1.");
+  }
 }
 
 export class HierarchyPipeline {

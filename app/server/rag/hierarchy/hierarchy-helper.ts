@@ -4,7 +4,7 @@ import {
   DEFAULT_HIERARCHY_CONFIGURATION,
   MAX_HIERARCHY_CATEGORIES,
   MAX_HIERARCHY_DIMENSIONS,
-  ZERANK_MINIMUM_RETRIEVAL_SCORE,
+  ZERANK_RETRIEVAL_CUTOFF,
   type ExtractedHierarchyMatch,
   type FrameworkCategory,
   type FrameworkDimension,
@@ -18,10 +18,7 @@ export function hierarchyConfigurationFor(
   reranking: RerankingConfiguration,
 ): HierarchyConfiguration {
   return reranking.runtime === "ollama"
-    ? {
-        ...DEFAULT_HIERARCHY_CONFIGURATION,
-        minimumRetrievalScore: ZERANK_MINIMUM_RETRIEVAL_SCORE,
-      }
+    ? { ...DEFAULT_HIERARCHY_CONFIGURATION, ...ZERANK_RETRIEVAL_CUTOFF }
     : DEFAULT_HIERARCHY_CONFIGURATION;
 }
 
@@ -37,20 +34,34 @@ export function hierarchyRetrievedChunk(
   };
 }
 
+export function retrievalScoreCutoff(
+  bestScore: number,
+  {
+    minimumRetrievalScore,
+    retrievalScoreFloor,
+    relativeRetrievalScore,
+  }: HierarchyConfiguration,
+): number {
+  return Math.min(
+    minimumRetrievalScore,
+    Math.max(retrievalScoreFloor, relativeRetrievalScore * bestScore),
+  );
+}
+
 export function splitRankedCandidates(
   ranked: readonly SearchResult[],
-  { topKPerQuery, minimumRetrievalScore }: HierarchyConfiguration,
+  configuration: HierarchyConfiguration,
 ) {
-  const topRanked = ranked.slice(0, topKPerQuery);
+  const topRanked = ranked.slice(0, configuration.topKPerQuery);
+  const cutoff = retrievalScoreCutoff(
+    Math.max(...topRanked.map((result) => result.score)),
+    configuration,
+  );
 
   return {
-    results: topRanked.filter(
-      (result) => result.score >= minimumRetrievalScore,
-    ),
-    droppedBelowCutoff: topRanked.filter(
-      (result) => result.score < minimumRetrievalScore,
-    ),
-    droppedOutsideTopK: ranked.slice(topKPerQuery),
+    results: topRanked.filter((result) => result.score >= cutoff),
+    droppedBelowCutoff: topRanked.filter((result) => result.score < cutoff),
+    droppedOutsideTopK: ranked.slice(configuration.topKPerQuery),
   };
 }
 
