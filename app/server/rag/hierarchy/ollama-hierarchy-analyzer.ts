@@ -8,6 +8,7 @@ import type {
 import type { SearchResult } from "../storage/storage-types";
 import { buildHierarchyContext } from "./hierarchy-helper";
 import {
+  analyzerCategory,
   MATCH_SCHEMA,
   parseMatchResponse,
 } from "./ollama-hierarchy-analyzer-helper";
@@ -46,7 +47,7 @@ export class OllamaHierarchyAnalyzer implements HierarchyAnalyzer {
         {
           role: "user",
           content: [
-            `Category:\n${JSON.stringify(category, null, 2)}`,
+            `Category:\n${JSON.stringify(analyzerCategory(category, question), null, 2)}`,
             `Question:\n${question}`,
             `Context:\n${buildHierarchyContext(results, this.maximumContextWords)}`,
           ].join("\n\n"),

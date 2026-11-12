@@ -1,6 +1,37 @@
 import { describe, expect, it } from "vitest";
 
-import { parseMatchResponse } from "./ollama-hierarchy-analyzer-helper";
+import {
+  analyzerCategory,
+  MATCH_SCHEMA,
+  parseMatchResponse,
+} from "./ollama-hierarchy-analyzer-helper";
+
+describe("hierarchy analyzer category", () => {
+  it("sends only the asked question, without include and exclude lists", () => {
+    expect(
+      analyzerCategory(
+        {
+          id: "health",
+          name: "Health",
+          definition: "Changes in health.",
+          questions: ["Which health indicators are tracked?", "What changed?"],
+          include: ["mortality"],
+          exclude: ["budget lines without a health outcome"],
+        },
+        "Which health indicators are tracked?",
+      ),
+    ).toEqual({
+      id: "health",
+      name: "Health",
+      definition: "Changes in health.",
+      questions: ["Which health indicators are tracked?"],
+    });
+  });
+
+  it("limits each question to eight matches", () => {
+    expect(MATCH_SCHEMA.properties.matches.maxItems).toBe(8);
+  });
+});
 
 const match = {
   explicitness: "explicit",
