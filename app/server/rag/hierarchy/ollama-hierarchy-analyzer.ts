@@ -8,8 +8,10 @@ import type {
 import type { SearchResult } from "../storage/storage-types";
 import { buildHierarchyContext } from "./hierarchy-helper";
 import {
+  HIERARCHY_CONTEXT_TOKENS,
   MATCH_SCHEMA,
   parseMatchResponse,
+  requireCompleteResponse,
 } from "./ollama-hierarchy-analyzer-helper";
 
 export type HierarchyAnalyzer = {
@@ -52,9 +54,10 @@ export class OllamaHierarchyAnalyzer implements HierarchyAnalyzer {
           ].join("\n\n"),
         },
       ],
-      options: { temperature: 0 },
+      options: { temperature: 0, num_ctx: HIERARCHY_CONTEXT_TOKENS },
     });
 
+    requireCompleteResponse(response);
     return parseMatchResponse(response.message.content);
   }
 }

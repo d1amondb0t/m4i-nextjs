@@ -2,6 +2,7 @@ import type {
   ChunkStatus,
   FeedbackEntry,
   JobStatusResponse,
+  QuoteSplit,
   SnapshotQuestion,
   Verdict,
 } from "@/types/feedback-types";
@@ -145,4 +146,26 @@ export function writeStorage(key: string, value: string | null): void {
   } catch {
     // Storage can be blocked or full; drafts are a convenience only.
   }
+}
+
+function escapeRegExp(value: string): string {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+export function splitAroundQuote(
+  text: string,
+  quote: string,
+): QuoteSplit | null {
+  const words = quote.trim().split(/\s+/).filter(Boolean);
+  if (words.length === 0) return null;
+
+  const pattern = new RegExp(words.map(escapeRegExp).join("\\s+"), "i");
+  const found = pattern.exec(text);
+  if (!found) return null;
+
+  return {
+    before: text.slice(0, found.index),
+    quote: found[0],
+    after: text.slice(found.index + found[0].length),
+  };
 }

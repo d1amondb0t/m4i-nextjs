@@ -1,6 +1,9 @@
 import { describe, expect, it } from "vitest";
 
-import { parseMatchResponse } from "./ollama-hierarchy-analyzer-helper";
+import {
+  parseMatchResponse,
+  requireCompleteResponse,
+} from "./ollama-hierarchy-analyzer-helper";
 
 const match = {
   explicitness: "explicit",
@@ -47,5 +50,34 @@ describe("hierarchy model response parsing", () => {
   it("rejects missing matches and malformed JSON", () => {
     expect(() => parseMatchResponse("{}")).toThrow("omitted match");
     expect(() => parseMatchResponse("not-json")).toThrow("invalid JSON");
+  });
+
+  it("shows how a malformed reply ends", () => {
+    expect(() => parseMatchResponse('{"matches":[{"reason":"cut')).toThrow(
+      'The reply ends with: "{\\"matches\\":[{\\"reason\\":\\"cut"',
+    );
+    expect(() => parseMatchResponse("  ")).toThrow("The reply was empty.");
+  });
+});
+
+describe("hierarchy model completion", () => {
+  const completion = {
+    model: "qwen3.5:9b-q4_K_M",
+    prompt_eval_count: 5685,
+    eval_count: 4200,
+  };
+
+  it("accepts a reply the model finished", () => {
+    expect(() =>
+      requireCompleteResponse({ ...completion, done_reason: "stop" }),
+    ).not.toThrow();
+  });
+
+  it("names the model and token counts when the reply hit the limit", () => {
+    expect(() =>
+      requireCompleteResponse({ ...completion, done_reason: "length" }),
+    ).toThrow(
+      "qwen3.5:9b-q4_K_M stopped at its token limit before finishing its reply (5685 prompt tokens, 4200 reply tokens",
+    );
   });
 });

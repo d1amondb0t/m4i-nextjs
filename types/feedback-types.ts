@@ -150,6 +150,8 @@ export type SnapshotQuestion = Omit<
   chunks: SnapshotChunk[];
 };
 
+export type QuoteSplit = { before: string; quote: string; after: string };
+
 export type FeedbackEntry = {
   verdict: Verdict;
   comment: string;

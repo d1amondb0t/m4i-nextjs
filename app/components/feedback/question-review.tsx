@@ -8,6 +8,7 @@ import type {
   SnapshotQuestion,
 } from "@/types/feedback-types";
 import { ChunkCard } from "./chunk-card";
+import { EvidenceQuote } from "./evidence-quote";
 import { FeedbackControls } from "./feedback-controls";
 import { CHUNK_STATUS_LABELS } from "./review-helper";
 import type { FeedbackController } from "./use-feedback";
@@ -142,23 +143,13 @@ export function QuestionReview({
               </p>
               {item.evidence.length > 0 && (
                 <ul className="mt-3 space-y-2 border-t border-blue-100 pt-3">
-                  {item.evidence.map((evidence) => {
-                    const chunk = chunksById.get(evidence.runChunkId);
-                    return (
-                      <li
-                        key={`${evidence.runChunkId}-${evidence.quote}`}
-                        className="text-xs leading-5 text-zinc-700"
-                      >
-                        <p>&ldquo;{evidence.quote}&rdquo;</p>
-                        {chunk && (
-                          <p className="mt-0.5 text-[11px] text-zinc-500">
-                            {chunk.source} · page {chunk.page} · chunk{" "}
-                            {chunk.chunkNumber}
-                          </p>
-                        )}
-                      </li>
-                    );
-                  })}
+                  {item.evidence.map((evidence) => (
+                    <EvidenceQuote
+                      key={`${evidence.runChunkId}-${evidence.quote}`}
+                      quote={evidence.quote}
+                      chunk={chunksById.get(evidence.runChunkId)}
+                    />
+                  ))}
                 </ul>
               )}
               <div className="mt-4">
