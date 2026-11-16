@@ -1,0 +1,19 @@
+Technical Note: Suspended Sediment Monitoring on the Upper Kessa River, 2023 Season
+
+Purpose
+
+This note summarises suspended sediment measurements taken at four gauging stations on the upper Kessa River between April and October 2023. The data support the design of the intake structure for the planned Kessa irrigation weir.
+
+Methods
+
+Depth-integrated samples were taken weekly with a US DH-48 sampler and, during floods, daily. Turbidity was logged every 15 minutes with optical sensors and converted to suspended sediment concentration using a site-specific rating curve fitted to 212 paired samples (R-squared 0.91). Discharge was measured with an acoustic Doppler current profiler at the start, middle and end of the season.
+
+Results
+
+Mean suspended sediment concentration across the season was 640 mg/l at Station K1 and 1,120 mg/l at Station K4, the most downstream site. Concentrations peaked during the August flood at 9,800 mg/l at K4. Roughly 70% of the annual sediment load passed during 11 flood days. The estimated seasonal load at K4 was 1.9 million tonnes, which is 25% higher than the 2019 estimate, probably because of landslides on the eastern tributaries after the 2022 earthquake.
+
+Sand made up about 35% of the suspended load at K4 during floods and less than 10% in low flows. This matters for the intake design because sand-sized particles cause most of the abrasion in canals and turbines.
+
+Recommendations
+
+The intake should include a settling basin sized to remove particles above 0.2 mm at the design discharge of 12 cubic metres per second. The turbidity sensors at K3 should be replaced before the 2024 season because of frequent fouling. Monitoring should continue for at least two more seasons so that the rating curve can be checked against a wider range of floods.

@@ -58,3 +58,8 @@ next-env.d.ts
 
 # Feedback database, uploads and session secret
 /data/
+
+# Indicator experiment: copied dataset PDFs and caches
+/experiments/political-indicators/documents/*.pdf
+/experiments/political-indicators/cache/
+/experiments/political-indicators/results/*/
