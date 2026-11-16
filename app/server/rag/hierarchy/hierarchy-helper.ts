@@ -261,7 +261,7 @@ export function buildHierarchyContext(
   return sections.join("\n\n");
 }
 
-function normalizedEvidenceText(value: string): string {
+export function normalizedEvidenceText(value: string): string {
   return value.replace(/\s+/g, " ").trim().toLocaleLowerCase("en-US");
 }
 
