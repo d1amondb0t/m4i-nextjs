@@ -152,8 +152,9 @@ function NewRunForm({
   return (
     <form onSubmit={handleSubmit}>
       <p className="text-sm text-zinc-500">
-        {RAG_DOCUMENT_TYPE_LABEL}. Runs the political hierarchy questions and
-        then the indicator step. Expect a few minutes per document.
+        {RAG_DOCUMENT_TYPE_LABEL}. Runs the hierarchy questions of the loaded
+        ontology and then the indicator step. With the full ontology, expect
+        several minutes per document.
       </p>
       <div className="mt-3 flex flex-col gap-3 sm:flex-row sm:items-center">
         <input
