@@ -1,3 +1,4 @@
+import type { SearchResult } from "@/app/server/rag/storage/storage-types";
 import type {
   FrameworkCategory,
   FrameworkDimension,
@@ -136,6 +137,7 @@ export type HorizonResult = {
   documentIndicators: DocumentIndicator[];
   usedPredefined: boolean;
   answers: IndicatorAnswer[];
+  context: SearchResult[];
 };
 
 export type CategoryIndicatorResult = {

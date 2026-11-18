@@ -15,11 +15,20 @@ import type {
   HierarchyPipelineResult,
   HierarchyProgress,
 } from "@/types/hierarchy-types";
+import {
+  DEFAULT_INDICATOR_CONFIGURATION,
+  type IndicatorOntology,
+  type IndicatorPipelineResult,
+} from "@/types/indicator-types";
 import type {
   Embedder,
   RagPipelineConfiguration,
   RagPipelineResult,
 } from "@/types/rag-pipeline-type";
+import {
+  indicatorRunSettings,
+  indicatorSnapshotQuestions,
+} from "../feedback/indicator-snapshot-helper";
 import {
   documentRecords,
   nearestQuestion,
@@ -32,6 +41,14 @@ import {
 import { OllamaEmbedder } from "../rag/embeddings/ollama-embedder";
 import { hierarchyConfigurationFor } from "../rag/hierarchy/hierarchy-helper";
 import { HierarchyPipeline } from "../rag/hierarchy/hierarchy-pipeline";
+import {
+  indicatorOntologyFile,
+  loadIndicatorOntology,
+} from "../rag/indicators/indicator-ontology-source";
+import {
+  createIndicatorPipeline,
+  INDICATOR_PROMPT_PATHS,
+} from "../rag/indicators/indicator-pipeline";
 import { RagPipeline } from "../rag/pipeline/rag-pipeline";
 import { ragPipelineConfigurationFromEnvironment } from "../rag/pipeline/rag-pipeline-helper";
 import { loadOntology } from "./ontology-source";
@@ -58,6 +75,13 @@ export type JobRunnerDependencies = {
       onProgress: HierarchyProgress,
     ): Promise<HierarchyPipelineResult>;
   };
+  indicatorOntology: () => { file: string; ontology: IndicatorOntology };
+  indicatorPipeline: (configuration: RagPipelineConfiguration) => {
+    run(
+      ontology: IndicatorOntology,
+      hierarchy: HierarchyPipelineResult,
+    ): Promise<IndicatorPipelineResult>;
+  };
   embedder: (configuration: RagPipelineConfiguration) => Embedder;
   promptHash: (path: string) => string;
 };
@@ -81,6 +105,11 @@ export const DEFAULT_JOB_RUNNER_DEPENDENCIES: JobRunnerDependencies = {
   ragPipeline: (configuration) => new RagPipeline(configuration),
   hierarchyPipeline: (configuration, hierarchy) =>
     new HierarchyPipeline(configuration, hierarchy),
+  indicatorOntology: () => ({
+    file: indicatorOntologyFile(),
+    ontology: loadIndicatorOntology(),
+  }),
+  indicatorPipeline: (configuration) => createIndicatorPipeline(configuration),
   embedder: (configuration) =>
     new OllamaEmbedder(
       configuration.embeddingModel,
@@ -122,6 +151,19 @@ async function nearestOntologyQuestion(
       vector: vectors[index],
     })),
   );
+}
+
+function hierarchySettings(
+  configuration: RagPipelineConfiguration,
+  hierarchy: HierarchyConfiguration,
+) {
+  return {
+    chunking: configuration.chunking,
+    retrieval: configuration.retrieval,
+    reranking: configuration.reranking,
+    hierarchy,
+    generationModel: configuration.generation.model,
+  };
 }
 
 function baseSnapshot(
@@ -197,13 +239,7 @@ async function runOntology(
   return {
     snapshot: {
       ...baseSnapshot(job, user, configuration, configuration.reranking.model),
-      settings: {
-        chunking: configuration.chunking,
-        retrieval: configuration.retrieval,
-        reranking: configuration.reranking,
-        hierarchy,
-        generationModel: configuration.generation.model,
-      },
+      settings: hierarchySettings(configuration, hierarchy),
       promptHash: dependencies.promptHash(HIERARCHY_PROMPT_PATH),
       documents: runDocuments(result.chunks),
       questions: ontologySnapshotQuestions(ontology, result),
@@ -211,6 +247,57 @@ async function runOntology(
     documents: documentRecords(result.chunks, user),
   };
 }
+
+async function runIndicators(
+  job: Job,
+  user: User,
+  documents: readonly File[],
+  onProgress: HierarchyProgress,
+  configuration: RagPipelineConfiguration,
+  dependencies: JobRunnerDependencies,
+): Promise<JobRunResult> {
+  const { file, ontology } = dependencies.indicatorOntology();
+  const hierarchy = hierarchyConfigurationFor(configuration.reranking);
+  const hierarchyResult = await dependencies
+    .hierarchyPipeline(configuration, hierarchy)
+    .run(documents, ontology, onProgress);
+  const result = await dependencies
+    .indicatorPipeline(configuration)
+    .run(ontology, hierarchyResult);
+
+  return {
+    snapshot: {
+      ...baseSnapshot(job, user, configuration, configuration.reranking.model),
+      settings: {
+        ...hierarchySettings(configuration, hierarchy),
+        indicators: indicatorRunSettings(
+          file,
+          DEFAULT_INDICATOR_CONFIGURATION.gate,
+          result,
+        ),
+      },
+      promptHash: [
+        HIERARCHY_PROMPT_PATH,
+        INDICATOR_PROMPT_PATHS.discover,
+        INDICATOR_PROMPT_PATHS.answer,
+      ]
+        .map(dependencies.promptHash)
+        .join(","),
+      documents: runDocuments(hierarchyResult.chunks),
+      questions: [
+        ...ontologySnapshotQuestions(ontology, hierarchyResult),
+        ...indicatorSnapshotQuestions(ontology, result),
+      ],
+    },
+    documents: documentRecords(hierarchyResult.chunks, user),
+  };
+}
+
+const RUNNERS = {
+  rag: runRag,
+  ontology: runOntology,
+  indicators: runIndicators,
+} satisfies Record<Job["mode"], unknown>;
 
 export async function runJob(
   job: Job,
@@ -224,7 +311,12 @@ export async function runJob(
     ...dependencies.configuration(),
     collection: user.collection,
   };
-  const run = job.mode === "rag" ? runRag : runOntology;
-
-  return run(job, user, documents, onProgress, configuration, dependencies);
+  return RUNNERS[job.mode](
+    job,
+    user,
+    documents,
+    onProgress,
+    configuration,
+    dependencies,
+  );
 }

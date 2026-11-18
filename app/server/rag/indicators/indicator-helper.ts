@@ -261,6 +261,20 @@ export function outcomeContext(
   return uniqueByChunkId([...indicatorChunks, ...matchResults]);
 }
 
+export function horizonContext(
+  documentIndicators: readonly DocumentIndicator[],
+  discoveryResults: ReadonlyMap<string, SearchResult>,
+  answerContext: readonly SearchResult[],
+): SearchResult[] {
+  return uniqueByChunkId([
+    ...documentIndicators.flatMap((indicator) => {
+      const result = discoveryResults.get(indicator.evidence.chunkId);
+      return result ? [result] : [];
+    }),
+    ...answerContext,
+  ]);
+}
+
 export function categoryContext(
   category: IndicatorCategory,
   matchResults: readonly SearchResult[],

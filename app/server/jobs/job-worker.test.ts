@@ -2,10 +2,16 @@ import type { DatabaseSync } from "node:sqlite";
 import { type Mock, beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { DocumentChunk } from "@/types/chunk-type";
+import type { RunMode } from "@/types/feedback-types";
 import type {
   FrameworkOntology,
+  HierarchyEvidence,
   HierarchyPipelineResult,
 } from "@/types/hierarchy-types";
+import type {
+  IndicatorOntology,
+  IndicatorPipelineResult,
+} from "@/types/indicator-types";
 import type { RagPipelineResult } from "@/types/rag-pipeline-type";
 import type { RerankedResult } from "@/types/retrieval-types";
 import { openDatabase } from "../db/database";
@@ -20,6 +26,9 @@ import { JobWorker } from "./job-worker";
 type RagRun = ReturnType<JobRunnerDependencies["ragPipeline"]>["run"];
 type HierarchyRun = ReturnType<
   JobRunnerDependencies["hierarchyPipeline"]
+>["run"];
+type IndicatorRun = ReturnType<
+  JobRunnerDependencies["indicatorPipeline"]
 >["run"];
 
 function chunk(chunkId: string): DocumentChunk {
@@ -70,6 +79,102 @@ const ontology: FrameworkOntology = {
       ],
     },
   ],
+};
+
+function evidence(chunkId: string, quote: string): HierarchyEvidence {
+  return {
+    chunkId,
+    quote,
+    source: "report.pdf",
+    page: 2,
+    chunk: Number(chunkId.replace(/\D/g, "")),
+    scores: {
+      denseScore: 0.5,
+      sparseScore: null,
+      rrfScore: 0.7,
+      rerankerScore: 0.9,
+    },
+  };
+}
+
+const indicatorOntology: IndicatorOntology = {
+  dimensions: [
+    {
+      ...ontology.dimensions[0],
+      categories: [
+        {
+          ...ontology.dimensions[0].categories[0],
+          outcomes: (["short_term", "medium_term"] as const).map((horizon) => ({
+            id: `${horizon}_outcome`,
+            horizon,
+            statement: `The ${horizon} outcome.`,
+            indicators: [
+              {
+                id: `${horizon}_indicator`,
+                name: `The ${horizon} indicator`,
+                question: `Did the ${horizon} indicator change?`,
+                answerType: "yes_no" as const,
+              },
+            ],
+          })),
+        },
+      ],
+    },
+  ],
+};
+
+const [shortTerm, mediumTerm] =
+  indicatorOntology.dimensions[0].categories[0].outcomes;
+
+const indicatorResult: IndicatorPipelineResult = {
+  categories: [
+    {
+      dimensionId: "political",
+      categoryId: "advocacy",
+      categoryName: "Advocacy",
+      triggeringMatches: [],
+      bestRerankerScore: 0.9,
+      ungroundedDocumentIndicators: 0,
+      horizons: [
+        {
+          horizon: "short_term",
+          outcome: shortTerm,
+          documentIndicators: [
+            {
+              horizon: "short_term",
+              name: "Officials trained",
+              value: "27 officials",
+              evidence: evidence("chunk-1", "27 officials were trained"),
+            },
+          ],
+          usedPredefined: false,
+          answers: [],
+          context: [result("chunk-1", 0.9)],
+        },
+        {
+          horizon: "medium_term",
+          outcome: mediumTerm,
+          documentIndicators: [],
+          usedPredefined: true,
+          answers: [
+            {
+              indicatorId: "medium_term_indicator",
+              basis: "reported",
+              answer: "yes",
+              rationale: "The law passed.",
+              confidence: "high",
+              indicator: mediumTerm.indicators[0],
+              horizon: "medium_term",
+              evidence: evidence("chunk-2", "the law passed"),
+              groundingFailed: false,
+            },
+          ],
+          context: [result("chunk-2", 0.4), result("chunk-1", 0.3)],
+        },
+      ],
+    },
+  ],
+  skippedCategories: [{ categoryId: "budgets", bestRerankerScore: 0.2 }],
 };
 
 const ragResult: RagPipelineResult = {
@@ -150,6 +255,7 @@ describe("JobWorker", () => {
   let removeUploads: Mock<(jobId: string) => Promise<void>>;
   let ragRun: Mock<RagRun>;
   let hierarchyRun: Mock<HierarchyRun>;
+  let indicatorRun: Mock<IndicatorRun>;
 
   function worker() {
     return new JobWorker({
@@ -161,7 +267,7 @@ describe("JobWorker", () => {
     });
   }
 
-  function queue(id: string, mode: "rag" | "ontology") {
+  function queue(id: string, mode: RunMode) {
     createJob(db, {
       id,
       userId,
@@ -180,11 +286,17 @@ describe("JobWorker", () => {
       return ragResult;
     });
     hierarchyRun = vi.fn<HierarchyRun>(async () => hierarchyResult);
+    indicatorRun = vi.fn<IndicatorRun>(async () => indicatorResult);
     runner = {
       configuration: () => DEFAULT_RAG_PIPELINE_CONFIGURATION,
       ontology: () => ontology,
       ragPipeline: vi.fn(() => ({ run: ragRun })),
       hierarchyPipeline: vi.fn(() => ({ run: hierarchyRun })),
+      indicatorOntology: () => ({
+        file: "ontology-v2.json",
+        ontology: indicatorOntology,
+      }),
+      indicatorPipeline: vi.fn(() => ({ run: indicatorRun })),
       embedder: () => ({
         embed: async (texts: readonly string[]) =>
           texts.map((text) =>
@@ -256,6 +368,63 @@ describe("JobWorker", () => {
     ]);
     expect(engaged.items).toEqual([]);
     expect(engaged.chunks.map((c) => c.status)).toEqual(["outside_top_k"]);
+  });
+
+  it("saves the matches and every indicator horizon of an indicator run", async () => {
+    queue("job-1", "indicators");
+    await worker().wake();
+
+    const run = loadSnapshot(db, findJob(db, "job-1")!.runId!, userId)!;
+    expect(hierarchyRun).toHaveBeenCalledWith(
+      expect.anything(),
+      indicatorOntology,
+      expect.any(Function),
+    );
+    expect(run.run.mode).toBe("indicators");
+    expect(run.run.settings.indicators).toEqual({
+      ontologyFile: "ontology-v2.json",
+      gate: expect.objectContaining({ minimumRerankerScore: 0.7 }),
+      triggeredCategories: [{ categoryId: "advocacy", bestRerankerScore: 0.9 }],
+      skippedCategories: [{ categoryId: "budgets", bestRerankerScore: 0.2 }],
+    });
+
+    const [adopted, , short, medium] = run.questions;
+    expect(adopted.items).toMatchObject([{ kind: "ontology_match" }]);
+    expect(short).toMatchObject({
+      horizon: "short_term",
+      question: "The short_term outcome.",
+      categoryDefinition: "Influence on policy.",
+    });
+    expect(short.items).toEqual([
+      {
+        id: expect.any(Number),
+        kind: "document_indicator",
+        answer: "27 officials",
+        explicitness: null,
+        indicator: { source: "document", name: "Officials trained" },
+        evidence: [
+          {
+            runChunkId: short.chunks[0].id,
+            quote: "27 officials were trained",
+          },
+        ],
+      },
+    ]);
+    expect(medium.items[0]).toMatchObject({
+      kind: "indicator_answer",
+      answer: "yes",
+      indicator: {
+        source: "predefined",
+        indicatorId: "medium_term_indicator",
+        basis: "reported",
+        groundingFailed: false,
+      },
+      evidence: [{ runChunkId: medium.chunks[0].id, quote: "the law passed" }],
+    });
+    expect(medium.chunks.map((c) => [c.chunkId, c.rerankedRank])).toEqual([
+      ["chunk-2", 1],
+      ["chunk-1", 2],
+    ]);
   });
 
   it("marks a failed run and still removes its uploads", async () => {

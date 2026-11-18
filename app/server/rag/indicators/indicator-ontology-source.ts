@@ -4,7 +4,7 @@ import { resolve } from "node:path";
 import type { IndicatorOntology } from "@/types/indicator-types";
 import { parseIndicatorOntology } from "./indicator-helper";
 
-export const INDICATOR_ONTOLOGY_PATH = "ontology-political-test.json";
+export const INDICATOR_ONTOLOGY_PATH = "ontology-v2.json";
 
 export function indicatorOntologyFile(): string {
   return (

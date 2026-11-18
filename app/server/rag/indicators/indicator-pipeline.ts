@@ -34,6 +34,7 @@ import {
   gateCategories,
   groundAnswer,
   groundDocumentIndicators,
+  horizonContext,
   matchEvidenceResults,
   outcomeContext,
   resultsMap,
@@ -46,6 +47,11 @@ import {
 } from "./ollama-indicator-analyzer";
 
 export type IndicatorRetrievals = Map<string, SearchResult[]>;
+
+export const INDICATOR_PROMPT_PATHS = {
+  discover: "prompts/indicator-discover.txt",
+  answer: "prompts/indicator-answer.txt",
+} as const;
 
 export class IndicatorPipeline {
   constructor(
@@ -120,9 +126,10 @@ export class IndicatorPipeline {
       matchResults,
       indicatorResults,
     );
+    const discoveryResults = resultsMap(discoveryContext);
     const discovered = groundDocumentIndicators(
       await this.analyzer.discover(category, gated.matches, discoveryContext),
-      resultsMap(discoveryContext),
+      discoveryResults,
     );
 
     const horizons: HorizonResult[] = [];
@@ -133,12 +140,11 @@ export class IndicatorPipeline {
       const usedPredefined =
         this.configuration.fallback === "always" ||
         documentIndicators.length === 0;
+      const answerContext = usedPredefined
+        ? outcomeContext(outcome, matchResults, indicatorResults)
+        : [];
       const answers = usedPredefined
-        ? await this.answerOutcome(
-            gated,
-            outcome,
-            outcomeContext(outcome, matchResults, indicatorResults),
-          )
+        ? await this.answerOutcome(gated, outcome, answerContext)
         : [];
       horizons.push({
         horizon: outcome.horizon,
@@ -146,6 +152,11 @@ export class IndicatorPipeline {
         documentIndicators,
         usedPredefined,
         answers,
+        context: horizonContext(
+          documentIndicators,
+          discoveryResults,
+          answerContext,
+        ),
       });
     }
 
@@ -224,8 +235,8 @@ export function createIndicatorPipeline(
   const analyzer = new OllamaIndicatorAnalyzer(
     ragConfiguration.generation.model,
     {
-      discover: resolve("prompts/indicator-discover.txt"),
-      answer: resolve("prompts/indicator-answer.txt"),
+      discover: resolve(INDICATOR_PROMPT_PATHS.discover),
+      answer: resolve(INDICATOR_PROMPT_PATHS.answer),
     },
     configuration.maxContextWords,
     configuration.analyzerContextTokens,

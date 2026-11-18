@@ -25,6 +25,7 @@ COPY --from=build --chown=node:node /app/.next/static ./.next/static
 COPY --from=build --chown=node:node /app/public ./public
 COPY --from=build --chown=node:node /app/prompts ./prompts
 COPY --from=build --chown=node:node /app/ontology.json ./ontology.json
+COPY --from=build --chown=node:node /app/ontology-v2.json ./ontology-v2.json
 # The user script runs on Node's type stripping, straight from the sources.
 COPY --from=build --chown=node:node /app/scripts/create-user.ts ./scripts/create-user.ts
 COPY --from=build --chown=node:node /app/app/server/db ./app/server/db

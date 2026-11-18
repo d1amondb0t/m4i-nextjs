@@ -6,7 +6,11 @@ import { getDatabase } from "@/app/server/db/database";
 import { createJob } from "@/app/server/db/jobs-repository";
 import { jobWorker } from "@/app/server/jobs/job-worker";
 import { removeUploads, saveUploads } from "@/app/server/jobs/upload-store";
-import type { CreateJobResponse, RunMode } from "@/types/feedback-types";
+import {
+  RUN_MODES,
+  type CreateJobResponse,
+  type RunMode,
+} from "@/types/feedback-types";
 import { validateQuestion } from "@/types/rag-pipeline-type";
 
 export const runtime = "nodejs";
@@ -22,10 +26,10 @@ export async function POST(request: Request) {
   if (!user) return unauthorized();
 
   const formData = await request.formData();
-  const mode = formData.get("mode");
+  const mode = formData.get("mode") as RunMode;
 
-  if (mode !== "rag" && mode !== "ontology") {
-    return badRequest("mode must be rag or ontology.");
+  if (!RUN_MODES.includes(mode)) {
+    return badRequest(`mode must be one of ${RUN_MODES.join(", ")}.`);
   }
 
   const documents = formData
@@ -48,7 +52,7 @@ export async function POST(request: Request) {
     createJob(getDatabase(), {
       id,
       userId: user.id,
-      mode: mode satisfies RunMode,
+      mode,
       question,
       uploads,
     });
