@@ -136,6 +136,24 @@ export function failInterruptedJobs(db: DatabaseSync): string[] {
   return rows.map((row) => row.id);
 }
 
+export const LISTED_FAILED_JOBS = 5;
+
+export function listOpenJobs(db: DatabaseSync, userId: number): Job[] {
+  return (
+    db
+      .prepare(
+        `SELECT * FROM jobs WHERE user_id = ? AND status IN ('queued', 'running')
+         UNION ALL
+         SELECT * FROM (
+           SELECT * FROM jobs WHERE user_id = ? AND status = 'failed'
+           ORDER BY created_at DESC, rowid DESC LIMIT ?
+         )
+         ORDER BY created_at DESC`,
+      )
+      .all(userId, userId, LISTED_FAILED_JOBS) as JobRow[]
+  ).map(toJob);
+}
+
 export function listQueuedJobIds(db: DatabaseSync): string[] {
   return (
     db

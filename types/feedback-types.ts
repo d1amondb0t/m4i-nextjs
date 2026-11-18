@@ -80,21 +80,24 @@ export type Job = {
   finishedAt: string | null;
 };
 
+export type JobView = Pick<
+  Job,
+  | "id"
+  | "mode"
+  | "status"
+  | "stage"
+  | "progressDone"
+  | "progressTotal"
+  | "error"
+  | "runId"
+  | "createdAt"
+> & { queuePosition: number; documents: string[] };
+
 export type JobStatusResponse =
-  | {
-      ok: true;
-      job: Pick<
-        Job,
-        | "id"
-        | "mode"
-        | "status"
-        | "progressDone"
-        | "progressTotal"
-        | "error"
-        | "runId"
-      > & { queuePosition: number };
-    }
-  | { ok: false; message: string };
+  { ok: true; job: JobView } | { ok: false; message: string };
+
+export type JobListResponse =
+  { ok: true; jobs: JobView[] } | { ok: false; message: string };
 
 export type CreateJobResponse =
   { ok: true; jobId: string } | { ok: false; message: string };

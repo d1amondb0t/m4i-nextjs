@@ -20,7 +20,10 @@ import {
   completeJob,
   createJob,
   failInterruptedJobs,
+  failJob,
   findJob,
+  LISTED_FAILED_JOBS,
+  listOpenJobs,
   queuePosition,
   updateJobProgress,
 } from "./jobs-repository";
@@ -155,6 +158,32 @@ describe("repositories", () => {
       progressDone: 3,
       progressTotal: 10,
     });
+  });
+
+  it("lists a user's queued and running jobs and their latest failures", () => {
+    queue("done");
+    claimNextJob(db);
+    completeJob(db, "done", "run-x");
+    queue("running");
+    claimNextJob(db);
+    queue("queued");
+    queue("other", bob);
+    for (let index = 0; index <= LISTED_FAILED_JOBS; index += 1) {
+      queue(`failed-${index}`);
+      failJob(db, `failed-${index}`, "Ollama is not running");
+    }
+
+    const listed = listOpenJobs(db, alice).map((job) => job.id);
+    expect(listed).toHaveLength(2 + LISTED_FAILED_JOBS);
+    expect(listed).toEqual(
+      expect.arrayContaining([
+        "running",
+        "queued",
+        `failed-${LISTED_FAILED_JOBS}`,
+      ]),
+    );
+    expect(listed).not.toContain("failed-0");
+    expect(listed).not.toContain("done");
   });
 
   it("fails jobs that were running when the server stopped", () => {

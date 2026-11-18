@@ -1,14 +1,18 @@
 import type {
   ChunkStatus,
   FeedbackEntry,
-  JobStatusResponse,
+  JobView,
   QuoteSplit,
+  RunMode,
   SnapshotQuestion,
   Verdict,
 } from "@/types/feedback-types";
+import type { PipelineStage } from "@/types/progress-types";
 import { feedbackKey } from "@/app/server/feedback/feedback-helper";
 
 export const ACTIVE_JOB_KEY = "m4i.activeJob";
+
+export const POLL_INTERVAL_MS = 3_000;
 
 export const VERDICT_LABELS: Record<Verdict, string> = {
   accepted: "Accept",
@@ -22,6 +26,63 @@ export const CHUNK_STATUS_LABELS: Record<ChunkStatus, string> = {
   sent: "Sent to the model",
   below_cutoff: "Below the reranker cutoff",
   outside_top_k: "Outside the top ranked chunks",
+};
+
+export const MODE_LABELS: Record<
+  RunMode,
+  { title: string; running: string; items: string }
+> = {
+  rag: {
+    title: "Your question",
+    running: "Answering your question",
+    items: "answer",
+  },
+  ontology: {
+    title: "Ontology run",
+    running: "Running the ontology",
+    items: "matches",
+  },
+  indicators: {
+    title: "Indicator outcomes",
+    running: "Finding outcome indicators",
+    items: "matches and indicators",
+  },
+};
+
+const MODE_STAGES: Record<RunMode, readonly PipelineStage[]> = {
+  rag: ["indexing", "retrieving", "answering"],
+  ontology: ["indexing", "retrieving", "matching"],
+  indicators: [
+    "indexing",
+    "retrieving",
+    "matching",
+    "indicator_retrieval",
+    "indicator_analysis",
+  ],
+};
+
+export const STAGE_LABELS: Record<
+  PipelineStage,
+  { label: string; unit: string | null }
+> = {
+  indexing: { label: "Reading and indexing your documents", unit: null },
+  retrieving: {
+    label: "Finding and reranking passages for each question",
+    unit: "questions",
+  },
+  answering: { label: "Writing the answer", unit: null },
+  matching: {
+    label: "Matching passages to the framework",
+    unit: "questions",
+  },
+  indicator_retrieval: {
+    label: "Finding passages for each indicator",
+    unit: "indicators",
+  },
+  indicator_analysis: {
+    label: "Reading outcome indicators per category",
+    unit: "categories",
+  },
 };
 
 export type ReviewCounts = {
@@ -108,9 +169,21 @@ export function groupByCategory(
   return [...groups.values()];
 }
 
-export function jobProgressLabel(
-  job: Extract<JobStatusResponse, { ok: true }>["job"],
-): string {
+export function jobStep(job: JobView): string | null {
+  if (!job.stage) return null;
+
+  const stages = MODE_STAGES[job.mode];
+  return `Step ${stages.indexOf(job.stage) + 1} of ${stages.length}`;
+}
+
+function stageDetail(job: JobView): string {
+  const { label, unit } = STAGE_LABELS[job.stage!];
+  return unit && job.progressTotal > 0
+    ? `${label}: ${job.progressDone} of ${job.progressTotal} ${unit}`
+    : label;
+}
+
+export function jobProgressLabel(job: JobView): string {
   if (job.status === "queued") {
     return job.queuePosition > 0
       ? `Waiting for ${job.queuePosition} run${job.queuePosition === 1 ? "" : "s"} ahead of yours.`
@@ -118,12 +191,31 @@ export function jobProgressLabel(
   }
 
   if (job.status === "running") {
-    return job.progressTotal > 0
-      ? `${job.progressDone} of ${job.progressTotal} steps done.`
-      : "Reading and indexing your documents…";
+    return job.stage ? `${stageDetail(job)}.` : "Starting…";
   }
 
-  return job.status === "done" ? "Done." : (job.error ?? "The run failed.");
+  if (job.status === "done") return "Done.";
+
+  const error = job.error ?? "The run failed.";
+  return job.stage
+    ? `Failed while ${stageDetail(job).toLowerCase()}. ${error}`
+    : error;
+}
+
+export function jobPercent(job: JobView): number {
+  if (job.status === "done") return 100;
+  if (!job.stage) return 0;
+
+  const stages = MODE_STAGES[job.mode];
+  const withinStage =
+    job.progressTotal > 0 ? job.progressDone / job.progressTotal : 0;
+  return Math.round(
+    ((stages.indexOf(job.stage) + withinStage) / stages.length) * 100,
+  );
+}
+
+export function isActiveJob(job: JobView): boolean {
+  return job.status === "queued" || job.status === "running";
 }
 
 export function readStorage(key: string): string | null {

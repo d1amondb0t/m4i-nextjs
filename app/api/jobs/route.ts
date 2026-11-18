@@ -3,12 +3,14 @@ import { randomUUID } from "node:crypto";
 import { validateRagDocumentSelection } from "@/app/server/documents/upload-policy";
 import { currentUser, unauthorized } from "@/app/server/auth/session";
 import { getDatabase } from "@/app/server/db/database";
-import { createJob } from "@/app/server/db/jobs-repository";
+import { createJob, listOpenJobs } from "@/app/server/db/jobs-repository";
+import { jobView } from "@/app/server/jobs/job-view-helper";
 import { jobWorker } from "@/app/server/jobs/job-worker";
 import { removeUploads, saveUploads } from "@/app/server/jobs/upload-store";
 import {
   RUN_MODES,
   type CreateJobResponse,
+  type JobListResponse,
   type RunMode,
 } from "@/types/feedback-types";
 import { validateQuestion } from "@/types/rag-pipeline-type";
@@ -19,6 +21,17 @@ function badRequest(message: string) {
   return Response.json({ ok: false, message } satisfies CreateJobResponse, {
     status: 400,
   });
+}
+
+export async function GET() {
+  const user = await currentUser();
+  if (!user) return unauthorized();
+
+  const db = getDatabase();
+  return Response.json({
+    ok: true,
+    jobs: listOpenJobs(db, user.id).map((job) => jobView(db, job)),
+  } satisfies JobListResponse);
 }
 
 export async function POST(request: Request) {

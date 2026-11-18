@@ -1,6 +1,7 @@
 import { currentUser, unauthorized } from "@/app/server/auth/session";
 import { getDatabase } from "@/app/server/db/database";
-import { findJob, queuePosition } from "@/app/server/db/jobs-repository";
+import { findJob } from "@/app/server/db/jobs-repository";
+import { jobView } from "@/app/server/jobs/job-view-helper";
 import { jobWorker } from "@/app/server/jobs/job-worker";
 import type { JobStatusResponse } from "@/types/feedback-types";
 
@@ -27,15 +28,6 @@ export async function GET(
 
   return Response.json({
     ok: true,
-    job: {
-      id: job.id,
-      mode: job.mode,
-      status: job.status,
-      progressDone: job.progressDone,
-      progressTotal: job.progressTotal,
-      error: job.error,
-      runId: job.runId,
-      queuePosition: queuePosition(db, job),
-    },
+    job: jobView(db, job),
   } satisfies JobStatusResponse);
 }
