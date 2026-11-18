@@ -157,31 +157,3 @@ export type IndicatorPipelineResult = {
   categories: CategoryIndicatorResult[];
   skippedCategories: { categoryId: string; bestRerankerScore: number }[];
 };
-
-export type IndicatorRunSummary = {
-  file: string;
-  variant: string;
-  seconds: number;
-};
-
-export type IndicatorRunResponse =
-  | {
-      ok: true;
-      indexedChunks: number;
-      gate: MatchGate;
-      result: IndicatorPipelineResult;
-      seconds: { hierarchy: number; indicators: number };
-    }
-  | { ok: false; message: string };
-
-export type SavedIndicatorRunResponse =
-  | {
-      ok: true;
-      gate: MatchGate;
-      run: IndicatorRunSummary & IndicatorPipelineResult;
-    }
-  | { ok: false; message: string };
-
-export type SavedIndicatorRunListResponse =
-  | { ok: true; runs: { variant: string; files: string[] }[] }
-  | { ok: false; message: string };
