@@ -36,6 +36,8 @@ export type ExtractedHierarchyMatch = {
   evidence: ExtractedHierarchyEvidence[];
 };
 
+export type OntologySize = { questions: number; categories: number };
+
 export type HierarchyRetrievedChunk = {
   chunkId: string;
   source: string;

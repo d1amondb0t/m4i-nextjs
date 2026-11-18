@@ -9,6 +9,7 @@ import {
   validateRagDocumentSelection,
 } from "@/app/server/documents/upload-policy";
 import type { CreateJobResponse, RunMode } from "@/types/feedback-types";
+import type { OntologySize } from "@/types/hierarchy-types";
 import {
   MAX_QUESTION_LENGTH,
   validateQuestion,
@@ -16,8 +17,7 @@ import {
 import { ACTIVE_JOB_KEY, countLabel, writeStorage } from "./review-helper";
 
 type NewRunFormProps = {
-  ontologyQuestions: number;
-  ontologyCategories: number;
+  sizes: Record<Exclude<RunMode, "rag">, OntologySize>;
 };
 
 const MODES: { value: RunMode; title: string; description: string }[] = [
@@ -32,12 +32,25 @@ const MODES: { value: RunMode; title: string; description: string }[] = [
     description:
       "Match your documents against every question in the framework.",
   },
+  {
+    value: "indicators",
+    title: "Indicator outcomes",
+    description:
+      "Match the framework, then list short-, medium- and long-term outcome indicators for every category that matches strongly.",
+  },
 ];
 
-export function NewRunForm({
-  ontologyQuestions,
-  ontologyCategories,
-}: NewRunFormProps) {
+function modeDescription(
+  option: (typeof MODES)[number],
+  sizes: NewRunFormProps["sizes"],
+): string {
+  if (option.value === "rag") return option.description;
+
+  const size = sizes[option.value];
+  return `${option.description} ${countLabel(size.questions, "question")} across ${countLabel(size.categories, "category", "categories")}; this takes a while.`;
+}
+
+export function NewRunForm({ sizes }: NewRunFormProps) {
   const router = useRouter();
   const [mode, setMode] = useState<RunMode>("rag");
   const [files, setFiles] = useState<File[]>([]);
@@ -101,7 +114,7 @@ export function NewRunForm({
         <legend className="text-sm font-semibold text-zinc-900">
           What do you want to run?
         </legend>
-        <div className="mt-3 grid gap-3 sm:grid-cols-2">
+        <div className="mt-3 grid gap-3 sm:grid-cols-3">
           {MODES.map((option) => (
             <label
               key={option.value}
@@ -123,9 +136,7 @@ export function NewRunForm({
                 {option.title}
               </span>
               <span className="mt-1 block text-xs leading-5 text-zinc-600">
-                {option.value === "ontology"
-                  ? `${option.description} ${countLabel(ontologyQuestions, "question")} across ${countLabel(ontologyCategories, "category", "categories")}; this takes a while.`
-                  : option.description}
+                {modeDescription(option, sizes)}
               </span>
             </label>
           ))}

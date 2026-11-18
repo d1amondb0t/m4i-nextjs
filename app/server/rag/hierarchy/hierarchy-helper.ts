@@ -11,6 +11,7 @@ import {
   type FrameworkOntology,
   type HierarchyConfiguration,
   type HierarchyRetrievedChunk,
+  type OntologySize,
 } from "@/types/hierarchy-types";
 import type { RerankingConfiguration } from "@/types/retrieval-types";
 
@@ -63,6 +64,16 @@ export function splitRankedCandidates(
     results: topRanked.filter((result) => result.score >= cutoff),
     droppedBelowCutoff: topRanked.filter((result) => result.score < cutoff),
     droppedOutsideTopK: ranked.slice(configuration.topKPerQuery),
+  };
+}
+
+export function ontologySize(ontology: FrameworkOntology): OntologySize {
+  return {
+    questions: countOntologyQuestions(ontology),
+    categories: ontology.dimensions.reduce(
+      (total, dimension) => total + dimension.categories.length,
+      0,
+    ),
   };
 }
 

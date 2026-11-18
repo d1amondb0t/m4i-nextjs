@@ -3,11 +3,17 @@
 import { useState } from "react";
 
 import type { RunSnapshot, SnapshotQuestion } from "@/types/feedback-types";
+import { IndicatorReview } from "./indicator-review";
+import {
+  indicatorSettings,
+  isHorizonQuestion,
+} from "./indicator-review-helper";
 import { QuestionReview } from "./question-review";
 import {
   countLabel,
   groupByCategory,
   itemKey,
+  MODE_LABELS,
   reviewCounts,
 } from "./review-helper";
 import { useFeedback, type FeedbackController } from "./use-feedback";
@@ -38,7 +44,7 @@ function ReviewSummary({
   controller: FeedbackController;
 }) {
   const counts = reviewCounts(snapshot.questions, controller.feedback);
-  const noun = snapshot.run.mode === "rag" ? "answer" : "matches";
+  const noun = MODE_LABELS[snapshot.run.mode].items;
 
   return (
     <div className="sticky top-0 z-10 -mx-5 border-b border-zinc-200 bg-zinc-50/95 px-5 py-3 backdrop-blur sm:-mx-8 sm:px-8">
@@ -89,13 +95,13 @@ function RagReview({
 }
 
 function OntologyReview({
-  snapshot,
+  questions,
   controller,
 }: {
-  snapshot: RunSnapshot;
+  questions: readonly SnapshotQuestion[];
   controller: FeedbackController;
 }) {
-  const initialFilter: QuestionFilter = snapshot.questions.some(
+  const initialFilter: QuestionFilter = questions.some(
     (question) => question.items.length > 0,
   )
     ? "matched"
@@ -105,7 +111,7 @@ function OntologyReview({
   // its reviewer is still commenting on it.
   const visibleIds = (selected: QuestionFilter) =>
     new Set(
-      snapshot.questions
+      questions
         .filter((question) => keepQuestion(question, selected, controller))
         .map((question) => question.id),
     );
@@ -114,7 +120,7 @@ function OntologyReview({
     setFilter(selected);
     setVisible(visibleIds(selected));
   };
-  const groups = groupByCategory(snapshot.questions)
+  const groups = groupByCategory(questions)
     .map((group) => ({
       ...group,
       visible: group.questions.filter((question) => visible.has(question.id)),
@@ -210,10 +216,34 @@ export function RunReview({ snapshot }: { snapshot: RunSnapshot }) {
   return (
     <div className="space-y-6">
       <ReviewSummary snapshot={snapshot} controller={controller} />
-      {snapshot.run.mode === "rag" ? (
+      {snapshot.run.mode === "rag" && (
         <RagReview snapshot={snapshot} controller={controller} />
-      ) : (
-        <OntologyReview snapshot={snapshot} controller={controller} />
+      )}
+      {snapshot.run.mode === "ontology" && (
+        <OntologyReview
+          questions={snapshot.questions}
+          controller={controller}
+        />
+      )}
+      {snapshot.run.mode === "indicators" && (
+        <>
+          <IndicatorReview
+            questions={snapshot.questions}
+            settings={indicatorSettings(snapshot.run.settings)}
+            controller={controller}
+          />
+          <section className="space-y-4">
+            <h2 className="text-lg font-semibold text-zinc-950">
+              Framework matches
+            </h2>
+            <OntologyReview
+              questions={snapshot.questions.filter(
+                (question) => !isHorizonQuestion(question),
+              )}
+              controller={controller}
+            />
+          </section>
+        </>
       )}
     </div>
   );

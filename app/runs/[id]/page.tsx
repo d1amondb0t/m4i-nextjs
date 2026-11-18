@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 
+import { MODE_LABELS } from "@/app/components/feedback/review-helper";
 import { RunReview } from "@/app/components/feedback/run-review";
 import { PageHeader } from "@/app/components/page-header";
 import { currentUser } from "@/app/server/auth/session";
@@ -25,13 +26,13 @@ export default async function RunPage({ params }: PageProps<"/runs/[id]">) {
       </Link>
       <div className="mt-6">
         <PageHeader
-          eyebrow={
-            snapshot.run.mode === "rag" ? "Your question" : "Ontology run"
-          }
+          eyebrow={MODE_LABELS[snapshot.run.mode].title}
           title={
             snapshot.run.mode === "rag"
               ? "Review the answer"
-              : "Review the proposed matches"
+              : snapshot.run.mode === "ontology"
+                ? "Review the proposed matches"
+                : "Review the outcome indicators"
           }
         >
           <p className="text-sm">
