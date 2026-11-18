@@ -15,6 +15,7 @@ import {
   type IndicatorPipelineResult,
   type OntologyOutcome,
 } from "@/types/indicator-types";
+import type { PipelineProgress } from "@/types/progress-types";
 import type {
   RagPipelineConfiguration,
   RankingRetriever,
@@ -53,6 +54,8 @@ export const INDICATOR_PROMPT_PATHS = {
   answer: "prompts/indicator-answer.txt",
 } as const;
 
+const NO_PROGRESS: PipelineProgress = () => {};
+
 export class IndicatorPipeline {
   constructor(
     private readonly retriever: RankingRetriever,
@@ -64,18 +67,21 @@ export class IndicatorPipeline {
   async retrieveIndicators(
     gated: readonly GatedCategory[],
     scope: RetrievalScope,
+    onProgress: PipelineProgress = NO_PROGRESS,
   ): Promise<IndicatorRetrievals> {
     const retrievals: IndicatorRetrievals = new Map();
     const indicators = gated.flatMap(({ category }) =>
       category.outcomes.flatMap((outcome) => outcome.indicators),
     );
 
+    onProgress("indicator_retrieval", 0, indicators.length);
     for (const indicator of indicators) {
       const { results } = splitRankedCandidates(
         await this.retriever.rankCandidates(indicator.question, scope),
         { ...this.cutoff, topKPerQuery: this.configuration.chunksPerIndicator },
       );
       retrievals.set(indicator.id, results);
+      onProgress("indicator_retrieval", retrievals.size, indicators.length);
     }
     return retrievals;
   }
@@ -175,9 +181,11 @@ export class IndicatorPipeline {
     gated: readonly GatedCategory[],
     indicatorResults: IndicatorRetrievals,
     hierarchy: Pick<HierarchyPipelineResult, "retrievals">,
+    onProgress: PipelineProgress = NO_PROGRESS,
   ): Promise<CategoryIndicatorResult[]> {
     const hierarchyResults = searchResultsByChunkId(hierarchy.retrievals);
     const categories: CategoryIndicatorResult[] = [];
+    onProgress("indicator_analysis", 0, gated.length);
     for (const category of gated) {
       categories.push(
         await this.analyzeCategory(
@@ -186,6 +194,7 @@ export class IndicatorPipeline {
           hierarchyResults,
         ),
       );
+      onProgress("indicator_analysis", categories.length, gated.length);
     }
     return categories;
   }
@@ -193,6 +202,7 @@ export class IndicatorPipeline {
   async run(
     ontology: IndicatorOntology,
     hierarchy: HierarchyPipelineResult,
+    onProgress: PipelineProgress = NO_PROGRESS,
   ): Promise<IndicatorPipelineResult> {
     const { gated, skipped } = gateCategories(
       ontology,
@@ -204,9 +214,15 @@ export class IndicatorPipeline {
     const indicatorResults = await this.retrieveIndicators(
       gated,
       retrievalScopeFor(hierarchy.chunks),
+      onProgress,
     );
     return {
-      categories: await this.analyze(gated, indicatorResults, hierarchy),
+      categories: await this.analyze(
+        gated,
+        indicatorResults,
+        hierarchy,
+        onProgress,
+      ),
       skippedCategories: skipped,
     };
   }

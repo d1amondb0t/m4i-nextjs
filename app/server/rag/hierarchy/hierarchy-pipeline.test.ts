@@ -246,16 +246,20 @@ describe("HierarchyPipeline", () => {
     ]);
   });
 
-  it("reports progress once per question for retrieval and for analysis", async () => {
-    const progress: [number, number][] = [];
+  it("reports indexing, then each question once for retrieval and for matching", async () => {
+    const progress: [string, number, number][] = [];
 
     await pipeline().run(
       [new File(["content"], "report.txt")],
       ontology,
-      (done, total) => progress.push([done, total]),
+      (stage, done, total) => progress.push([stage, done, total]),
     );
 
-    expect(progress).toEqual(Array.from({ length: 7 }, (_, done) => [done, 6]));
+    expect(progress).toEqual([
+      ["indexing", 0, 1],
+      ...[0, 1, 2, 3].map((done) => ["retrieving", done, 3]),
+      ...[0, 1, 2, 3].map((done) => ["matching", done, 3]),
+    ]);
   });
 
   it.each([

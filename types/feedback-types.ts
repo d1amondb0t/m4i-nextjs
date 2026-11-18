@@ -4,6 +4,7 @@ import type {
   MatchGate,
   OutcomeHorizon,
 } from "./indicator-types";
+import type { PipelineStage } from "./progress-types";
 import type { RetrievalScores } from "./retrieval-types";
 
 export const RUN_MODES = ["rag", "ontology", "indicators"] as const;
@@ -69,6 +70,7 @@ export type Job = {
   status: JobStatus;
   question: string | null;
   uploads: JobUpload[];
+  stage: PipelineStage | null;
   progressDone: number;
   progressTotal: number;
   error: string | null;

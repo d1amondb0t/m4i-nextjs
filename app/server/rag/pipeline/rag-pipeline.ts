@@ -30,9 +30,9 @@ export type {
   RagPipelineDependencies,
   RagPipelineResult,
 } from "@/types/rag-pipeline-type";
+import type { PipelineProgress } from "@/types/progress-types";
 
 // Index the documents, retrieve and rerank, generate the answer.
-const RAG_PROGRESS_STEPS = 3;
 
 export class RagPipeline {
   private readonly chunker: Chunker;
@@ -81,7 +81,7 @@ export class RagPipeline {
   async run(
     documents: readonly File[],
     question: string,
-    onProgress: (done: number, total: number) => void = () => {},
+    onProgress: PipelineProgress = () => {},
   ): Promise<RagPipelineResult> {
     if (documents.length === 0) {
       throw new Error("At least one document is required.");
@@ -94,14 +94,14 @@ export class RagPipeline {
     }
 
     const normalizedQuestion = question.trim();
-    onProgress(0, RAG_PROGRESS_STEPS);
+    onProgress("indexing", 0, 1);
     const chunks = await this.chunker.chunkDocuments(documents);
     const vectors = await this.embedder.embed(
       chunks.map((chunk) => chunk.text),
     );
 
     await this.store.upsert(chunks, vectors);
-    onProgress(1, RAG_PROGRESS_STEPS);
+    onProgress("retrieving", 0, 1);
 
     // Answer from the uploaded documents only, not everything in the collection.
     const { candidateCount, reranked, withoutReranking, outsideTopK } =
@@ -111,9 +111,9 @@ export class RagPipeline {
           ...new Set(chunks.map((chunk) => chunk.metadata.indexFingerprint)),
         ],
       });
-    onProgress(2, RAG_PROGRESS_STEPS);
+    onProgress("answering", 0, 1);
     const answer = await this.generator.generate(normalizedQuestion, reranked);
-    onProgress(3, RAG_PROGRESS_STEPS);
+    onProgress("answering", 1, 1);
 
     return {
       answer,

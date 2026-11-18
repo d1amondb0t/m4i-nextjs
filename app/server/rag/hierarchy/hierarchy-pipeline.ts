@@ -7,6 +7,7 @@ import type {
   RankingRetriever,
   Store,
 } from "@/types/rag-pipeline-type";
+import type { PipelineProgress } from "@/types/progress-types";
 import type { RetrievalScope } from "@/types/retrieval-types";
 import {
   type CategoryRetrievals,
@@ -16,7 +17,6 @@ import {
   type HierarchyCategoryResult,
   type HierarchyConfiguration,
   type HierarchyPipelineResult,
-  type HierarchyProgress,
   type QuestionRetrieval,
 } from "@/types/hierarchy-types";
 import { createOllamaClient } from "../ollama/ollama-client-helper";
@@ -296,18 +296,17 @@ export class HierarchyPipeline {
   async run(
     documents: readonly File[],
     ontologyInput: FrameworkOntology | unknown,
-    onProgress: HierarchyProgress = () => {},
+    onProgress: PipelineProgress = () => {},
   ): Promise<HierarchyPipelineResult> {
     if (documents.length === 0) {
       throw new Error("At least one document is required.");
     }
 
     const ontology = parseFrameworkOntology(ontologyInput);
-    // Each question counts once for retrieval and once for analysis.
-    const total = countOntologyQuestions(ontology) * 2;
-    let done = 0;
-    const onQuestionDone = () => onProgress(++done, total);
-    onProgress(done, total);
+    const questionCount = countOntologyQuestions(ontology);
+    let retrieved = 0;
+    let matched = 0;
+    onProgress("indexing", 0, 1);
     const chunks = await this.chunker.chunkDocuments(documents);
     const vectors = await this.embedder.embed(
       chunks.map((chunk) => chunk.text),
@@ -322,11 +321,11 @@ export class HierarchyPipeline {
 
     // Reranker and generation models do not fit in VRAM together, so all
     // reranking finishes before the first generation to avoid swapping them.
-    const retrievals = await this.retrieveOntology(
-      ontology,
-      scope,
-      onQuestionDone,
+    onProgress("retrieving", retrieved, questionCount);
+    const retrievals = await this.retrieveOntology(ontology, scope, () =>
+      onProgress("retrieving", ++retrieved, questionCount),
     );
+    onProgress("matching", matched, questionCount);
 
     const dimensions: HierarchyPipelineResult["framework"]["dimensions"] = [];
     const diagnostics: HierarchyCategoryDiagnostics[] = [];
@@ -337,7 +336,7 @@ export class HierarchyPipeline {
         const result = await this.analyzeCategory(
           category,
           retrievals.get(category.id)!.questions,
-          onQuestionDone,
+          () => onProgress("matching", ++matched, questionCount),
         );
         categories.push(result.category);
         diagnostics.push(result.diagnostics);

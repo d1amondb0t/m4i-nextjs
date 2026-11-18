@@ -97,8 +97,6 @@ export type CategoryRetrievals = {
   questions: QuestionRetrieval[];
 };
 
-export type HierarchyProgress = (done: number, total: number) => void;
-
 export type HierarchyPipelineResult = {
   framework: {
     dimensions: HierarchyDimensionResult[];

@@ -17,6 +17,7 @@ import {
   type JobRunnerDependencies,
   runJob,
 } from "./job-runner";
+import { stageLogger } from "./job-log-helper";
 import { loadUploads, removeUploads } from "./upload-store";
 
 export type JobWorkerDependencies = {
@@ -65,6 +66,10 @@ export class JobWorker {
 
   private async process(job: Job): Promise<void> {
     const { db, log } = this.dependencies;
+    const stages = stageLogger(job, log, (stage, done, total) =>
+      updateJobProgress(db, job.id, stage, done, total),
+    );
+    log(`Job ${job.id} (${job.mode}) started.`);
 
     try {
       const user = findUserById(db, job.userId);
@@ -79,7 +84,7 @@ export class JobWorker {
         job,
         user,
         documents,
-        (done, total) => updateJobProgress(db, job.id, done, total),
+        stages.progress,
         this.dependencies.runner,
       );
 
@@ -88,11 +93,15 @@ export class JobWorker {
         insertSnapshot(db, snapshot);
         completeJob(db, job.id, snapshot.runId);
       });
-      log(`Job ${job.id} finished as run ${snapshot.runId}.`);
+      log(
+        `Job ${job.id} finished as run ${snapshot.runId} in ${stages.elapsedSeconds()}s.`,
+      );
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       failJob(db, job.id, message);
-      log(`Job ${job.id} failed: ${message}`);
+      log(
+        `Job ${job.id} failed during ${stages.currentStage() ?? "setup"} after ${stages.elapsedSeconds()}s: ${message}`,
+      );
     } finally {
       await this.dependencies.removeUploads(job.id);
     }

@@ -256,6 +256,7 @@ describe("JobWorker", () => {
   let ragRun: Mock<RagRun>;
   let hierarchyRun: Mock<HierarchyRun>;
   let indicatorRun: Mock<IndicatorRun>;
+  let logs: string[];
 
   function worker() {
     return new JobWorker({
@@ -263,7 +264,7 @@ describe("JobWorker", () => {
       runner,
       loadUploads: async () => [new File(["text"], "report.pdf")],
       removeUploads,
-      log: () => {},
+      log: (message) => logs.push(message),
     });
   }
 
@@ -281,8 +282,9 @@ describe("JobWorker", () => {
     db = openDatabase(":memory:");
     userId = createUser(db, "Alice").user.id;
     removeUploads = vi.fn(async () => {});
+    logs = [];
     ragRun = vi.fn<RagRun>(async (_documents, _question, onProgress) => {
-      onProgress(3, 3);
+      onProgress("answering", 1, 1);
       return ragResult;
     });
     hierarchyRun = vi.fn<HierarchyRun>(async () => hierarchyResult);
@@ -316,7 +318,11 @@ describe("JobWorker", () => {
     await worker().wake();
 
     const job = findJob(db, "job-1")!;
-    expect(job).toMatchObject({ status: "done", progressDone: 3 });
+    expect(job).toMatchObject({
+      status: "done",
+      stage: "answering",
+      progressDone: 1,
+    });
     expect(runner.ragPipeline).toHaveBeenCalledWith(
       expect.objectContaining({ collection: "m4i_alice" }),
     );
@@ -425,6 +431,51 @@ describe("JobWorker", () => {
       ["chunk-2", 1],
       ["chunk-1", 2],
     ]);
+  });
+
+  it("records the stage on the job and logs each stage with its duration", async () => {
+    hierarchyRun.mockImplementationOnce(
+      async (_documents, _ontology, onProgress) => {
+        onProgress("matching", 0, 2);
+        onProgress("matching", 2, 2);
+        return hierarchyResult;
+      },
+    );
+    indicatorRun.mockImplementationOnce(
+      async (_ontology, _hierarchy, onProgress) => {
+        onProgress("indicator_analysis", 1, 1);
+        return indicatorResult;
+      },
+    );
+    queue("job-1", "indicators");
+    await worker().wake();
+
+    expect(findJob(db, "job-1")).toMatchObject({
+      stage: "indicator_analysis",
+      progressDone: 1,
+      progressTotal: 1,
+    });
+    expect(logs).toEqual([
+      "Job job-1 (indicators) started.",
+      "Job job-1 (indicators) started matching: 2 steps.",
+      expect.stringMatching(/^Job job-1 finished matching in [\d.]+s\.$/),
+      "Job job-1 (indicators) started indicator_analysis: 1 steps.",
+      expect.stringMatching(/^Job job-1 finished as run .+ in [\d.]+s\.$/),
+    ]);
+  });
+
+  it("logs the stage a job failed in", async () => {
+    ragRun.mockImplementationOnce(async (_documents, _question, onProgress) => {
+      onProgress("answering", 0, 1);
+      throw new Error("Ollama is not running");
+    });
+    queue("job-1", "rag");
+    await worker().wake();
+
+    expect(findJob(db, "job-1")).toMatchObject({ stage: "answering" });
+    expect(logs.at(-1)).toMatch(
+      /^Job job-1 failed during answering after [\d.]+s: Ollama is not running$/,
+    );
   });
 
   it("marks a failed run and still removes its uploads", async () => {

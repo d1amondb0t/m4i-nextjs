@@ -148,9 +148,10 @@ describe("repositories", () => {
     expect(queuePosition(db, findJob(db, "job-2")!)).toBe(1);
     expect(queuePosition(db, findJob(db, "job-3")!)).toBe(2);
 
-    updateJobProgress(db, "job-1", 3, 10);
+    updateJobProgress(db, "job-1", "matching", 3, 10);
     expect(findJob(db, "job-1")).toMatchObject({
       status: "running",
+      stage: "matching",
       progressDone: 3,
       progressTotal: 10,
     });
@@ -366,6 +367,7 @@ describe("repositories", () => {
         },
       ]);
       expect(run.feedback["run_item:1"]).toMatchObject({ verdict: "accepted" });
+      expect(findJob(migrated, "job-1")).toMatchObject({ stage: null });
       expect(migrated.prepare("PRAGMA foreign_keys").get()).toEqual({
         foreign_keys: 1,
       });

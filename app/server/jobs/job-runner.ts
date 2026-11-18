@@ -13,13 +13,13 @@ import type {
   FrameworkOntology,
   HierarchyConfiguration,
   HierarchyPipelineResult,
-  HierarchyProgress,
 } from "@/types/hierarchy-types";
 import {
   DEFAULT_INDICATOR_CONFIGURATION,
   type IndicatorOntology,
   type IndicatorPipelineResult,
 } from "@/types/indicator-types";
+import type { PipelineProgress } from "@/types/progress-types";
 import type {
   Embedder,
   RagPipelineConfiguration,
@@ -62,7 +62,7 @@ export type JobRunnerDependencies = {
     run(
       documents: readonly File[],
       question: string,
-      onProgress: HierarchyProgress,
+      onProgress: PipelineProgress,
     ): Promise<RagPipelineResult>;
   };
   hierarchyPipeline: (
@@ -72,7 +72,7 @@ export type JobRunnerDependencies = {
     run(
       documents: readonly File[],
       ontology: FrameworkOntology,
-      onProgress: HierarchyProgress,
+      onProgress: PipelineProgress,
     ): Promise<HierarchyPipelineResult>;
   };
   indicatorOntology: () => { file: string; ontology: IndicatorOntology };
@@ -80,6 +80,7 @@ export type JobRunnerDependencies = {
     run(
       ontology: IndicatorOntology,
       hierarchy: HierarchyPipelineResult,
+      onProgress: PipelineProgress,
     ): Promise<IndicatorPipelineResult>;
   };
   embedder: (configuration: RagPipelineConfiguration) => Embedder;
@@ -188,7 +189,7 @@ async function runRag(
   job: Job,
   user: User,
   documents: readonly File[],
-  onProgress: HierarchyProgress,
+  onProgress: PipelineProgress,
   configuration: RagPipelineConfiguration,
   dependencies: JobRunnerDependencies,
 ): Promise<JobRunResult> {
@@ -226,7 +227,7 @@ async function runOntology(
   job: Job,
   user: User,
   documents: readonly File[],
-  onProgress: HierarchyProgress,
+  onProgress: PipelineProgress,
   configuration: RagPipelineConfiguration,
   dependencies: JobRunnerDependencies,
 ): Promise<JobRunResult> {
@@ -252,7 +253,7 @@ async function runIndicators(
   job: Job,
   user: User,
   documents: readonly File[],
-  onProgress: HierarchyProgress,
+  onProgress: PipelineProgress,
   configuration: RagPipelineConfiguration,
   dependencies: JobRunnerDependencies,
 ): Promise<JobRunResult> {
@@ -263,7 +264,7 @@ async function runIndicators(
     .run(documents, ontology, onProgress);
   const result = await dependencies
     .indicatorPipeline(configuration)
-    .run(ontology, hierarchyResult);
+    .run(ontology, hierarchyResult, onProgress);
 
   return {
     snapshot: {
@@ -303,7 +304,7 @@ export async function runJob(
   job: Job,
   user: User,
   documents: readonly File[],
-  onProgress: HierarchyProgress,
+  onProgress: PipelineProgress,
   dependencies: JobRunnerDependencies = DEFAULT_JOB_RUNNER_DEPENDENCIES,
 ): Promise<JobRunResult> {
   // Every user indexes into and retrieves from their own collection.

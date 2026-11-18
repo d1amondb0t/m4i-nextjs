@@ -1,6 +1,7 @@
 import type { DatabaseSync } from "node:sqlite";
 
 import type { Job, JobUpload, RunMode } from "@/types/feedback-types";
+import type { PipelineStage } from "@/types/progress-types";
 import { now } from "./database.ts";
 
 type JobRow = {
@@ -10,6 +11,7 @@ type JobRow = {
   status: Job["status"];
   question: string | null;
   uploads_json: string;
+  stage: PipelineStage | null;
   progress_done: number;
   progress_total: number;
   error: string | null;
@@ -27,6 +29,7 @@ function toJob(row: JobRow): Job {
     status: row.status,
     question: row.question,
     uploads: JSON.parse(row.uploads_json) as JobUpload[],
+    stage: row.stage,
     progressDone: row.progress_done,
     progressTotal: row.progress_total,
     error: row.error,
@@ -99,12 +102,13 @@ export function queuePosition(db: DatabaseSync, job: Job): number {
 export function updateJobProgress(
   db: DatabaseSync,
   id: string,
+  stage: PipelineStage,
   done: number,
   total: number,
 ): void {
   db.prepare(
-    "UPDATE jobs SET progress_done = ?, progress_total = ? WHERE id = ?",
-  ).run(done, total, id);
+    "UPDATE jobs SET stage = ?, progress_done = ?, progress_total = ? WHERE id = ?",
+  ).run(stage, done, total, id);
 }
 
 export function completeJob(db: DatabaseSync, id: string, runId: string): void {
