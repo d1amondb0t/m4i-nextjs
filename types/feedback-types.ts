@@ -1,12 +1,42 @@
+import type {
+  AnswerBasis,
+  IndicatorAnswerType,
+  MatchGate,
+  OutcomeHorizon,
+} from "./indicator-types";
 import type { RetrievalScores } from "./retrieval-types";
 
-export type RunMode = "rag" | "ontology";
+export const RUN_MODES = ["rag", "ontology", "indicators"] as const;
+
+export type RunMode = (typeof RUN_MODES)[number];
 
 export type JobStatus = "queued" | "running" | "done" | "failed";
 
 export type ChunkStatus = "sent" | "below_cutoff" | "outside_top_k";
 
-export type RunItemKind = "rag_answer" | "ontology_match";
+export type RunItemKind =
+  "rag_answer" | "ontology_match" | "document_indicator" | "indicator_answer";
+
+export type IndicatorItemDetails =
+  | { source: "document"; name: string }
+  | {
+      source: "predefined";
+      indicatorId: string;
+      name: string;
+      question: string;
+      answerType: IndicatorAnswerType;
+      basis: AnswerBasis;
+      confidence: "low" | "medium" | "high";
+      rationale: string;
+      groundingFailed: boolean;
+    };
+
+export type IndicatorRunSettings = {
+  ontologyFile: string;
+  gate: MatchGate;
+  triggeredCategories: { categoryId: string; bestRerankerScore: number }[];
+  skippedCategories: { categoryId: string; bestRerankerScore: number }[];
+};
 
 export type FeedbackTargetType = "run_item" | "run_chunk";
 
@@ -95,6 +125,7 @@ export type SnapshotItemInput = {
   kind: RunItemKind;
   answer: string;
   explicitness: "explicit" | "implicit" | null;
+  indicator: IndicatorItemDetails | null;
   evidence: { chunkId: string; quote: string }[];
 };
 
@@ -105,6 +136,7 @@ export type SnapshotQuestionInput = {
   categoryName: string | null;
   categoryDefinition: string | null;
   question: string;
+  horizon: OutcomeHorizon | null;
   nearestOntologyQuestion: string | null;
   nearestOntologySimilarity: number | null;
   items: SnapshotItemInput[];
@@ -138,6 +170,7 @@ export type SnapshotItem = {
   kind: RunItemKind;
   answer: string;
   explicitness: "explicit" | "implicit" | null;
+  indicator: IndicatorItemDetails | null;
   evidence: { runChunkId: number; quote: string }[];
 };
 

@@ -1,8 +1,12 @@
-import type { DatabaseSync } from "node:sqlite";
+import { mkdtempSync, rmSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+import { DatabaseSync } from "node:sqlite";
 import { beforeEach, describe, expect, it } from "vitest";
 
 import type { SnapshotChunkInput, SnapshotInput } from "@/types/feedback-types";
 import { openDatabase } from "./database";
+import { MIGRATIONS } from "./schema";
 import { recordDocuments } from "./documents-repository";
 import {
   deleteFeedback,
@@ -77,6 +81,7 @@ function snapshot(userId: number, jobId: string, runId: string): SnapshotInput {
         categoryName: null,
         categoryDefinition: null,
         question: "Was the policy adopted?",
+        horizon: null,
         nearestOntologyQuestion: "Which policy changed?",
         nearestOntologySimilarity: 0.42,
         items: [
@@ -84,6 +89,7 @@ function snapshot(userId: number, jobId: string, runId: string): SnapshotInput {
             kind: "rag_answer",
             answer: "Yes, in 2021.",
             explicitness: null,
+            indicator: null,
             evidence: [{ chunkId: "chunk-a", quote: "adopted in 2021" }],
           },
         ],
@@ -316,6 +322,57 @@ describe("repositories", () => {
     expect(db.prepare("SELECT chunk_count FROM documents").all()).toEqual([
       { chunk_count: 5 },
     ]);
+  });
+
+  it("keeps every run, item and feedback when migrating to indicator runs", () => {
+    const directory = mkdtempSync(join(tmpdir(), "m4i-migration-"));
+    const path = join(directory, "m4i.sqlite");
+    try {
+      const old = new DatabaseSync(path);
+      old.exec(MIGRATIONS[0]);
+      old.exec(MIGRATIONS[1]);
+      old.exec("PRAGMA user_version = 2");
+      old.exec(`
+        INSERT INTO users (id, name, access_code_hash, collection, created_at)
+          VALUES (1, 'Alice', 'hash', 'm4i_alice', 'now');
+        INSERT INTO jobs (id, user_id, mode, status, uploads_json, created_at)
+          VALUES ('job-1', 1, 'ontology', 'done', '[]', 'now');
+        INSERT INTO runs (id, job_id, user_id, collection, mode, generation_model,
+          reranking_model, embedding_model, settings_json, prompt_hash, created_at)
+          VALUES ('run-1', 'job-1', 1, 'm4i_alice', 'ontology', 'g', 'r', 'e', '{}', 'h', 'now');
+        INSERT INTO run_questions (id, run_id, position, question) VALUES (1, 'run-1', 0, 'q');
+        INSERT INTO run_items (id, run_id, run_question_id, position, kind, answer)
+          VALUES (1, 'run-1', 1, 0, 'ontology_match', 'a');
+        INSERT INTO run_chunks (id, run_id, run_question_id, position, chunk_id, document_id,
+          source, page, chunk_number, text, status, score)
+          VALUES (1, 'run-1', 1, 0, 'c', 'd', 's', 1, 1, 't', 'sent', 0.5);
+        INSERT INTO run_evidence (run_item_id, run_chunk_id, position, quote) VALUES (1, 1, 0, 'quote');
+        INSERT INTO feedback (user_id, run_id, target_type, target_id, verdict, created_at, updated_at)
+          VALUES (1, 'run-1', 'run_item', 1, 'accepted', 'now', 'now');
+      `);
+      old.close();
+
+      const migrated = openDatabase(path);
+      const run = loadSnapshot(migrated, "run-1", 1)!;
+      expect(run.questions[0]).toMatchObject({ horizon: null });
+      expect(run.questions[0].items).toEqual([
+        {
+          id: 1,
+          kind: "ontology_match",
+          answer: "a",
+          explicitness: null,
+          indicator: null,
+          evidence: [{ runChunkId: 1, quote: "quote" }],
+        },
+      ]);
+      expect(run.feedback["run_item:1"]).toMatchObject({ verdict: "accepted" });
+      expect(migrated.prepare("PRAGMA foreign_keys").get()).toEqual({
+        foreign_keys: 1,
+      });
+      migrated.close();
+    } finally {
+      rmSync(directory, { recursive: true, force: true });
+    }
   });
 
   it("marks a finished job done with its run", () => {

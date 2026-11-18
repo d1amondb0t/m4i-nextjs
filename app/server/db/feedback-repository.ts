@@ -97,10 +97,10 @@ export function exportFeedbackRows(
       `SELECT f.id AS feedback_id, u.name AS user, f.run_id, r.mode,
               r.created_at AS run_created_at, f.updated_at AS feedback_updated_at,
               f.target_type, f.verdict, f.comment,
-              q.dimension_id, q.category_id, q.question,
+              q.dimension_id, q.category_id, q.question, q.horizon,
               q.nearest_ontology_question, q.nearest_ontology_similarity,
               i.id AS item_id, i.kind AS item_kind, i.answer AS item_answer,
-              i.explicitness AS item_explicitness,
+              i.explicitness AS item_explicitness, i.indicator_json AS item_indicator,
               (SELECT group_concat(e.quote, ' | ') FROM run_evidence e WHERE e.run_item_id = i.id) AS item_evidence_quotes,
               c.id AS run_chunk_id, c.chunk_id, c.document_id, c.source, c.page,
               c.chunk_number, c.status AS chunk_status, c.retrieval_rank,
@@ -125,7 +125,7 @@ export function exportChunkRows(db: DatabaseSync): Record<string, unknown>[] {
   return db
     .prepare(
       `SELECT u.name AS user, r.id AS run_id, r.mode, r.created_at AS run_created_at,
-              q.dimension_id, q.category_id, q.question,
+              q.dimension_id, q.category_id, q.question, q.horizon,
               c.id AS run_chunk_id, c.chunk_id, c.document_id, c.source, c.page,
               c.chunk_number, c.status AS chunk_status, c.retrieval_rank,
               c.reranked_rank, c.score, c.dense_score, c.sparse_score,

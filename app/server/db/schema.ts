@@ -136,4 +136,70 @@ export const MIGRATIONS: readonly string[] = [
   `
   ALTER TABLE users ADD COLUMN session_version INTEGER NOT NULL DEFAULT 0;
   `,
+  `
+  CREATE TABLE jobs_next (
+    id TEXT PRIMARY KEY,
+    user_id INTEGER NOT NULL REFERENCES users(id),
+    mode TEXT NOT NULL CHECK (mode IN ('rag', 'ontology', 'indicators')),
+    status TEXT NOT NULL CHECK (status IN ('queued', 'running', 'done', 'failed')),
+    question TEXT,
+    uploads_json TEXT NOT NULL,
+    stage TEXT,
+    progress_done INTEGER NOT NULL DEFAULT 0,
+    progress_total INTEGER NOT NULL DEFAULT 0,
+    error TEXT,
+    run_id TEXT,
+    created_at TEXT NOT NULL,
+    started_at TEXT,
+    finished_at TEXT
+  );
+  INSERT INTO jobs_next (id, user_id, mode, status, question, uploads_json,
+    progress_done, progress_total, error, run_id, created_at, started_at, finished_at)
+  SELECT id, user_id, mode, status, question, uploads_json,
+    progress_done, progress_total, error, run_id, created_at, started_at, finished_at
+  FROM jobs;
+  DROP TABLE jobs;
+  ALTER TABLE jobs_next RENAME TO jobs;
+  CREATE INDEX jobs_status ON jobs (status, created_at);
+  CREATE INDEX jobs_user ON jobs (user_id, created_at);
+
+  CREATE TABLE runs_next (
+    id TEXT PRIMARY KEY,
+    job_id TEXT NOT NULL UNIQUE REFERENCES jobs(id),
+    user_id INTEGER NOT NULL REFERENCES users(id),
+    collection TEXT NOT NULL,
+    mode TEXT NOT NULL CHECK (mode IN ('rag', 'ontology', 'indicators')),
+    generation_model TEXT NOT NULL,
+    reranking_model TEXT NOT NULL,
+    embedding_model TEXT NOT NULL,
+    settings_json TEXT NOT NULL,
+    prompt_hash TEXT NOT NULL,
+    created_at TEXT NOT NULL
+  );
+  INSERT INTO runs_next SELECT * FROM runs;
+  DROP TABLE runs;
+  ALTER TABLE runs_next RENAME TO runs;
+  CREATE INDEX runs_user ON runs (user_id, created_at);
+
+  CREATE TABLE run_items_next (
+    id INTEGER PRIMARY KEY,
+    run_id TEXT NOT NULL REFERENCES runs(id) ON DELETE CASCADE,
+    run_question_id INTEGER NOT NULL REFERENCES run_questions(id) ON DELETE CASCADE,
+    position INTEGER NOT NULL,
+    kind TEXT NOT NULL CHECK (
+      kind IN ('rag_answer', 'ontology_match', 'document_indicator', 'indicator_answer')
+    ),
+    answer TEXT NOT NULL,
+    explicitness TEXT CHECK (explicitness IN ('explicit', 'implicit')),
+    indicator_json TEXT
+  );
+  INSERT INTO run_items_next (id, run_id, run_question_id, position, kind, answer, explicitness)
+  SELECT id, run_id, run_question_id, position, kind, answer, explicitness FROM run_items;
+  DROP TABLE run_items;
+  ALTER TABLE run_items_next RENAME TO run_items;
+  CREATE INDEX run_items_question ON run_items (run_question_id, position);
+
+  ALTER TABLE run_questions ADD COLUMN horizon TEXT
+    CHECK (horizon IN ('short_term', 'medium_term', 'long_term'));
+  `,
 ];

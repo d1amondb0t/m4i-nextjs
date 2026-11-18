@@ -20,17 +20,30 @@ function migrate(db: DatabaseSync): void {
     user_version: number;
   };
 
+  // Rebuilding a table means dropping it, which would cascade-delete every
+  // row that references it while foreign keys are enforced.
+  db.exec("PRAGMA foreign_keys = OFF");
   for (let index = version; index < MIGRATIONS.length; index += 1) {
     transaction(db, () => {
       db.exec(MIGRATIONS[index]);
+      requireValidForeignKeys(db);
       db.exec(`PRAGMA user_version = ${index + 1}`);
     });
+  }
+  db.exec("PRAGMA foreign_keys = ON");
+}
+
+function requireValidForeignKeys(db: DatabaseSync): void {
+  const violations = db.prepare("PRAGMA foreign_key_check").all();
+  if (violations.length > 0) {
+    throw new Error(
+      `A migration left ${violations.length} rows with broken foreign keys.`,
+    );
   }
 }
 
 export function openDatabase(path: string): DatabaseSync {
   const db = new DatabaseSync(path);
-  db.exec("PRAGMA foreign_keys = ON");
   db.exec("PRAGMA busy_timeout = 5000");
 
   if (path !== ":memory:") {

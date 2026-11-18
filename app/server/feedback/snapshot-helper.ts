@@ -21,7 +21,7 @@ export type NearestOntologyQuestion = {
   similarity: number;
 } | null;
 
-function snapshotChunk(
+export function snapshotChunk(
   result: SearchResult,
   status: ChunkStatus,
   retrievalRank: number | null,
@@ -64,6 +64,7 @@ export function ragSnapshotQuestions(
       categoryName: null,
       categoryDefinition: null,
       question: question.trim(),
+      horizon: null,
       nearestOntologyQuestion: nearest?.question ?? null,
       nearestOntologySimilarity: nearest?.similarity ?? null,
       items: [
@@ -71,6 +72,7 @@ export function ragSnapshotQuestions(
           kind: "rag_answer",
           answer: result.answer,
           explicitness: null,
+          indicator: null,
           evidence: [],
         },
       ],
@@ -136,6 +138,7 @@ export function ontologySnapshotQuestions(
         categoryName: category.name,
         categoryDefinition: category.definition,
         question: retrieval.question,
+        horizon: null,
         nearestOntologyQuestion: null,
         nearestOntologySimilarity: null,
         items: matches
@@ -144,6 +147,7 @@ export function ontologySnapshotQuestions(
             kind: "ontology_match" as const,
             answer: match.reason,
             explicitness: match.explicitness,
+            indicator: null,
             evidence: match.evidence.map(({ chunkId, quote }) => ({
               chunkId,
               quote,

@@ -4,6 +4,7 @@ import type {
   ChunkStatus,
   FeedbackTarget,
   FeedbackTargetType,
+  IndicatorItemDetails,
   RunSnapshot,
   RunSummary,
   SnapshotChunk,
@@ -36,6 +37,7 @@ type QuestionRow = {
   category_name: string | null;
   category_definition: string | null;
   question: string;
+  horizon: SnapshotQuestion["horizon"];
   nearest_ontology_question: string | null;
   nearest_ontology_similarity: number | null;
 };
@@ -46,6 +48,7 @@ type ItemRow = {
   kind: SnapshotItem["kind"];
   answer: string;
   explicitness: SnapshotItem["explicitness"];
+  indicator_json: string | null;
 };
 
 type ChunkRow = {
@@ -162,9 +165,9 @@ function insertRun(db: DatabaseSync, input: SnapshotInput): void {
 function insertQuestions(db: DatabaseSync, input: SnapshotInput): void {
   const questionStatement = db.prepare(
     `INSERT INTO run_questions (run_id, position, dimension_id, dimension_name,
-       category_id, category_name, category_definition, question,
+       category_id, category_name, category_definition, question, horizon,
        nearest_ontology_question, nearest_ontology_similarity)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
   );
   const chunkStatement = db.prepare(
     `INSERT INTO run_chunks (run_id, run_question_id, position, chunk_id, document_id,
@@ -173,8 +176,9 @@ function insertQuestions(db: DatabaseSync, input: SnapshotInput): void {
      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
   );
   const itemStatement = db.prepare(
-    `INSERT INTO run_items (run_id, run_question_id, position, kind, answer, explicitness)
-     VALUES (?, ?, ?, ?, ?, ?)`,
+    `INSERT INTO run_items (run_id, run_question_id, position, kind, answer,
+       explicitness, indicator_json)
+     VALUES (?, ?, ?, ?, ?, ?, ?)`,
   );
   const evidenceStatement = db.prepare(
     "INSERT INTO run_evidence (run_item_id, run_chunk_id, position, quote) VALUES (?, ?, ?, ?)",
@@ -191,6 +195,7 @@ function insertQuestions(db: DatabaseSync, input: SnapshotInput): void {
         question.categoryName,
         question.categoryDefinition,
         question.question,
+        question.horizon,
         question.nearestOntologyQuestion,
         question.nearestOntologySimilarity,
       ).lastInsertRowid,
@@ -231,6 +236,7 @@ function insertQuestions(db: DatabaseSync, input: SnapshotInput): void {
           item.kind,
           item.answer,
           item.explicitness,
+          item.indicator ? JSON.stringify(item.indicator) : null,
         ).lastInsertRowid,
       );
 
@@ -318,6 +324,7 @@ export function loadSnapshot(
     categoryName: row.category_name,
     categoryDefinition: row.category_definition,
     question: row.question,
+    horizon: row.horizon,
     nearestOntologyQuestion: row.nearest_ontology_question,
     nearestOntologySimilarity: row.nearest_ontology_similarity,
     items: (itemsByQuestion.get(row.id) ?? []).map((item) => ({
@@ -325,6 +332,9 @@ export function loadSnapshot(
       kind: item.kind,
       answer: item.answer,
       explicitness: item.explicitness,
+      indicator: item.indicator_json
+        ? (JSON.parse(item.indicator_json) as IndicatorItemDetails)
+        : null,
       evidence: (evidenceByItem.get(item.id) ?? []).map((evidence) => ({
         runChunkId: evidence.run_chunk_id,
         quote: evidence.quote,
