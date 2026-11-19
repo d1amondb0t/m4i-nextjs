@@ -8,8 +8,10 @@ import type {
 import type { SearchResult } from "../storage/storage-types";
 import { buildHierarchyContext } from "./hierarchy-helper";
 import {
+  analyzerCategory,
   MATCH_SCHEMA,
   parseMatchResponse,
+  requireCompleteResponse,
 } from "./ollama-hierarchy-analyzer-helper";
 
 export type HierarchyAnalyzer = {
@@ -47,7 +49,7 @@ export class OllamaHierarchyAnalyzer implements HierarchyAnalyzer {
         {
           role: "user",
           content: [
-            `Category:\n${JSON.stringify(category, null, 2)}`,
+            `Category:\n${JSON.stringify(analyzerCategory(category, question), null, 2)}`,
             `Question:\n${question}`,
             `Context:\n${buildHierarchyContext(results, this.maximumContextWords)}`,
           ].join("\n\n"),
@@ -56,6 +58,7 @@ export class OllamaHierarchyAnalyzer implements HierarchyAnalyzer {
       options: { temperature: 0, num_ctx: this.contextTokens },
     });
 
+    requireCompleteResponse(response, this.contextTokens);
     return parseMatchResponse(response.message.content);
   }
 }

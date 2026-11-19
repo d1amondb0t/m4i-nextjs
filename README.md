@@ -5,12 +5,47 @@ This Next.js application runs the current RAG implementation end to end:
 1. `DocumentChunker` extracts and chunks uploaded PDF, TXT, or Markdown files.
 2. `OllamaEmbedder` creates dense embeddings.
 3. `QdrantStore` creates the collection and upserts dense and BM25 vectors.
-4. `Retriever` embeds the question and retrieves the top matching chunks.
-5. `OllamaGenerator` generates an answer from the retrieved context.
+4. `Retriever` embeds the question, retrieves the top matching chunks, and
+   reranks them with the configured reranker.
+5. `OllamaGenerator` generates an answer from the reranked context.
 
 `RagPipeline` in `app/server/rag/pipeline/rag-pipeline.ts` initializes and
 coordinates these components. The browser submits the files and question to
 `POST /api/rag`; Ollama and Qdrant remain server-side.
+
+## Feedback collection
+
+This branch hosts the pipelines for a few invited testers and stores their
+verdicts in SQLite (`DATA_DIR`, default `./data`).
+
+- A tester signs in with an access code. Admins create codes with
+  `npm run users -- <name>`. Add `--admin` for an admin, and use
+  `--reset <name>` for a new code or `--list` to see users. Each user indexes
+  into their own Qdrant collection, `m4i_<name>`.
+- A run is either one RAG question or the whole ontology (`ontology.json`, or
+  `ONTOLOGY_PATH`). It is queued as a job, and one job runs at a time. The page
+  shows its progress and picks it up again after a reload.
+- When a run finishes, the server saves a snapshot of everything that was
+  shown. Testers accept or reject each answer or proposed match, mark chunks
+  the model saw as relevant or irrelevant, and mark dropped chunks as "should
+  have been used".
+- Admins download `feedback.csv`, `chunks.csv` and `questions.csv` from
+  `/admin`. The experiment pages are at `/dev/rag` and `/dev/hierarchy`, and
+  only admins can open them.
+
+In Docker, the app runs next to the existing Qdrant service and reaches Ollama
+on the host:
+
+```bash
+docker compose up -d --build app
+docker compose exec app node scripts/create-user.ts <name>
+tailscale funnel --bg 3080
+```
+
+`compose.yaml` keeps the project name `m4i-nextjs`, so the app joins the
+existing Qdrant container instead of starting a second one. Ollama must accept
+connections from Docker. If it only listens on `127.0.0.1`, set
+`OLLAMA_HOST=0.0.0.0` for the Ollama service on the host.
 
 ## Run the live pipeline
 
@@ -30,7 +65,10 @@ npm run dev
 
 Open `http://localhost:3000`, select one or more implemented document types,
 enter a question, and choose **Run RAG pipeline**. The page displays the answer,
-the number of indexed chunks, and the retrieved context with similarity scores.
+the number of indexed chunks, and the top chunks with and without reranking side
+by side, with their scores and how each chunk's rank changed. Only the reranked
+chunks are used for the answer. The reranker is set by `RERANKING_RUNTIME` and
+`RERANKING_MODEL` (see `.env.example`).
 
 The defaults work with Ollama and Qdrant on the local machine. Edit `.env.local`
 to use other models, ports, collection names, prompt files, or a Qdrant Cloud
@@ -107,16 +145,22 @@ models do not need to share GPU memory, so Ollama swaps them only once per run.
    the hybrid ranking alone. A
    plain zerank-2 GGUF does not work: its score is the raw "Yes" logit, which
    Ollama's top log-probabilities never include. The probability is
-   `sigmoid(logit / 5)`, as on the model card, and the floor is `0.3` instead
-   of `0.05`. zerank-2 reranks 50 hybrid candidates instead of 20: on two
+   `sigmoid(logit / 5)`, as on the model card. Instead of the fixed `0.05`,
+   zerank-2 keeps chunks scoring at least 0.6 of the question's best score,
+   with that cutoff kept between `0.15` and `0.3`. Relevant chunks in indicator
+   lists and short web pages often rank first but score under `0.3`.
+   zerank-2 reranks 50 hybrid candidates instead of 20: on two
    calibration batches that gave 47% more relevant matches than mxbai with 20,
    while mxbai itself did worse with 50. Run one hierarchy request at a time:
    overlapping requests interleave reranking and generation, so Ollama swaps
    the two models repeatedly.
-2. Asks Ollama for up to 20 distinct candidate passages relevant to the question, with
-   a brief explanation and supporting quotes. Partial answers, proposed outcomes,
+2. Asks Ollama for up to 8 distinct candidate passages relevant to the question, strongest
+   first, with a brief explanation and supporting quotes. Partial answers, proposed outcomes,
    indicators, and measurement criteria can qualify; a complete answer or an
-   achieved intervention is not required. A question can return multiple candidates.
+   achieved intervention is not required. An indicator or data source counts even when
+   it is listed without values. The model receives the category's name and definition
+   with only the question being asked, without the sibling questions or the
+   include and exclude lists. A question can return multiple candidates.
 3. Checks each candidate's cited chunk and quote independently against retrieval,
    removing repeated citations within the same question. Short quotes and one-sentence
    explanations keep the response within the model's context budget.

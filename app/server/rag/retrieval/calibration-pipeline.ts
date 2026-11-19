@@ -17,6 +17,7 @@ import {
   type RetrievalScope,
 } from "@/types/retrieval-types";
 import type {
+  PipelineRetriever,
   RagPipelineConfiguration,
   RagPipelineDependencies,
 } from "@/types/rag-pipeline-type";
@@ -146,8 +147,8 @@ export class CalibrationPipeline {
     private readonly configuration: ReturnType<typeof calibrationConfiguration>,
     private readonly dependencies: Pick<
       RagPipelineDependencies,
-      "chunker" | "embedder" | "store" | "retriever"
-    > = {},
+      "chunker" | "embedder" | "store"
+    > & { retriever?: PipelineRetriever } = {},
   ) {}
 
   async run(documents: readonly File[], questions: readonly string[]) {

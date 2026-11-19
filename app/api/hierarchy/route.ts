@@ -1,3 +1,4 @@
+import { adminOnly } from "@/app/server/auth/session";
 import { validateRagDocumentSelection } from "@/app/server/documents/upload-policy";
 import { parseFrameworkOntology } from "@/app/server/rag/hierarchy/hierarchy-helper";
 import { HierarchyPipeline } from "@/app/server/rag/hierarchy/hierarchy-pipeline";
@@ -22,6 +23,9 @@ function ontologyFromFormData(entry: FormDataEntryValue | null) {
 }
 
 export async function POST(request: Request) {
+  const denied = await adminOnly();
+  if (denied) return denied;
+
   try {
     const formData = await request.formData();
     const documents = formData

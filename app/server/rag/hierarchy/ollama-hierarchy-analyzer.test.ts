@@ -3,7 +3,39 @@ import type { Ollama } from "ollama";
 import { describe, expect, it, vi } from "vitest";
 
 import { OllamaHierarchyAnalyzer } from "./ollama-hierarchy-analyzer";
-import { parseMatchResponse } from "./ollama-hierarchy-analyzer-helper";
+import {
+  analyzerCategory,
+  MATCH_SCHEMA,
+  parseMatchResponse,
+  requireCompleteResponse,
+} from "./ollama-hierarchy-analyzer-helper";
+
+describe("hierarchy analyzer category", () => {
+  it("sends only the asked question, without include and exclude lists", () => {
+    expect(
+      analyzerCategory(
+        {
+          id: "health",
+          name: "Health",
+          definition: "Changes in health.",
+          questions: ["Which health indicators are tracked?", "What changed?"],
+          include: ["mortality"],
+          exclude: ["budget lines without a health outcome"],
+        },
+        "Which health indicators are tracked?",
+      ),
+    ).toEqual({
+      id: "health",
+      name: "Health",
+      definition: "Changes in health.",
+      questions: ["Which health indicators are tracked?"],
+    });
+  });
+
+  it("limits each question to eight matches", () => {
+    expect(MATCH_SCHEMA.properties.matches.maxItems).toBe(8);
+  });
+});
 
 const match = {
   explicitness: "explicit",
@@ -50,6 +82,35 @@ describe("hierarchy model response parsing", () => {
   it("rejects missing matches and malformed JSON", () => {
     expect(() => parseMatchResponse("{}")).toThrow("omitted match");
     expect(() => parseMatchResponse("not-json")).toThrow("invalid JSON");
+  });
+
+  it("shows how a malformed reply ends", () => {
+    expect(() => parseMatchResponse('{"matches":[{"reason":"cut')).toThrow(
+      'The reply ends with: "{\\"matches\\":[{\\"reason\\":\\"cut"',
+    );
+    expect(() => parseMatchResponse("  ")).toThrow("The reply was empty.");
+  });
+});
+
+describe("hierarchy model completion", () => {
+  const completion = {
+    model: "qwen3.5:9b-q4_K_M",
+    prompt_eval_count: 5685,
+    eval_count: 4200,
+  };
+
+  it("accepts a reply the model finished", () => {
+    expect(() =>
+      requireCompleteResponse({ ...completion, done_reason: "stop" }, 16_384),
+    ).not.toThrow();
+  });
+
+  it("names the model and token counts when the reply hit the limit", () => {
+    expect(() =>
+      requireCompleteResponse({ ...completion, done_reason: "length" }, 16_384),
+    ).toThrow(
+      "qwen3.5:9b-q4_K_M stopped at its token limit before finishing its reply (5685 prompt tokens, 4200 reply tokens",
+    );
   });
 });
 

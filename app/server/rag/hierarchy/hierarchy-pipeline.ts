@@ -3,18 +3,21 @@ import { resolve } from "node:path";
 import type {
   Chunker,
   Embedder,
-  PipelineRetriever,
   RagPipelineConfiguration,
+  RankingRetriever,
   Store,
 } from "@/types/rag-pipeline-type";
+import type { PipelineProgress } from "@/types/progress-types";
 import type { RetrievalScope } from "@/types/retrieval-types";
 import {
+  type CategoryRetrievals,
   type FrameworkCategory,
   type FrameworkOntology,
   type HierarchyCategoryDiagnostics,
   type HierarchyCategoryResult,
   type HierarchyConfiguration,
   type HierarchyPipelineResult,
+  type QuestionRetrieval,
 } from "@/types/hierarchy-types";
 import { createOllamaClient } from "../ollama/ollama-client-helper";
 import { DocumentChunker } from "../chunking/chunk-documents";
@@ -22,12 +25,13 @@ import { OllamaEmbedder } from "../embeddings/ollama-embedder";
 import { ragPipelineConfigurationFromEnvironment } from "../pipeline/rag-pipeline-helper";
 import { Retriever } from "../retrieval/retrieval";
 import { QdrantStore } from "../storage/vector-storage";
-import type { QuestionRetrieval } from "./hierarchy-pipeline-types";
 import {
+  countOntologyQuestions,
   evidenceIsGrounded,
   hierarchyConfigurationFor,
   hierarchyRetrievedChunk,
   parseFrameworkOntology,
+  splitRankedCandidates,
 } from "./hierarchy-helper";
 import {
   type HierarchyAnalyzer,
@@ -38,7 +42,7 @@ export type HierarchyPipelineDependencies = {
   chunker?: Chunker;
   embedder?: Embedder;
   store?: Store;
-  retriever?: PipelineRetriever;
+  retriever?: RankingRetriever;
   analyzer?: HierarchyAnalyzer;
 };
 
@@ -70,6 +74,22 @@ function validateConfiguration(configuration: HierarchyConfiguration): void {
   ) {
     throw new Error("minimumRetrievalScore must be between 0 and 1.");
   }
+
+  if (
+    configuration.retrievalScoreFloor < 0 ||
+    configuration.retrievalScoreFloor > configuration.minimumRetrievalScore
+  ) {
+    throw new Error(
+      "retrievalScoreFloor must be between 0 and minimumRetrievalScore.",
+    );
+  }
+
+  if (
+    configuration.relativeRetrievalScore < 0 ||
+    configuration.relativeRetrievalScore > 1
+  ) {
+    throw new Error("relativeRetrievalScore must be between 0 and 1.");
+  }
 }
 
 export class HierarchyPipeline {
@@ -77,7 +97,7 @@ export class HierarchyPipeline {
   private readonly chunker: Chunker;
   private readonly configuration: HierarchyConfiguration;
   private readonly embedder: Embedder;
-  private readonly retriever: PipelineRetriever;
+  private readonly retriever: RankingRetriever;
   private readonly store: Store;
 
   constructor(
@@ -135,9 +155,13 @@ export class HierarchyPipeline {
   private async retrieveOntology(
     ontology: FrameworkOntology,
     scope: RetrievalScope,
-  ): Promise<Map<string, QuestionRetrieval[]>> {
-    const retrievals = new Map<string, QuestionRetrieval[]>();
-    const resultsByQuestion = new Map<string, QuestionRetrieval["results"]>();
+    onQuestionDone: () => void,
+  ): Promise<Map<string, CategoryRetrievals>> {
+    const retrievals = new Map<string, CategoryRetrievals>();
+    const splitsByQuestion = new Map<
+      string,
+      Omit<QuestionRetrieval, "question">
+    >();
 
     for (const dimension of ontology.dimensions) {
       for (const category of dimension.categories) {
@@ -146,17 +170,22 @@ export class HierarchyPipeline {
           // Retrieve and rerank with the question alone: adding the category
           // definition and include/exclude lists made every tested
           // cross-encoder close to random. The analyzer still receives the
-          // full category.
-          const results =
-            resultsByQuestion.get(question) ??
-            (await this.retriever.retrieve(question, scope)).filter(
-              (result) =>
-                result.score >= this.configuration.minimumRetrievalScore,
+          // category's name and definition.
+          const split =
+            splitsByQuestion.get(question) ??
+            splitRankedCandidates(
+              await this.retriever.rankCandidates(question, scope),
+              this.configuration,
             );
-          resultsByQuestion.set(question, results);
-          questions.push({ question, results });
+          splitsByQuestion.set(question, split);
+          questions.push({ question, ...split });
+          onQuestionDone();
         }
-        retrievals.set(category.id, questions);
+        retrievals.set(category.id, {
+          dimensionId: dimension.id,
+          categoryId: category.id,
+          questions,
+        });
       }
     }
 
@@ -166,6 +195,7 @@ export class HierarchyPipeline {
   private async analyzeCategory(
     category: FrameworkCategory,
     retrievals: readonly QuestionRetrieval[],
+    onQuestionDone: () => void,
   ): Promise<{
     category: HierarchyCategoryResult;
     diagnostics: HierarchyCategoryDiagnostics;
@@ -181,19 +211,36 @@ export class HierarchyPipeline {
       rejected: [],
     };
 
-    for (const { question, results } of retrievals) {
+    for (const {
+      question,
+      cutoff,
+      results,
+      droppedBelowCutoff,
+      droppedOutsideTopK,
+    } of retrievals) {
       for (const result of results) retrievedChunkIds.add(result.chunk.chunkId);
       const questionDiagnostics = {
         question,
         retrievedChunks: results.length,
         chunks: results.map(hierarchyRetrievedChunk),
+        candidates:
+          results.length +
+          droppedBelowCutoff.length +
+          droppedOutsideTopK.length,
+        cutoff,
+        droppedBelowCutoff: droppedBelowCutoff.map(hierarchyRetrievedChunk),
+        droppedOutsideTopK: droppedOutsideTopK.map(hierarchyRetrievedChunk),
         generatedCandidates: 0,
         acceptedCandidates: 0,
       };
       diagnostics.questions.push(questionDiagnostics);
-      if (results.length === 0) continue;
+      if (results.length === 0) {
+        onQuestionDone();
+        continue;
+      }
 
       const candidates = await this.analyzer.match(category, question, results);
+      onQuestionDone();
       questionDiagnostics.generatedCandidates = candidates.length;
 
       const resultsByChunkId = new Map(
@@ -249,12 +296,17 @@ export class HierarchyPipeline {
   async run(
     documents: readonly File[],
     ontologyInput: FrameworkOntology | unknown,
+    onProgress: PipelineProgress = () => {},
   ): Promise<HierarchyPipelineResult> {
     if (documents.length === 0) {
       throw new Error("At least one document is required.");
     }
 
     const ontology = parseFrameworkOntology(ontologyInput);
+    const questionCount = countOntologyQuestions(ontology);
+    let retrieved = 0;
+    let matched = 0;
+    onProgress("indexing", 0, 1);
     const chunks = await this.chunker.chunkDocuments(documents);
     const vectors = await this.embedder.embed(
       chunks.map((chunk) => chunk.text),
@@ -269,7 +321,11 @@ export class HierarchyPipeline {
 
     // Reranker and generation models do not fit in VRAM together, so all
     // reranking finishes before the first generation to avoid swapping them.
-    const retrievals = await this.retrieveOntology(ontology, scope);
+    onProgress("retrieving", retrieved, questionCount);
+    const retrievals = await this.retrieveOntology(ontology, scope, () =>
+      onProgress("retrieving", ++retrieved, questionCount),
+    );
+    onProgress("matching", matched, questionCount);
 
     const dimensions: HierarchyPipelineResult["framework"]["dimensions"] = [];
     const diagnostics: HierarchyCategoryDiagnostics[] = [];
@@ -279,7 +335,8 @@ export class HierarchyPipeline {
       for (const category of dimension.categories) {
         const result = await this.analyzeCategory(
           category,
-          retrievals.get(category.id)!,
+          retrievals.get(category.id)!.questions,
+          () => onProgress("matching", ++matched, questionCount),
         );
         categories.push(result.category);
         diagnostics.push(result.diagnostics);
@@ -287,6 +344,11 @@ export class HierarchyPipeline {
       dimensions.push({ ...dimension, categories });
     }
 
-    return { chunks, diagnostics, framework: { dimensions } };
+    return {
+      chunks,
+      diagnostics,
+      framework: { dimensions },
+      retrievals: [...retrievals.values()],
+    };
   }
 }

@@ -1,4 +1,8 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
+
+vi.mock("@/app/server/auth/session", () => ({
+  adminOnly: async () => null,
+}));
 
 import { POST } from "./route";
 

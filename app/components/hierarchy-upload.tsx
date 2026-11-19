@@ -15,6 +15,7 @@ import type { UploadStatus } from "@/types/document-upload";
 
 import ONTOLOGY from "@/ontology.json";
 
+import { HierarchyQuestionFunnel } from "./hierarchy-question-funnel";
 import { RetrievalScoreList } from "./retrieval-score-list";
 
 type SuccessfulHierarchyResponse = Extract<
@@ -310,22 +311,10 @@ export function HierarchyUpload() {
                   </p>
                   <ul className="mt-3 space-y-3 text-xs leading-5 text-zinc-600">
                     {diagnostic.questions.map((question, index) => (
-                      <li key={`${question.question}-${index}`}>
-                        {question.question}: {question.retrievedChunks} chunks ·{" "}
-                        {question.generatedCandidates} proposed ·{" "}
-                        {question.acceptedCandidates} retained
-                        <ul className="mt-1 space-y-1 border-l border-zinc-100 pl-3">
-                          {question.chunks.map((chunk) => (
-                            <li key={chunk.chunkId}>
-                              <p className="text-zinc-400">
-                                {chunk.source} · page {chunk.page} · chunk{" "}
-                                {chunk.chunk}
-                              </p>
-                              <RetrievalScoreList scores={chunk.scores} />
-                            </li>
-                          ))}
-                        </ul>
-                      </li>
+                      <HierarchyQuestionFunnel
+                        key={`${question.question}-${index}`}
+                        question={question}
+                      />
                     ))}
                   </ul>
                   {diagnostic.rejected.length > 0 ? (

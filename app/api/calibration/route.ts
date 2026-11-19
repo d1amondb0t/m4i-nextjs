@@ -1,3 +1,4 @@
+import { adminOnly } from "@/app/server/auth/session";
 import { validateRagDocumentSelection } from "@/app/server/documents/upload-policy";
 import {
   CalibrationPipeline,
@@ -7,6 +8,9 @@ import {
 export const runtime = "nodejs";
 
 export async function POST(request: Request) {
+  const denied = await adminOnly();
+  if (denied) return denied;
+
   try {
     const form = await request.formData();
     const documents = form
