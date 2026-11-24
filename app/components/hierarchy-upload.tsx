@@ -15,6 +15,9 @@ import type { UploadStatus } from "@/types/document-upload";
 
 import ONTOLOGY from "@/ontology.json";
 
+import { HierarchyQuestionFunnel } from "./hierarchy-question-funnel";
+import { RetrievalScoreList } from "./retrieval-score-list";
+
 type SuccessfulHierarchyResponse = Extract<
   HierarchyPipelineResponse,
   { ok: true }
@@ -56,9 +59,9 @@ function MatchList({ matches }: { matches: HierarchyMatch[] }) {
                 <p>&ldquo;{evidence.quote}&rdquo;</p>
                 <p className="mt-1 text-zinc-400">
                   {evidence.source} · page {evidence.page} · chunk{" "}
-                  {evidence.chunk} · retrieval{" "}
-                  {evidence.retrievalScore.toFixed(3)}
+                  {evidence.chunk}
                 </p>
+                <RetrievalScoreList scores={evidence.scores} />
               </li>
             ))}
           </ul>
@@ -306,13 +309,12 @@ export function HierarchyUpload() {
                     {diagnostic.matchedCandidates} candidate passages ·{" "}
                     {diagnostic.matchedQuestions} questions matched
                   </p>
-                  <ul className="mt-3 space-y-1 text-xs leading-5 text-zinc-600">
+                  <ul className="mt-3 space-y-3 text-xs leading-5 text-zinc-600">
                     {diagnostic.questions.map((question, index) => (
-                      <li key={`${question.question}-${index}`}>
-                        {question.question}: {question.retrievedChunks} chunks ·{" "}
-                        {question.generatedCandidates} proposed ·{" "}
-                        {question.acceptedCandidates} retained
-                      </li>
+                      <HierarchyQuestionFunnel
+                        key={`${question.question}-${index}`}
+                        question={question}
+                      />
                     ))}
                   </ul>
                   {diagnostic.rejected.length > 0 ? (

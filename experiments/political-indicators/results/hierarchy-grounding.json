@@ -1,0 +1,2452 @@
+[
+  {
+    "file": "participatory-budgeting-evaluation.txt",
+    "question": "What policy or legislative change did this work seek to bring about, and was it adopted?",
+    "strict": true,
+    "relaxed": true,
+    "reattributed": false,
+    "chunkId": "3382bf371a6f4be6d68b1729d82e9bee95b6feaa",
+    "quote": "Indicator 2.1: Participatory budgeting made permanent in municipal regulation. Baseline: no legal basis. Target: ordinance adopted by 2022. Result: the municipal council adopted the Participatory Budgeting Ordinance in September 2022",
+    "reason": "Directly states that a specific legislative change (Participatory Budgeting Ordinance) was adopted in September 2022."
+  },
+  {
+    "file": "participatory-budgeting-evaluation.txt",
+    "question": "What policy or legislative change did this work seek to bring about, and was it adopted?",
+    "strict": true,
+    "relaxed": true,
+    "reattributed": false,
+    "chunkId": "36968a24de8de94b1255ae28e41cbf4e5aca6b02",
+    "quote": "Result: the municipal council adopted the Participatory Budgeting Ordinance in September 2022 by 31 votes to 6. The ordinance requires at least 15% of the annual capital budget to be allocated through participatory budgeting.",
+    "reason": "Confirms the adoption of the ordinance and specifies its content regarding capital budget allocation."
+  },
+  {
+    "file": "participatory-budgeting-evaluation.txt",
+    "question": "What policy or legislative change did this work seek to bring about, and was it adopted?",
+    "strict": false,
+    "relaxed": true,
+    "reattributed": false,
+    "chunkId": "b601d734b8249cc1a88e06edad639a1f382d82e2",
+    "quote": "The evaluation finds that the programme met or exceeded most of its targets. Participatory budgeting is now written into municipal law, a growing share of the capital budget is allocated by residents...",
+    "reason": "Summarizes that participatory budgeting is now written into municipal law as a key programme result."
+  },
+  {
+    "file": "participatory-budgeting-evaluation.txt",
+    "question": "What policy or legislative change did this work seek to bring about, and was it adopted?",
+    "strict": false,
+    "relaxed": true,
+    "reattributed": false,
+    "chunkId": "3382bf371a6f4be6d68b1729d82e9bee95b6feaa",
+    "quote": "The programme's theory of change was that regular, accessible neighbourhood assemblies would increase participation, that a successful pilot would persuade the municipal council to make participatory budgeting permanent...",
+    "reason": "Describes the theory of change where success was intended to persuade the council to make participatory budgeting permanent."
+  },
+  {
+    "file": "participatory-budgeting-evaluation.txt",
+    "question": "What policy or legislative change did this work seek to bring about, and was it adopted?",
+    "strict": true,
+    "relaxed": true,
+    "reattributed": false,
+    "chunkId": "ef2afc5fae93b4c74c9e957bd3e802aca7f15e08",
+    "quote": "The programme recommends that the council fund the participatory budgeting secretariat from its own budget after the donor funding ends in 2024; the council has included the secretariat's staff costs in its draft 2025 budget.",
+    "reason": "Mentions recommendations for funding the secretariat from the own budget after donor funding ends."
+  },
+  {
+    "file": "participatory-budgeting-evaluation.txt",
+    "question": "Which government bodies or decision-makers were engaged, and what did they commit to?",
+    "strict": true,
+    "relaxed": true,
+    "reattributed": false,
+    "chunkId": "36968a24de8de94b1255ae28e41cbf4e5aca6b02",
+    "quote": "Result: the municipal council adopted the Participatory Budgeting Ordinance in September 2022 by 31 votes to 6. The ordinance requires at least 15% of the annual capital budget to be allocated through participatory budgeting.",
+    "reason": "Describes how a successful pilot persuaded the municipal council to adopt an ordinance making participatory budgeting permanent."
+  },
+  {
+    "file": "participatory-budgeting-evaluation.txt",
+    "question": "Which government bodies or decision-makers were engaged, and what did they commit to?",
+    "strict": false,
+    "relaxed": true,
+    "reattributed": false,
+    "chunkId": "3382bf371a6f4be6d68b1729d82e9bee95b6feaa",
+    "quote": "The results framework set out the following indicators, baselines and targets. Short-term outcomes (outputs and immediate results) Indicator 1.1: Number of neighbourhood budget assemblies held... Medium-term outcomes Indicator 2.1: Participatory budgeting made permanent in municipal regulation.",
+    "reason": "States that visible results from the programme persuaded the municipal council to make participatory budgeting permanent."
+  },
+  {
+    "file": "participatory-budgeting-evaluation.txt",
+    "question": "Which government bodies or decision-makers were engaged, and what did they commit to?",
+    "strict": false,
+    "relaxed": true,
+    "reattributed": false,
+    "chunkId": "b601d734b8249cc1a88e06edad639a1f382d82e2",
+    "quote": "The programme's theory of change was that regular, accessible neighbourhood assemblies would increase participation, that a successful pilot would persuade the municipal council to make participatory budgeting permanent...",
+    "reason": "Notes that the programme aimed to persuade the municipal council to make participatory budgeting permanent through a successful pilot."
+  },
+  {
+    "file": "participatory-budgeting-evaluation.txt",
+    "question": "Which government bodies or decision-makers were engaged, and what did they commit to?",
+    "strict": true,
+    "relaxed": true,
+    "reattributed": false,
+    "chunkId": "56cc8795c385df8930c20e4bcedc86d3d5c71bc3",
+    "quote": "In 2021, the council also opened its committee meetings to the public and began streaming them online.",
+    "reason": "Mentions that in 2021, the council opened its committee meetings to the public and began streaming them online."
+  },
+  {
+    "file": "participatory-budgeting-evaluation.txt",
+    "question": "Which government bodies or decision-makers were engaged, and what did they commit to?",
+    "strict": true,
+    "relaxed": true,
+    "reattributed": false,
+    "chunkId": "ef2afc5fae93b4c74c9e957bd3e802aca7f15e08",
+    "quote": "The programme recommends that the council fund the participatory budgeting secretariat from its own budget after the donor funding ends in 2024; the council has included the secretariat's staff costs in its draft 2025 budget.",
+    "reason": "Indicates that the programme recommends funding for a participatory budgeting secretariat from the municipal own budget."
+  },
+  {
+    "file": "participatory-budgeting-evaluation.txt",
+    "question": "What evidence shows a recommendation was taken up in law, regulation, or official guidance?",
+    "strict": true,
+    "relaxed": true,
+    "reattributed": false,
+    "chunkId": "36968a24de8de94b1255ae28e41cbf4e5aca6b02",
+    "quote": "Medium-term outcomes Indicator 2.1: Participatory budgeting made permanent in municipal regulation. Baseline: no legal basis. Target: ordinance adopted by 2022. Result: the municipal council adopted the Participatory Budgeting Ordinance in September 2022 by 31 votes to 6.",
+    "reason": "Directly states that participatory budgeting was made permanent in municipal regulation via an adopted ordinance."
+  },
+  {
+    "file": "participatory-budgeting-evaluation.txt",
+    "question": "What evidence shows a recommendation was taken up in law, regulation, or official guidance?",
+    "strict": false,
+    "relaxed": true,
+    "reattributed": false,
+    "chunkId": "b601d734b8249cc1a88e06edad639a1f382d82e2",
+    "quote": "The evaluation finds that the programme met or exceeded most of its targets. Participatory budgeting is now written into municipal law, a growing share of the capital budget is allocated by residents...",
+    "reason": "Confirms that participatory budgeting is now written into municipal law as a result of the programme."
+  },
+  {
+    "file": "participatory-budgeting-evaluation.txt",
+    "question": "What evidence shows a recommendation was taken up in law, regulation, or official guidance?",
+    "strict": false,
+    "relaxed": true,
+    "reattributed": false,
+    "chunkId": "56cc8795c385df8930c20e4bcedc86d3d5c71bc3",
+    "quote": "How consultation results were used Each assembly ranked project proposals, and the top-ranked proposals were costed by the municipal planning department before a city-wide online vote. In 2024, 41 resident-selected projects were included in the capital budget...",
+    "reason": "Describes how consultation results were used to include resident-selected projects in the official capital budget."
+  },
+  {
+    "file": "participatory-budgeting-evaluation.txt",
+    "question": "What evidence shows a recommendation was taken up in law, regulation, or official guidance?",
+    "strict": true,
+    "relaxed": true,
+    "reattributed": false,
+    "chunkId": "36968a24de8de94b1255ae28e41cbf4e5aca6b02",
+    "quote": "The ordinance requires at least 15% of the annual capital budget to be allocated through participatory budgeting.",
+    "reason": "Notes that the council adopted an ordinance requiring at least 15% of the annual capital budget to be allocated through participatory budgeting."
+  },
+  {
+    "file": "participatory-budgeting-evaluation.txt",
+    "question": "What evidence shows a recommendation was taken up in law, regulation, or official guidance?",
+    "strict": true,
+    "relaxed": true,
+    "reattributed": false,
+    "chunkId": "56cc8795c385df8930c20e4bcedc86d3d5c71bc3",
+    "quote": "The planning department now publishes a yearly report showing which proposals were funded and why others were not.",
+    "reason": "Indicates that a yearly report is now published by the planning department showing funded proposals and reasons for rejection, reflecting institutionalized guidance."
+  },
+  {
+    "file": "participatory-budgeting-evaluation.txt",
+    "question": "What evidence shows a recommendation was taken up in law, regulation, or official guidance?",
+    "strict": true,
+    "relaxed": true,
+    "reattributed": false,
+    "chunkId": "ef2afc5fae93b4c74c9e957bd3e802aca7f15e08",
+    "quote": "The programme recommends that the council fund the participatory budgeting secretariat from its own budget after the donor funding ends in 2024; the council has included the secretariat's staff costs in its draft 2025 budget.",
+    "reason": "Mentions that the council included secretariat staff costs in its draft 2025 budget, indicating policy integration into official financial planning."
+  },
+  {
+    "file": "participatory-budgeting-evaluation.txt",
+    "question": "How is the influence of this work on the policy agenda measured or reported?",
+    "strict": true,
+    "relaxed": true,
+    "reattributed": false,
+    "chunkId": "36968a24de8de94b1255ae28e41cbf4e5aca6b02",
+    "quote": "Indicator 2.1: Participatory budgeting made permanent in municipal regulation. Baseline: no legal basis. Target: ordinance adopted by 2022. Result: the municipal council adopted the Participatory Budgeting Ordinance in September 2022",
+    "reason": "Describes how policy influence is measured via a specific indicator tracking whether participatory budgeting was made permanent in municipal regulation."
+  },
+  {
+    "file": "participatory-budgeting-evaluation.txt",
+    "question": "How is the influence of this work on the policy agenda measured or reported?",
+    "strict": true,
+    "relaxed": true,
+    "reattributed": false,
+    "chunkId": "36968a24de8de94b1255ae28e41cbf4e5aca6b02",
+    "quote": "Indicator 2.2: Share of the municipal capital budget allocated by residents. Baseline: 0%. Target: 15%. Result: 18% in the 2024 budget, equal to 6.2 million dollars.",
+    "reason": "Reports on policy influence through an indicator measuring the share of capital budget allocated by residents after legislative adoption."
+  },
+  {
+    "file": "participatory-budgeting-evaluation.txt",
+    "question": "How is the influence of this work on the policy agenda measured or reported?",
+    "strict": true,
+    "relaxed": true,
+    "reattributed": false,
+    "chunkId": "56cc8795c385df8930c20e4bcedc86d3d5c71bc3",
+    "quote": "The planning department now publishes a yearly report showing which proposals were funded and why others were not.",
+    "reason": "Details how policy influence is reported via a yearly report published by the planning department showing funded proposals and reasons for rejection."
+  },
+  {
+    "file": "participatory-budgeting-evaluation.txt",
+    "question": "How is the influence of this work on the policy agenda measured or reported?",
+    "strict": true,
+    "relaxed": true,
+    "reattributed": false,
+    "chunkId": "36968a24de8de94b1255ae28e41cbf4e5aca6b02",
+    "quote": "Indicator 3.1: Turnout in municipal elections. Baseline: 41% in 2018. Target: 47% in 2023. Result: 49% in the 2023 municipal election, with the largest increase in the eastern wards (from 29% to 40%).",
+    "reason": "Measures policy influence on electoral participation through an indicator tracking turnout in municipal elections."
+  },
+  {
+    "file": "participatory-budgeting-evaluation.txt",
+    "question": "How is the influence of this work on the policy agenda measured or reported?",
+    "strict": true,
+    "relaxed": true,
+    "reattributed": false,
+    "chunkId": "36968a24de8de94b1255ae28e41cbf4e5aca6b02",
+    "quote": "Indicator 3.2: Trust in the municipal council, measured on a 1-5 scale in the annual residents' survey. Baseline: 2.9 in 2019. Target: 3.3. Result: 3.4 in 2024.",
+    "reason": "Measures policy influence on public trust via an indicator tracking council trust levels measured by annual residents' surveys."
+  },
+  {
+    "file": "participatory-budgeting-evaluation.txt",
+    "question": "How is the influence of this work on the policy agenda measured or reported?",
+    "strict": true,
+    "relaxed": true,
+    "reattributed": false,
+    "chunkId": "56cc8795c385df8930c20e4bcedc86d3d5c71bc3",
+    "quote": "Indicator 3.3: Share of council seats held by women. Baseline: 19% after the 2018 election. Target: 30%. Result: 24% after the 2023 election.",
+    "reason": "Measures policy influence on gender representation through an indicator tracking the share of council seats held by women."
+  },
+  {
+    "file": "participatory-budgeting-evaluation.txt",
+    "question": "How is the influence of this work on the policy agenda measured or reported?",
+    "strict": true,
+    "relaxed": true,
+    "reattributed": false,
+    "chunkId": "56cc8795c385df8930c20e4bcedc86d3d5c71bc3",
+    "quote": "Two neighbourhood newspapers and a community radio station covered the assemblies. In 2021, the council also opened its committee meetings to the public and began streaming them online.",
+    "reason": "Describes how policy influence is reported through media coverage and public access to council meetings, indicating agenda visibility."
+  },
+  {
+    "file": "participatory-budgeting-evaluation.txt",
+    "question": "How is the influence of this work on the policy agenda measured or reported?",
+    "strict": true,
+    "relaxed": true,
+    "reattributed": false,
+    "chunkId": "ef2afc5fae93b4c74c9e957bd3e802aca7f15e08",
+    "quote": "The programme recommends that the council fund the participatory budgeting secretariat from its own budget after the donor funding ends in 2024; the council has included the secretariat's staff costs in its draft 2025 budget.",
+    "reason": "Reports on policy influence regarding institutional sustainability by noting that the secretariat's staff costs were included in the draft 2025 budget."
+  },
+  {
+    "file": "participatory-budgeting-evaluation.txt",
+    "question": "How did the capacity of the responsible public institution change as a result of the intervention?",
+    "strict": false,
+    "relaxed": true,
+    "reattributed": true,
+    "chunkId": "Chunk ef2afc5fae93b4c74c9e957bd3e802aca7f15e08",
+    "quote": "In 2021, the council also opened its committee meetings to the public and began streaming them online.",
+    "reason": "Describes a change in institutional capacity via transparency measures, specifically opening committee meetings to the public and streaming them online."
+  },
+  {
+    "file": "participatory-budgeting-evaluation.txt",
+    "question": "How did the capacity of the responsible public institution change as a result of the intervention?",
+    "strict": false,
+    "relaxed": true,
+    "reattributed": true,
+    "chunkId": "Chunk 56cc8795c385df8930c20e4bcedc86d3d5c71bc3",
+    "quote": "The planning department now publishes a yearly report showing which proposals were funded and why others were not.",
+    "reason": "Describes a change in institutional capacity via transparency measures, specifically publishing yearly reports on funded proposals."
+  },
+  {
+    "file": "participatory-budgeting-evaluation.txt",
+    "question": "How did the capacity of the responsible public institution change as a result of the intervention?",
+    "strict": false,
+    "relaxed": true,
+    "reattributed": true,
+    "chunkId": "Chunk 36968a24de8de94b1255ae28e41cbf4e5aca6b02",
+    "quote": "Result: the municipal council adopted the Participatory Budgeting Ordinance in September 2022 by 31 votes to 6. The ordinance requires at least 15% of the annual capital budget to be allocated through participatory budgeting.",
+    "reason": "Describes a change in institutional capacity via accountability, specifically the adoption of an ordinance requiring budget allocation through participatory processes."
+  },
+  {
+    "file": "participatory-budgeting-evaluation.txt",
+    "question": "How did the capacity of the responsible public institution change as a result of the intervention?",
+    "strict": false,
+    "relaxed": true,
+    "reattributed": true,
+    "chunkId": "Chunk ef2afc5fae93b4c74c9e957bd3e802aca7f15e08",
+    "quote": "The programme recommends that the council fund the participatory budgeting secretariat from its own budget after the donor funding ends in 2024; the council has included the secretariat's staff costs in its draft 2025 budget.",
+    "reason": "Describes a change in institutional capacity via accountability, specifically funding the secretariat from the council's own budget after donor support ends."
+  },
+  {
+    "file": "participatory-budgeting-evaluation.txt",
+    "question": "How did the capacity of the responsible public institution change as a result of the intervention?",
+    "strict": false,
+    "relaxed": true,
+    "reattributed": true,
+    "chunkId": "Chunk 56cc8795c385df8930c20e4bcedc86d3d5c71bc3",
+    "quote": "Local civil society organisations reported no restrictions on their activities during the programme.",
+    "reason": "Indicates a change in institutional capacity regarding integrity or transparency by reporting no restrictions on civil society activities."
+  },
+  {
+    "file": "participatory-budgeting-evaluation.txt",
+    "question": "How did the capacity of the responsible public institution change as a result of the intervention?",
+    "strict": false,
+    "relaxed": true,
+    "reattributed": true,
+    "chunkId": "Chunk 36968a24de8de94b1255ae28e41cbf4e5aca6b02",
+    "quote": "Indicator 3.1: Turnout in municipal elections. Baseline: 41% in 2018. Target: 47% in 2023. Result: 49% in the 2023 municipal election, with the largest increase in the eastern wards (from 29% to 40%).",
+    "reason": "Indicates a change in institutional capacity regarding trust and accountability through increased electoral turnout."
+  },
+  {
+    "file": "participatory-budgeting-evaluation.txt",
+    "question": "How did the capacity of the responsible public institution change as a result of the intervention?",
+    "strict": false,
+    "relaxed": true,
+    "reattributed": true,
+    "chunkId": "Chunk 36968a24de8de94b1255ae28e41cbf4e5aca6b02",
+    "quote": "Indicator 3.2: Trust in the municipal council, measured on a 1-5 scale in the annual residents' survey. Baseline: 2.9 in 2019. Target: 3.3. Result: 3.4 in 2024.",
+    "reason": "Indicates a change in institutional capacity regarding trust and accountability through increased public trust scores."
+  },
+  {
+    "file": "participatory-budgeting-evaluation.txt",
+    "question": "How did the capacity of the responsible public institution change as a result of the intervention?",
+    "strict": false,
+    "relaxed": true,
+    "reattributed": true,
+    "chunkId": "Chunk 36968a24de8de94b1255ae28e41cbf4e5aca6b02",
+    "quote": "Indicator 2.4: Share of women on the municipal Budget Oversight Committee. Baseline: 17%. Target: 40%. Result: 36%.",
+    "reason": "Indicates a change in institutional capacity regarding representation and inclusivity through increased female participation."
+  },
+  {
+    "file": "participatory-budgeting-evaluation.txt",
+    "question": "What accountability, audit, or transparency mechanisms were introduced or strengthened?",
+    "strict": true,
+    "relaxed": true,
+    "reattributed": false,
+    "chunkId": "ef2afc5fae93b4c74c9e957bd3e802aca7f15e08",
+    "quote": "In 2021, the council also opened its committee meetings to the public and began streaming them online.",
+    "reason": "Describes a transparency mechanism where committee meetings were opened to the public and streamed online."
+  },
+  {
+    "file": "participatory-budgeting-evaluation.txt",
+    "question": "What accountability, audit, or transparency mechanisms were introduced or strengthened?",
+    "strict": true,
+    "relaxed": true,
+    "reattributed": false,
+    "chunkId": "56cc8795c385df8930c20e4bcedc86d3d5c71bc3",
+    "quote": "The planning department now publishes a yearly report showing which proposals were funded and why others were not.",
+    "reason": "Describes a transparency mechanism where the planning department publishes yearly reports on funded proposals."
+  },
+  {
+    "file": "participatory-budgeting-evaluation.txt",
+    "question": "What accountability, audit, or transparency mechanisms were introduced or strengthened?",
+    "strict": true,
+    "relaxed": true,
+    "reattributed": false,
+    "chunkId": "36968a24de8de94b1255ae28e41cbf4e5aca6b02",
+    "quote": "Indicator 2.4: Share of women on the municipal Budget Oversight Committee.",
+    "reason": "Describes an accountability mechanism involving the establishment of a municipal Budget Oversight Committee."
+  },
+  {
+    "file": "participatory-budgeting-evaluation.txt",
+    "question": "What accountability, audit, or transparency mechanisms were introduced or strengthened?",
+    "strict": false,
+    "relaxed": true,
+    "reattributed": false,
+    "chunkId": "36968a24de8de94b1255ae28e41cbf4e5aca6b02",
+    "quote": "Indicator 2.1: Participatory budgeting made permanent in municipal regulation... Result: the municipal council adopted the Participatory Budgeting Ordinance in September 2022 by 31 votes to 6.",
+    "reason": "Describes an accountability mechanism where a Participatory Budgeting Ordinance was adopted into law."
+  },
+  {
+    "file": "participatory-budgeting-evaluation.txt",
+    "question": "What accountability, audit, or transparency mechanisms were introduced or strengthened?",
+    "strict": true,
+    "relaxed": true,
+    "reattributed": false,
+    "chunkId": "56cc8795c385df8930c20e4bcedc86d3d5c71bc3",
+    "quote": "Each assembly ranked project proposals, and the top-ranked proposals were costed by the municipal planning department before a city-wide online vote.",
+    "reason": "Describes a transparency mechanism involving online voting for project selection alongside physical assemblies."
+  },
+  {
+    "file": "participatory-budgeting-evaluation.txt",
+    "question": "What accountability, audit, or transparency mechanisms were introduced or strengthened?",
+    "strict": true,
+    "relaxed": true,
+    "reattributed": false,
+    "chunkId": "56cc8795c385df8930c20e4bcedc86d3d5c71bc3",
+    "quote": "Two neighbourhood newspapers and a community radio station covered the assemblies.",
+    "reason": "Mentions media coverage of assemblies which serves as an external transparency mechanism."
+  },
+  {
+    "file": "participatory-budgeting-evaluation.txt",
+    "question": "What accountability, audit, or transparency mechanisms were introduced or strengthened?",
+    "strict": true,
+    "relaxed": true,
+    "reattributed": false,
+    "chunkId": "36968a24de8de94b1255ae28e41cbf4e5aca6b02",
+    "quote": "Indicator 3.2: Trust in the municipal council, measured on a 1-5 scale in the annual residents' survey.",
+    "reason": "Mentions an annual residents' survey used to measure trust, indicating institutional accountability mechanisms."
+  },
+  {
+    "file": "participatory-budgeting-evaluation.txt",
+    "question": "Which indicators track improvements in governance quality or institutional performance?",
+    "strict": false,
+    "relaxed": true,
+    "reattributed": true,
+    "chunkId": "Chunk 56cc8795c385df8930c20e4bcedc86d3d5c71bc3",
+    "quote": "Indicator 3.2: Trust in the municipal council, measured on a 1-5 scale in the annual residents' survey.",
+    "reason": "Indicator 3.2 directly measures 'Trust in the municipal council' as a metric of governance quality improvement."
+  },
+  {
+    "file": "participatory-budgeting-evaluation.txt",
+    "question": "Which indicators track improvements in governance quality or institutional performance?",
+    "strict": false,
+    "relaxed": true,
+    "reattributed": true,
+    "chunkId": "Chunk 36968a24de8de94b1255ae28e41cbf4e5aca6b02",
+    "quote": "Indicator 3.1: Turnout in municipal elections.",
+    "reason": "Turnout in municipal elections serves as an indicator of institutional performance and civic engagement."
+  },
+  {
+    "file": "participatory-budgeting-evaluation.txt",
+    "question": "Which indicators track improvements in governance quality or institutional performance?",
+    "strict": false,
+    "relaxed": true,
+    "reattributed": true,
+    "chunkId": "Chunk 36968a24de8de94b1255ae28e41cbf4e5aca6b02",
+    "quote": "Indicator 2.1: Participatory budgeting made permanent in municipal regulation.",
+    "reason": "The adoption of a Participatory Budgeting Ordinance tracks improvements in institutional regulation and governance structure."
+  },
+  {
+    "file": "participatory-budgeting-evaluation.txt",
+    "question": "Which indicators track improvements in governance quality or institutional performance?",
+    "strict": false,
+    "relaxed": true,
+    "reattributed": true,
+    "chunkId": "Chunk 36968a24de8de94b1255ae28e41cbf4e5aca6b02",
+    "quote": "Indicator 2.4: Share of women on the municipal Budget Oversight Committee.",
+    "reason": "The share of women on the Budget Oversight Committee tracks improvements in institutional inclusivity and representation."
+  },
+  {
+    "file": "participatory-budgeting-evaluation.txt",
+    "question": "Which indicators track improvements in governance quality or institutional performance?",
+    "strict": false,
+    "relaxed": true,
+    "reattributed": true,
+    "chunkId": "Chunk 56cc8795c385df8930c20e4bcedc86d3d5c71bc3",
+    "quote": "Indicator 3.3: Share of council seats held by women.",
+    "reason": "The share of council seats held by women tracks improvements in legislative representation and gender balance."
+  },
+  {
+    "file": "participatory-budgeting-evaluation.txt",
+    "question": "Which indicators track improvements in governance quality or institutional performance?",
+    "strict": false,
+    "relaxed": true,
+    "reattributed": true,
+    "chunkId": "Chunk 36968a24de8de94b1255ae28e41cbf4e5aca6b02",
+    "quote": "Indicator 1.4: Number of civil society organisations registered as assembly partners.",
+    "reason": "The number of civil society organisations registered as assembly partners tracks improvements in institutional engagement."
+  },
+  {
+    "file": "participatory-budgeting-evaluation.txt",
+    "question": "Which indicators track improvements in governance quality or institutional performance?",
+    "strict": false,
+    "relaxed": true,
+    "reattributed": true,
+    "chunkId": "Chunk 36968a24de8de94b1255ae28e41cbf4e5aca6b02",
+    "quote": "Indicator 1.1: Number of neighbourhood budget assemblies held.",
+    "reason": "The number of neighbourhood budget assemblies held tracks improvements in institutional accessibility and participation."
+  },
+  {
+    "file": "participatory-budgeting-evaluation.txt",
+    "question": "Which indicators track improvements in governance quality or institutional performance?",
+    "strict": false,
+    "relaxed": true,
+    "reattributed": true,
+    "chunkId": "Chunk 36968a24de8de94b1255ae28e41cbf4e5aca6b02",
+    "quote": "Indicator 1.3: Share of assembly participants who are women.",
+    "reason": "The share of assembly participants who are women tracks improvements in institutional inclusivity and gender representation."
+  },
+  {
+    "file": "participatory-budgeting-evaluation.txt",
+    "question": "How did citizen or community participation in decision-making change?",
+    "strict": false,
+    "relaxed": true,
+    "reattributed": false,
+    "chunkId": "b601d734b8249cc1a88e06edad639a1f382d82e2",
+    "quote": "The programme aimed to give residents a direct say over part of the municipal capital budget and to make participation in local decision-making more inclusive... The evaluation finds that the programme met or exceeded most of its targets. Participatory budgeting is now written into municipal law, a growing share of the capital budget is allocated by residents, and turnout in the 2023 municipal election rose compared with 2018.",
+    "reason": "Describes how participation changed via increased turnout and legal institutionalization of participatory budgeting."
+  },
+  {
+    "file": "participatory-budgeting-evaluation.txt",
+    "question": "How did citizen or community participation in decision-making change?",
+    "strict": false,
+    "relaxed": true,
+    "reattributed": true,
+    "chunkId": "36968a24de8de94b1255ae28e41cbf4e5aca6b02",
+    "quote": "Indicator 1.1: Number of neighbourhood budget assemblies held... Result: 32 assemblies were held across all 14 wards between 2019 and 2023. Indicator 1.2: Number of residents taking part in assemblies and online voting... Result: 4,100 residents took part in assemblies and a further 6,800 voted online on project shortlists.",
+    "reason": "Shows specific metrics on participation change including number of assemblies held and resident involvement."
+  },
+  {
+    "file": "participatory-budgeting-evaluation.txt",
+    "question": "How did citizen or community participation in decision-making change?",
+    "strict": false,
+    "relaxed": true,
+    "reattributed": false,
+    "chunkId": "36968a24de8de94b1255ae28e41cbf4e5aca6b02",
+    "quote": "Indicator 2.1: Participatory budgeting made permanent in municipal regulation... Result: the municipal council adopted the Participatory Budgeting Ordinance in September 2022 by 31 votes to 6.",
+    "reason": "Details the adoption of an ordinance making participatory budgeting permanent as a structural change to decision-making."
+  },
+  {
+    "file": "participatory-budgeting-evaluation.txt",
+    "question": "How did citizen or community participation in decision-making change?",
+    "strict": false,
+    "relaxed": true,
+    "reattributed": false,
+    "chunkId": "36968a24de8de94b1255ae28e41cbf4e5aca6b02",
+    "quote": "Indicator 3.1: Turnout in municipal elections... Result: 49% in the 2023 municipal election, with the largest increase in the eastern wards (from 29% to 40%).",
+    "reason": "Provides data on increased electoral turnout, indicating a change in citizen participation levels."
+  },
+  {
+    "file": "participatory-budgeting-evaluation.txt",
+    "question": "How did citizen or community participation in decision-making change?",
+    "strict": true,
+    "relaxed": true,
+    "reattributed": false,
+    "chunkId": "56cc8795c385df8930c20e4bcedc86d3d5c71bc3",
+    "quote": "In 2021, the council also opened its committee meetings to the public and began streaming them online.",
+    "reason": "Notes that council meetings were opened to the public and streamed online, changing accessibility for participation."
+  },
+  {
+    "file": "participatory-budgeting-evaluation.txt",
+    "question": "How did citizen or community participation in decision-making change?",
+    "strict": true,
+    "relaxed": true,
+    "reattributed": false,
+    "chunkId": "56cc8795c385df8930c20e4bcedc86d3d5c71bc3",
+    "quote": "Lessons learned Childcare and evening meeting times were the main reasons for higher participation by women.",
+    "reason": "Highlights that childcare and evening meeting times were key factors enabling higher participation by women."
+  },
+  {
+    "file": "participatory-budgeting-evaluation.txt",
+    "question": "How did citizen or community participation in decision-making change?",
+    "strict": true,
+    "relaxed": true,
+    "reattributed": false,
+    "chunkId": "ef2afc5fae93b4c74c9e957bd3e802aca7f15e08",
+    "quote": "Online voting extended reach but favoured younger, wealthier residents, so the assemblies remain necessary.",
+    "reason": "Indicates that online voting extended reach, altering how residents could participate in decision-making."
+  },
+  {
+    "file": "participatory-budgeting-evaluation.txt",
+    "question": "How did citizen or community participation in decision-making change?",
+    "strict": false,
+    "relaxed": true,
+    "reattributed": false,
+    "chunkId": "36968a24de8de94b1255ae28e41cbf4e5aca6b02",
+    "quote": "Indicator 2.2: Share of the municipal capital budget allocated by residents... Result: 18% in the 2024 budget, equal to 6.2 million dollars.",
+    "reason": "Shows that a growing share of the capital budget is now allocated by residents through participatory processes."
+  },
+  {
+    "file": "participatory-budgeting-evaluation.txt",
+    "question": "Which groups gained or lost representation in governing or consultative bodies?",
+    "strict": false,
+    "relaxed": false,
+    "reattributed": false,
+    "chunkId": "56cc8795c385df8930c20e4bcedc86d3d5c71bc3",
+    "quote": "Indicator 3.4: Share of women on the municipal Budget Oversight Committee. Baseline: 17%. Target: 40%. Result: 36%.",
+    "reason": "Directly reports that women lost representation on the municipal Budget Oversight Committee, moving from a baseline of 17% to a result of 36%, falling short of the target."
+  },
+  {
+    "file": "participatory-budgeting-evaluation.txt",
+    "question": "Which groups gained or lost representation in governing or consultative bodies?",
+    "strict": true,
+    "relaxed": true,
+    "reattributed": false,
+    "chunkId": "56cc8795c385df8930c20e4bcedc86d3d5c71bc3",
+    "quote": "Indicator 3.3: Share of council seats held by women. Baseline: 19% after the 2018 election. Target: 30%. Result: 24% after the 2023 election.",
+    "reason": "Directly reports that women lost representation in elected office, with their share of council seats dropping from a baseline of 19% to a result of 24%."
+  },
+  {
+    "file": "participatory-budgeting-evaluation.txt",
+    "question": "Which groups gained or lost representation in governing or consultative bodies?",
+    "strict": true,
+    "relaxed": true,
+    "reattributed": false,
+    "chunkId": "b601d734b8249cc1a88e06edad639a1f382d82e2",
+    "quote": "Gains in the representation of women in elected office were smaller than planned.",
+    "reason": "Explicitly states that gains in women's representation were smaller than planned, indicating a loss or insufficient gain relative to targets."
+  },
+  {
+    "file": "participatory-budgeting-evaluation.txt",
+    "question": "Which groups gained or lost representation in governing or consultative bodies?",
+    "strict": true,
+    "relaxed": true,
+    "reattributed": false,
+    "chunkId": "36968a24de8de94b1255ae28e41cbf4e5aca6b02",
+    "quote": "Result: 27 organisations, including 9 women's groups and 5 residents' associations from the informal settlements.",
+    "reason": "Lists specific groups (women's groups and residents' associations from informal settlements) that participated, implying their presence or lack thereof affects representation metrics."
+  },
+  {
+    "file": "participatory-budgeting-evaluation.txt",
+    "question": "Which groups gained or lost representation in governing or consultative bodies?",
+    "strict": true,
+    "relaxed": true,
+    "reattributed": false,
+    "chunkId": "ef2afc5fae93b4c74c9e957bd3e802aca7f15e08",
+    "quote": "Online voting extended reach but favoured younger, wealthier residents, so the assemblies remain necessary.",
+    "reason": "Mentions that online voting favored younger, wealthier residents while assemblies remained necessary for others, suggesting differential representation based on demographics."
+  },
+  {
+    "file": "participatory-budgeting-evaluation.txt",
+    "question": "What consultation processes were run, and how were their results used?",
+    "strict": false,
+    "relaxed": true,
+    "reattributed": false,
+    "chunkId": "56cc8795c385df8930c20e4bcedc86d3d5c71bc3",
+    "quote": "How consultation results were used Each assembly ranked project proposals, and the top-ranked proposals were costed by the municipal planning department before a city-wide online vote. In 2024, 41 resident-selected projects were included in the capital budget... The planning department now publishes a yearly report showing which proposals were funded and why others were not.",
+    "reason": "Describes the consultation process where assemblies ranked proposals and how results were used for funding."
+  },
+  {
+    "file": "participatory-budgeting-evaluation.txt",
+    "question": "What consultation processes were run, and how were their results used?",
+    "strict": false,
+    "relaxed": true,
+    "reattributed": false,
+    "chunkId": "36968a24de8de94b1255ae28e41cbf4e5aca6b02",
+    "quote": "Indicator 2.1: Participatory budgeting made permanent in municipal regulation... Result: the municipal council adopted the Participatory Budgeting Ordinance in September 2022 by 31 votes to 6.",
+    "reason": "Details how consultation results led to permanent legal adoption of participatory budgeting."
+  },
+  {
+    "file": "participatory-budgeting-evaluation.txt",
+    "question": "What consultation processes were run, and how were their results used?",
+    "strict": false,
+    "relaxed": false,
+    "reattributed": false,
+    "chunkId": "b601d734b8249cc1a88e06edad639a1f382d82e2",
+    "quote": "The programme's theory of change was that regular, accessible neighbourhood assemblies would increase participation... and visible results would raise trust in the council and electoral participation over time.",
+    "reason": "Explains how consultation outcomes influenced trust and electoral participation metrics."
+  },
+  {
+    "file": "participatory-budgeting-evaluation.txt",
+    "question": "What consultation processes were run, and how were their results used?",
+    "strict": true,
+    "relaxed": true,
+    "reattributed": false,
+    "chunkId": "ef2afc5fae93b4c74c9e957bd3e802aca7f15e08",
+    "quote": "Two neighbourhood newspapers and a community radio station covered the assemblies. In 2021, the council also opened its committee meetings to the public and began streaming them online.",
+    "reason": "Describes media coverage as part of the consultation environment during the programme."
+  },
+  {
+    "file": "participatory-budgeting-evaluation.txt",
+    "question": "How is civic space or freedom of association reported to have changed?",
+    "strict": true,
+    "relaxed": true,
+    "reattributed": false,
+    "chunkId": "56cc8795c385df8930c20e4bcedc86d3d5c71bc3",
+    "quote": "Civic space Local civil society organisations reported no restrictions on their activities during the programme.",
+    "reason": "Directly reports that local civil society organizations faced no restrictions on their activities during the programme."
+  },
+  {
+    "file": "participatory-budgeting-evaluation.txt",
+    "question": "How is civic space or freedom of association reported to have changed?",
+    "strict": true,
+    "relaxed": true,
+    "reattributed": false,
+    "chunkId": "56cc8795c385df8930c20e4bcedc86d3d5c71bc3",
+    "quote": "In 2021, the council also opened its committee meetings to the public and began streaming them online.",
+    "reason": "Describes actions that expanded civic participation, such as opening committee meetings to the public and streaming them online."
+  },
+  {
+    "file": "participatory-budgeting-evaluation.txt",
+    "question": "How is civic space or freedom of association reported to have changed?",
+    "strict": true,
+    "relaxed": true,
+    "reattributed": false,
+    "chunkId": "56cc8795c385df8930c20e4bcedc86d3d5c71bc3",
+    "quote": "Two neighbourhood newspapers and a community radio station covered the assemblies.",
+    "reason": "Notes that local media outlets covered community assemblies, indicating an active civic space for information dissemination."
+  },
+  {
+    "file": "participatory-budgeting-evaluation.txt",
+    "question": "How is civic space or freedom of association reported to have changed?",
+    "strict": false,
+    "relaxed": true,
+    "reattributed": true,
+    "chunkId": "56cc8795c385df8930c20e4bcedc86d3d5c71bc3",
+    "quote": "Online voting extended reach but favoured younger, wealthier residents, so the assemblies remain necessary.",
+    "reason": "Mentions that online voting was used to extend reach, reflecting changes in how citizens engage with decision-making processes."
+  },
+  {
+    "file": "procurement-transparency-brief.txt",
+    "question": "What policy or legislative change did this work seek to bring about, and was it adopted?",
+    "strict": true,
+    "relaxed": true,
+    "reattributed": false,
+    "chunkId": "008316a962fa6553abaf538fef93408bbd4846fa",
+    "quote": "The project drafted amendments to the Public Procurement Law that make publication of contracts mandatory and create an independent complaints review panel. The cabinet approved the draft in November 2022, and parliament passed the amended law in May 2023.",
+    "reason": "The project drafted amendments to the Public Procurement Law that were approved by the cabinet and passed by parliament, directly addressing policy change adoption."
+  },
+  {
+    "file": "procurement-transparency-brief.txt",
+    "question": "Which government bodies or decision-makers were engaged, and what did they commit to?",
+    "strict": false,
+    "relaxed": true,
+    "reattributed": true,
+    "chunkId": "Chunk 008316a962fa6553abaf538fef93408bbd4846fa",
+    "quote": "In total, 140 procurement officers from the Ministry of Infrastructure and four regional public works departments completed a five-day course on procurement planning, bid evaluation and contract management.",
+    "reason": "Identifies the Ministry of Infrastructure and regional public works departments as engaged bodies that committed to completing a training course."
+  },
+  {
+    "file": "procurement-transparency-brief.txt",
+    "question": "What evidence shows a recommendation was taken up in law, regulation, or official guidance?",
+    "strict": true,
+    "relaxed": true,
+    "reattributed": false,
+    "chunkId": "008316a962fa6553abaf538fef93408bbd4846fa",
+    "quote": "The project drafted amendments to the Public Procurement Law that make publication of contracts mandatory and create an independent complaints review panel. The cabinet approved the draft in November 2022, and parliament passed the amended law in May 2023.",
+    "reason": "Describes the drafting and parliamentary passage of amended Public Procurement Law incorporating project recommendations."
+  },
+  {
+    "file": "procurement-transparency-brief.txt",
+    "question": "How is the influence of this work on the policy agenda measured or reported?",
+    "strict": true,
+    "relaxed": true,
+    "reattributed": false,
+    "chunkId": "b1f68880d69d08931c3004f56eadcfdca1c7ef0f",
+    "quote": "Phase 1 did not measure changes in corruption or in public trust; a baseline survey of businesses' perceptions of procurement integrity is planned for early 2024.",
+    "reason": "Describes how policy influence is measured via a planned baseline survey of business perceptions regarding procurement integrity."
+  },
+  {
+    "file": "procurement-transparency-brief.txt",
+    "question": "How is the influence of this work on the policy agenda measured or reported?",
+    "strict": true,
+    "relaxed": true,
+    "reattributed": false,
+    "chunkId": "b1f68880d69d08931c3004f56eadcfdca1c7ef0f",
+    "quote": "Their first monitoring report, released in October 2023, identified price overruns on 9 contracts and was discussed at a hearing of the parliamentary public accounts committee.",
+    "reason": "Details the measurement method involving civil society monitoring reports that were discussed at a parliamentary committee hearing."
+  },
+  {
+    "file": "procurement-transparency-brief.txt",
+    "question": "How is the influence of this work on the policy agenda measured or reported?",
+    "strict": true,
+    "relaxed": true,
+    "reattributed": false,
+    "chunkId": "b1f68880d69d08931c3004f56eadcfdca1c7ef0f",
+    "quote": "Phase 2, planned for 2024-2026, will extend the portal to the health and education ministries and will begin measuring whether open contracting changes prices and competition.",
+    "reason": "Reports that policy influence is measured by tracking whether open contracting changes prices and competition in Phase 2."
+  },
+  {
+    "file": "procurement-transparency-brief.txt",
+    "question": "How is the influence of this work on the policy agenda measured or reported?",
+    "strict": true,
+    "relaxed": true,
+    "reattributed": false,
+    "chunkId": "008316a962fa6553abaf538fef93408bbd4846fa",
+    "quote": "The project drafted amendments to the Public Procurement Law that make publication of contracts mandatory and create an independent complaints review panel. The cabinet approved the draft in November 2022, and parliament passed the amended law in May 2023.",
+    "reason": "Indicates policy influence through legislative amendments passed by parliament following project drafting efforts."
+  },
+  {
+    "file": "procurement-transparency-brief.txt",
+    "question": "How is the influence of this work on the policy agenda measured or reported?",
+    "strict": true,
+    "relaxed": true,
+    "reattributed": false,
+    "chunkId": "008316a962fa6553abaf538fef93408bbd4846fa",
+    "quote": "At the request of the Ministry of Finance, the Supreme Audit Office carried out a performance audit of public works procurement in 2022. The audit made 12 recommendations to the Ministry of Infrastructure.",
+    "reason": "Shows policy influence via a Supreme Audit Office performance audit that resulted in recommendations for ministry implementation."
+  },
+  {
+    "file": "procurement-transparency-brief.txt",
+    "question": "How did the capacity of the responsible public institution change as a result of the intervention?",
+    "strict": false,
+    "relaxed": true,
+    "reattributed": true,
+    "chunkId": "Chunk 008316a962fa6553abaf538fef93408bbd4846fa",
+    "quote": "In total, 140 procurement officers from the Ministry of Infrastructure and four regional public works departments completed a five-day course on procurement planning, bid evaluation and contract management.",
+    "reason": "Describes training provided to Ministry of Infrastructure officers, directly addressing changes in institutional capacity."
+  },
+  {
+    "file": "procurement-transparency-brief.txt",
+    "question": "What accountability, audit, or transparency mechanisms were introduced or strengthened?",
+    "strict": true,
+    "relaxed": true,
+    "reattributed": false,
+    "chunkId": "008316a962fa6553abaf538fef93408bbd4846fa",
+    "quote": "The project drafted amendments to the Public Procurement Law that make publication of contracts mandatory and create an independent complaints review panel. The cabinet approved the draft in November 2022, and parliament passed the amended law in May 2023.",
+    "reason": "Describes the introduction of an independent complaints review panel and mandatory contract publication via amended law."
+  },
+  {
+    "file": "procurement-transparency-brief.txt",
+    "question": "Which indicators track improvements in governance quality or institutional performance?",
+    "strict": true,
+    "relaxed": true,
+    "reattributed": false,
+    "chunkId": "3d66f3bd30439cbaeaf3d0c206059360f523b878",
+    "quote": "A training programme for public officials ran throughout 2022. In total, 140 procurement officers from the Ministry of Infrastructure and four regional public works departments completed a five-day course on procurement planning, bid evaluation and contract management.",
+    "reason": "Describes a training program for public officials as an indicator of institutional capacity improvement."
+  },
+  {
+    "file": "procurement-transparency-brief.txt",
+    "question": "Which indicators track improvements in governance quality or institutional performance?",
+    "strict": true,
+    "relaxed": true,
+    "reattributed": false,
+    "chunkId": "008316a962fa6553abaf538fef93408bbd4846fa",
+    "quote": "A further 35 internal auditors were trained on auditing electronic procurement records.",
+    "reason": "Lists trained internal auditors as an indicator strengthening institutional oversight capacity."
+  },
+  {
+    "file": "procurement-transparency-brief.txt",
+    "question": "Which indicators track improvements in governance quality or institutional performance?",
+    "strict": true,
+    "relaxed": true,
+    "reattributed": false,
+    "chunkId": "008316a962fa6553abaf538fef93408bbd4846fa",
+    "quote": "The project drafted amendments to the Public Procurement Law that make publication of contracts mandatory and create an independent complaints review panel. The cabinet approved the draft in November 2022, and parliament passed the amended law in May 2023.",
+    "reason": "Mentions drafting and passing law amendments creating an independent complaints review panel as a governance improvement."
+  },
+  {
+    "file": "procurement-transparency-brief.txt",
+    "question": "Which indicators track improvements in governance quality or institutional performance?",
+    "strict": true,
+    "relaxed": true,
+    "reattributed": false,
+    "chunkId": "008316a962fa6553abaf538fef93408bbd4846fa",
+    "quote": "At the request of the Ministry of Finance, the Supreme Audit Office carried out a performance audit of public works procurement in 2022. The audit made 12 recommendations to the Ministry of Infrastructure.",
+    "reason": "Cites a performance audit by the Supreme Audit Office making recommendations as an indicator of institutional accountability."
+  },
+  {
+    "file": "procurement-transparency-brief.txt",
+    "question": "Which indicators track improvements in governance quality or institutional performance?",
+    "strict": false,
+    "relaxed": true,
+    "reattributed": true,
+    "chunkId": "008316a962fa6553abaf538fef93408bbd4846fa",
+    "quote": "Oversight and civil society The project funded a coalition of three civil society organisations to monitor a sample of 60 road contracts using the data published on the portal. Their first monitoring report, released in October 2023, identified price overruns on 9 contracts",
+    "reason": "Describes civil society monitoring contracts and reporting price overruns as an indicator of enhanced transparency."
+  },
+  {
+    "file": "procurement-transparency-brief.txt",
+    "question": "Which indicators track improvements in governance quality or institutional performance?",
+    "strict": true,
+    "relaxed": true,
+    "reattributed": false,
+    "chunkId": "008316a962fa6553abaf538fef93408bbd4846fa",
+    "quote": "By the end of 2023, the ministry reported that it had fully implemented 7 of them, including keeping complete tender files and separating evaluation and approval duties.",
+    "reason": "Notes implementation of audit recommendations including separating duties as an indicator of improved institutional performance."
+  },
+  {
+    "file": "procurement-transparency-brief.txt",
+    "question": "Which indicators track improvements in governance quality or institutional performance?",
+    "strict": true,
+    "relaxed": true,
+    "reattributed": false,
+    "chunkId": "3d66f3bd30439cbaeaf3d0c206059360f523b878",
+    "quote": "The project supported the Public Procurement Agency in launching an electronic procurement portal in March 2022. From July 2022 all tenders by the Ministry of Infrastructure above 50,000 dollars have been advertised on the portal",
+    "reason": "Mentions launching an electronic procurement portal as a measure to strengthen oversight and transparency."
+  },
+  {
+    "file": "procurement-transparency-brief.txt",
+    "question": "What evidence is reported on corruption, integrity, or misuse of public resources?",
+    "strict": true,
+    "relaxed": true,
+    "reattributed": false,
+    "chunkId": "b1f68880d69d08931c3004f56eadcfdca1c7ef0f",
+    "quote": "Their first monitoring report, released in October 2023, identified price overruns on 9 contracts and was discussed at a hearing of the parliamentary public accounts committee.",
+    "reason": "Describes a monitoring report identifying price overruns and misuse of resources in road contracts."
+  },
+  {
+    "file": "procurement-transparency-brief.txt",
+    "question": "What evidence is reported on corruption, integrity, or misuse of public resources?",
+    "strict": true,
+    "relaxed": true,
+    "reattributed": false,
+    "chunkId": "3d66f3bd30439cbaeaf3d0c206059360f523b878",
+    "quote": "Before the project, tenders were advertised in print only, contract awards were not published, and the Supreme Audit Office had repeatedly reported weak record keeping in the Ministry of Infrastructure's procurement unit.",
+    "reason": "Mentions prior reports by the Supreme Audit Office regarding weak record keeping in procurement."
+  },
+  {
+    "file": "procurement-transparency-brief.txt",
+    "question": "What evidence is reported on corruption, integrity, or misuse of public resources?",
+    "strict": true,
+    "relaxed": true,
+    "reattributed": false,
+    "chunkId": "008316a962fa6553abaf538fef93408bbd4846fa",
+    "quote": "At the request of the Ministry of Finance, the Supreme Audit Office carried out a performance audit of public works procurement in 2022. The audit made 12 recommendations to the Ministry of Infrastructure.",
+    "reason": "Notes that a performance audit made recommendations to address issues in public works procurement."
+  },
+  {
+    "file": "procurement-transparency-brief.txt",
+    "question": "What evidence is reported on corruption, integrity, or misuse of public resources?",
+    "strict": true,
+    "relaxed": true,
+    "reattributed": false,
+    "chunkId": "008316a962fa6553abaf538fef93408bbd4846fa",
+    "quote": "The project drafted amendments to the Public Procurement Law that make publication of contracts mandatory and create an independent complaints review panel.",
+    "reason": "Describes legal amendments creating an independent complaints review panel for integrity issues."
+  },
+  {
+    "file": "procurement-transparency-brief.txt",
+    "question": "How did citizen or community participation in decision-making change?",
+    "strict": true,
+    "relaxed": true,
+    "reattributed": false,
+    "chunkId": "b1f68880d69d08931c3004f56eadcfdca1c7ef0f",
+    "quote": "Oversight and civil society The project funded a coalition of three civil society organisations to monitor a sample of 60 road contracts using the data published on the portal. Their first monitoring report, released in October 2023, identified price overruns on 9 contracts and was discussed at a hearing of the parliamentary public accounts committee.",
+    "reason": "Describes a coalition of civil society organizations funded by the project to monitor road contracts, directly addressing citizen participation in oversight."
+  },
+  {
+    "file": "programme-report.txt",
+    "question": "What policy or legislative change did this work seek to bring about, and was it adopted?",
+    "strict": true,
+    "relaxed": true,
+    "reattributed": false,
+    "chunkId": "249452e3ea8c88d5b1c320e9da41863d1b5a9e4f",
+    "quote": "The Ministry of Health adopted three of the five policy recommendations made by the programme in March 2023, including a national guideline on clinic staffing.",
+    "reason": "Describes specific policy recommendations adopted by the Ministry of Health."
+  },
+  {
+    "file": "programme-report.txt",
+    "question": "What policy or legislative change did this work seek to bring about, and was it adopted?",
+    "strict": true,
+    "relaxed": true,
+    "reattributed": false,
+    "chunkId": "249452e3ea8c88d5b1c320e9da41863d1b5a9e4f",
+    "quote": "The parliamentary health committee committed to review the remaining two in 2024.",
+    "reason": "Indicates future legislative review for remaining policies."
+  },
+  {
+    "file": "programme-report.txt",
+    "question": "What policy or legislative change did this work seek to bring about, and was it adopted?",
+    "strict": true,
+    "relaxed": true,
+    "reattributed": false,
+    "chunkId": "9e7e0dbffe29693b0e813cfb325d2a4e5706ff16",
+    "quote": "The team met senior officials from the Ministry of Finance to discuss a permanent budget line for mobile clinics; no commitment was made during the reporting period.",
+    "reason": "Notes a discussion on budget policy where no commitment was made."
+  },
+  {
+    "file": "programme-report.txt",
+    "question": "Which government bodies or decision-makers were engaged, and what did they commit to?",
+    "strict": true,
+    "relaxed": true,
+    "reattributed": false,
+    "chunkId": "249452e3ea8c88d5b1c320e9da41863d1b5a9e4f",
+    "quote": "The Ministry of Health adopted three of the five policy recommendations made by the programme in March 2023, including a national guideline on clinic staffing.",
+    "reason": "Identifies the Ministry of Health as an engaged body that adopted specific policy recommendations."
+  },
+  {
+    "file": "programme-report.txt",
+    "question": "Which government bodies or decision-makers were engaged, and what did they commit to?",
+    "strict": true,
+    "relaxed": true,
+    "reattributed": false,
+    "chunkId": "249452e3ea8c88d5b1c320e9da41863d1b5a9e4f",
+    "quote": "The parliamentary health committee committed to review the remaining two in 2024.",
+    "reason": "Identifies the parliamentary health committee as an engaged body that committed to reviewing remaining policies."
+  },
+  {
+    "file": "programme-report.txt",
+    "question": "Which government bodies or decision-makers were engaged, and what did they commit to?",
+    "strict": true,
+    "relaxed": true,
+    "reattributed": false,
+    "chunkId": "9e7e0dbffe29693b0e813cfb325d2a4e5706ff16",
+    "quote": "The team met senior officials from the Ministry of Finance to discuss a permanent budget line for mobile clinics; no commitment was made during the reporting period.",
+    "reason": "Identifies senior officials from the Ministry of Finance as engaged, though noting no commitment was made."
+  },
+  {
+    "file": "programme-report.txt",
+    "question": "What evidence shows a recommendation was taken up in law, regulation, or official guidance?",
+    "strict": true,
+    "relaxed": true,
+    "reattributed": false,
+    "chunkId": "249452e3ea8c88d5b1c320e9da41863d1b5a9e4f",
+    "quote": "The Ministry of Health adopted three of the five policy recommendations made by the programme in March 2023, including a national guideline on clinic staffing.",
+    "reason": "The Ministry of Health adopted three policy recommendations into official guidance."
+  },
+  {
+    "file": "programme-report.txt",
+    "question": "How is the influence of this work on the policy agenda measured or reported?",
+    "strict": true,
+    "relaxed": true,
+    "reattributed": false,
+    "chunkId": "249452e3ea8c88d5b1c320e9da41863d1b5a9e4f",
+    "quote": "The Ministry of Health adopted three of the five policy recommendations made by the programme in March 2023, including a national guideline on clinic staffing. The parliamentary health committee committed to review the remaining two in 2024.",
+    "reason": "Describes adoption of policy recommendations by a government ministry."
+  },
+  {
+    "file": "programme-report.txt",
+    "question": "How did the capacity of the responsible public institution change as a result of the intervention?",
+    "strict": true,
+    "relaxed": true,
+    "reattributed": false,
+    "chunkId": "249452e3ea8c88d5b1c320e9da41863d1b5a9e4f",
+    "quote": "The Ministry of Health adopted three of the five policy recommendations made by the programme in March 2023, including a national guideline on clinic staffing.",
+    "reason": "Describes a change in institutional capacity via policy adoption by the Ministry of Health."
+  },
+  {
+    "file": "programme-report.txt",
+    "question": "How did the capacity of the responsible public institution change as a result of the intervention?",
+    "strict": true,
+    "relaxed": true,
+    "reattributed": false,
+    "chunkId": "249452e3ea8c88d5b1c320e9da41863d1b5a9e4f",
+    "quote": "The parliamentary health committee committed to review the remaining two in 2024.",
+    "reason": "Indicates institutional capacity change through parliamentary committee commitment to review remaining policies."
+  },
+  {
+    "file": "programme-report.txt",
+    "question": "How did the capacity of the responsible public institution change as a result of the intervention?",
+    "strict": true,
+    "relaxed": true,
+    "reattributed": false,
+    "chunkId": "81ec3de9a95b426c1beefb75bb125ab085b5c268",
+    "quote": "An external audit by a regional firm found no irregularities and recommended quarterly reporting.",
+    "reason": "Shows institutional capacity change via external audit findings and reporting recommendations."
+  },
+  {
+    "file": "programme-report.txt",
+    "question": "How did the capacity of the responsible public institution change as a result of the intervention?",
+    "strict": true,
+    "relaxed": true,
+    "reattributed": false,
+    "chunkId": "b00c7b34dea7de8e0283793a16c13ebe0a03cacf",
+    "quote": "A new data system replaced paper registers. Staff said entry takes longer but reports for the district office are now produced automatically each month.",
+    "reason": "Reflects institutional capacity change through data system replacement improving automatic report production."
+  },
+  {
+    "file": "programme-report.txt",
+    "question": "What accountability, audit, or transparency mechanisms were introduced or strengthened?",
+    "strict": true,
+    "relaxed": true,
+    "reattributed": false,
+    "chunkId": "81ec3de9a95b426c1beefb75bb125ab085b5c268",
+    "quote": "An external audit by a regional firm found no irregularities and recommended quarterly reporting.",
+    "reason": "Describes an external audit finding no irregularities and recommending quarterly reporting, directly addressing accountability mechanisms."
+  },
+  {
+    "file": "programme-report.txt",
+    "question": "What accountability, audit, or transparency mechanisms were introduced or strengthened?",
+    "strict": true,
+    "relaxed": true,
+    "reattributed": false,
+    "chunkId": "249452e3ea8c88d5b1c320e9da41863d1b5a9e4f",
+    "quote": "The Ministry of Health adopted three of the five policy recommendations made by the programme in March 2023, including a national guideline on clinic staffing.",
+    "reason": "Mentions the adoption of policy recommendations including national guidelines, indicating strengthened institutional governance."
+  },
+  {
+    "file": "programme-report.txt",
+    "question": "What accountability, audit, or transparency mechanisms were introduced or strengthened?",
+    "strict": true,
+    "relaxed": true,
+    "reattributed": false,
+    "chunkId": "b00c7b34dea7de8e0283793a16c13ebe0a03cacf",
+    "quote": "A new data system replaced paper registers. Staff said entry takes longer but reports for the district office are now produced automatically each month.",
+    "reason": "Notes that reports are now produced automatically each month following system changes, indicating improved transparency."
+  },
+  {
+    "file": "programme-report.txt",
+    "question": "What accountability, audit, or transparency mechanisms were introduced or strengthened?",
+    "strict": true,
+    "relaxed": true,
+    "reattributed": false,
+    "chunkId": "249452e3ea8c88d5b1c320e9da41863d1b5a9e4f",
+    "quote": "The parliamentary health committee committed to review the remaining two in 2024.",
+    "reason": "Describes a parliamentary committee committing to review remaining policy recommendations, indicating strengthened oversight mechanisms."
+  },
+  {
+    "file": "programme-report.txt",
+    "question": "What evidence is reported on corruption, integrity, or misuse of public resources?",
+    "strict": true,
+    "relaxed": true,
+    "reattributed": false,
+    "chunkId": "81ec3de9a95b426c1beefb75bb125ab085b5c268",
+    "quote": "An external audit by a regional firm found no irregularities and recommended quarterly reporting.",
+    "reason": "The passage reports an external audit finding no irregularities in the programme's spending."
+  },
+  {
+    "file": "programme-report.txt",
+    "question": "What evidence is reported on corruption, integrity, or misuse of public resources?",
+    "strict": true,
+    "relaxed": true,
+    "reattributed": false,
+    "chunkId": "a3eab9444a0b8eab596f67bae99a1dc10aab46fe",
+    "quote": "An external audit by a regional firm found no irregularities and recommended quarterly reporting.",
+    "reason": "The passage reports an external audit finding no irregularities in the programme's spending."
+  },
+  {
+    "file": "programme-report.txt",
+    "question": "How did citizen or community participation in decision-making change?",
+    "strict": true,
+    "relaxed": true,
+    "reattributed": false,
+    "chunkId": "a0aa88aea2ba1b11feb8afdb7b76bec47d476cc2",
+    "quote": "Section 3. Women's participation in local health councils rose from 18% to 31% after the programme funded childcare during council meetings and trained facilitators.",
+    "reason": "Describes a specific change in citizen participation (women's representation) within local health councils."
+  },
+  {
+    "file": "programme-report.txt",
+    "question": "How did citizen or community participation in decision-making change?",
+    "strict": true,
+    "relaxed": true,
+    "reattributed": false,
+    "chunkId": "249452e3ea8c88d5b1c320e9da41863d1b5a9e4f",
+    "quote": "The parliamentary health committee committed to review the remaining two in 2024.",
+    "reason": "Mentions policy adoption by a parliamentary committee, indicating citizen/community engagement in decision-making structures."
+  },
+  {
+    "file": "programme-report.txt",
+    "question": "Which groups gained or lost representation in governing or consultative bodies?",
+    "strict": true,
+    "relaxed": true,
+    "reattributed": false,
+    "chunkId": "a0aa88aea2ba1b11feb8afdb7b76bec47d476cc2",
+    "quote": "Section 3. Women's participation in local health councils rose from 18% to 31% after the programme funded childcare during council meetings and trained facilitators.",
+    "reason": "Describes women gaining representation in local health councils through specific program interventions."
+  },
+  {
+    "file": "programme-report.txt",
+    "question": "Which groups gained or lost representation in governing or consultative bodies?",
+    "strict": true,
+    "relaxed": true,
+    "reattributed": false,
+    "chunkId": "2eac7a9e2c5d2d4feebce4bb2ef3eab482c1d87f",
+    "quote": "Section 3. Women's participation in local health councils rose from 18% to 31% after the programme funded childcare during council meetings and trained facilitators.",
+    "reason": "Repeats the finding that women increased their presence in consultative bodies, indicating a change in representation."
+  },
+  {
+    "file": "programme-report.txt",
+    "question": "What consultation processes were run, and how were their results used?",
+    "strict": true,
+    "relaxed": true,
+    "reattributed": false,
+    "chunkId": "249452e3ea8c88d5b1c320e9da41863d1b5a9e4f",
+    "quote": "Section 1. The Ministry of Health adopted three of the five policy recommendations made by the programme in March 2023, including a national guideline on clinic staffing. The parliamentary health committee committed to review the remaining two in 2024.",
+    "reason": "Describes a consultation process (policy recommendations) and how results were used by adopting three of five."
+  },
+  {
+    "file": "economic-1.pdf",
+    "question": "What policy or legislative change did this work seek to bring about, and was it adopted?",
+    "strict": false,
+    "relaxed": true,
+    "reattributed": false,
+    "chunkId": "8f6ffa69e9c284b04ad803aae1462b4dce5209a8",
+    "quote": "The new draft Public Procurement Bill, which the Government has drafted with technical support from the Bank, will align SVG's public procurement system with international best practices, and is the first such procurement code adopted in the OECS.",
+    "reason": "Describes a draft Public Procurement Bill intended to align SVG's system with international best practices."
+  },
+  {
+    "file": "economic-1.pdf",
+    "question": "What policy or legislative change did this work seek to bring about, and was it adopted?",
+    "strict": true,
+    "relaxed": true,
+    "reattributed": false,
+    "chunkId": "5a5c62471e844711f72eaa33fa8ecfec5e182390",
+    "quote": "Prior Action 2: The Recipient, through the House of Assembly, has approved a revised Public Procurement Act, which is aligned with international good practice.",
+    "reason": "States that a revised Public Procurement Act was approved by the House of Assembly."
+  },
+  {
+    "file": "economic-1.pdf",
+    "question": "What policy or legislative change did this work seek to bring about, and was it adopted?",
+    "strict": true,
+    "relaxed": true,
+    "reattributed": false,
+    "chunkId": "4b936e4df3a84e1a3c2670e24b75aa9da5b483d5",
+    "quote": "The Government is taking steps to amend the Income Tax Act to address these issues, including transfer pricing. The Bank was consulted on the revisions and transfer pricing experts from the global tax unit suggested appropriate wording, aligned with international best practices, which was adopted by the authorities in the legislation.",
+    "reason": "Details amendments to the Income Tax Act addressing transfer pricing that were adopted by authorities."
+  },
+  {
+    "file": "economic-1.pdf",
+    "question": "What policy or legislative change did this work seek to bring about, and was it adopted?",
+    "strict": true,
+    "relaxed": true,
+    "reattributed": false,
+    "chunkId": "85c1f9f15c573b85071bc42ed55ba3e9c52fdc4b",
+    "quote": "Prior Action 5: The Recipient, through its Cabinet of Ministers, has adopted a partial ban of coastal sand mining and has established a monitoring mechanism for remaining active sites, to gradually implement a sand mining ban and increase coastal resilience.",
+    "reason": "Mentions a partial ban of coastal sand mining adopted by the Cabinet of Ministers."
+  },
+  {
+    "file": "economic-1.pdf",
+    "question": "What policy or legislative change did this work seek to bring about, and was it adopted?",
+    "strict": true,
+    "relaxed": true,
+    "reattributed": false,
+    "chunkId": "6849e4d6794e497a3dba41f1395cae3923cda18a",
+    "quote": "Prior Action 6: The Recipient, through its Cabinet of Ministers, has approved the National Oceans Policy and Strategic Action Plan, with a view to enhancing benefits from the marine environment to sustainable development, and has",
+    "reason": "Notes the approval of the National Oceans Policy aimed at enhancing marine environment benefits."
+  },
+  {
+    "file": "economic-1.pdf",
+    "question": "What policy or legislative change did this work seek to bring about, and was it adopted?",
+    "strict": true,
+    "relaxed": true,
+    "reattributed": false,
+    "chunkId": "71b8b8149e22629b10c094f738044dd4f35a7da5",
+    "quote": "Prior Action 3: The Recipient, through its Minister of Finance, has submitted to the House of Assembly, amendments to the Income Tax Act aimed at addressing transfer pricing issues.",
+    "reason": "Describes amendments submitted to address transfer pricing issues in the Income Tax Act."
+  },
+  {
+    "file": "economic-1.pdf",
+    "question": "What policy or legislative change did this work seek to bring about, and was it adopted?",
+    "strict": false,
+    "relaxed": true,
+    "reattributed": false,
+    "chunkId": "51d4caf7d3630fce458794d35a0ad6b63075bdc2",
+    "quote": "The Fisheries and Aquaculture Policy (FAP) for St. Vincent and the Grenadines establishes the strategic goals, objectives, actions and key results indicators to implement the country's vision of a 'well‐managed fisheries and aquaculture sector...'",
+    "reason": "Describes a Fisheries and Aquaculture Policy establishing strategic goals for fisheries management."
+  },
+  {
+    "file": "economic-1.pdf",
+    "question": "What policy or legislative change did this work seek to bring about, and was it adopted?",
+    "strict": true,
+    "relaxed": true,
+    "reattributed": false,
+    "chunkId": "41a0c21ac4b0639211389d40e5e01b6a425c88fc",
+    "quote": "In a third phase of reforms, to be completed after the DPC series, the GoSVG plans to phase out disposable plastic containers and utensils.",
+    "reason": "Mentions plans to phase out disposable plastic containers as part of regulatory reforms."
+  },
+  {
+    "file": "economic-1.pdf",
+    "question": "Which government bodies or decision-makers were engaged, and what did they commit to?",
+    "strict": true,
+    "relaxed": true,
+    "reattributed": false,
+    "chunkId": "90472b164bf56d9202d793e5965b50010d88d290",
+    "quote": "SVG has also adopted an Energy Action Plan to achieve a 2025 energy efficiency target with related policies for implementation. As part of the global effort to combat climate change, SVG submitted its Nationally Determined Contributions (NDCs) to United Nations Framework on Climate Change (UNFCCC) and communicated an unconditional 22 percent reduction in emissions by 2025, compared to a business‐as‐usual scenario.",
+    "reason": "Describes commitments by the Cabinet of Ministers to adopt policies (NDCs) with specific emission reduction targets."
+  },
+  {
+    "file": "economic-1.pdf",
+    "question": "What evidence shows a recommendation was taken up in law, regulation, or official guidance?",
+    "strict": true,
+    "relaxed": true,
+    "reattributed": false,
+    "chunkId": "71b8b8149e22629b10c094f738044dd4f35a7da5",
+    "quote": "Prior Action 2: The Recipient, through the House of Assembly, has approved a revised Public Procurement Act, which is aligned with international good practice.",
+    "reason": "Describes a revised Public Procurement Act approved by the House of Assembly aligned with international good practice."
+  },
+  {
+    "file": "economic-1.pdf",
+    "question": "How is the influence of this work on the policy agenda measured or reported?",
+    "strict": false,
+    "relaxed": true,
+    "reattributed": true,
+    "chunkId": "Chunk 3eee91beb7592f89bef67dcb18871fd2c78fdc21",
+    "quote": "The outcomes of these policies will be measured by: (a) a decrease from 453.4 tons of plastic sacks and bags (including cones) to 151 tons in the volume of single‐use plastic bags imported; and (b) an increase from 0 to 3 PPWS regularly monitored and monitoring results publicly disclosed.",
+    "reason": "Describes how policy outcomes are measured via specific indicators like revenue sources for the Conservation Fund."
+  },
+  {
+    "file": "economic-1.pdf",
+    "question": "How is the influence of this work on the policy agenda measured or reported?",
+    "strict": false,
+    "relaxed": false,
+    "reattributed": false,
+    "chunkId": "Chunk 4080148ea1d23176a6f86c9afcd951344e616395",
+    "quote": "Ministers, will strengthen SOE oversight by performance of commercial SoEs mandating quarterly and annual financial reporting standards and requirements for including the creation of a Monitoring and Oversight Baseline (2017): 0 SOEs. Target (2020): 1.",
+    "reason": "Details how SOE oversight policy influence is measured through performance analysis and reporting frameworks."
+  },
+  {
+    "file": "economic-1.pdf",
+    "question": "How is the influence of this work on the policy agenda measured or reported?",
+    "strict": false,
+    "relaxed": true,
+    "reattributed": true,
+    "chunkId": "Chunk dd2b84e553a4815bf23cf1197ead29682138fb0a",
+    "quote": "The outcome will be measured by the number of private‐public partnerships implementing sustainable aquaculture projects (Baseline (2017): 0; Target (2020): 1).",
+    "reason": "States that policy outcomes will be measured by the number of private-public partnerships implementing sustainable aquaculture projects."
+  },
+  {
+    "file": "economic-1.pdf",
+    "question": "How is the influence of this work on the policy agenda measured or reported?",
+    "strict": false,
+    "relaxed": false,
+    "reattributed": false,
+    "chunkId": "Chunk ec3964cc55be133dccc443241d96f8daf59c5bcc",
+    "quote": "The Recipient has adopted a national | Result Indicator: Number of private‐public Cabinet of Ministers, has adopted the aquaculture business plan, with special activities partnerships implementing sustainable National Fisheries and Aquaculture Policy for the effective management, sustainable aquaculture projects.",
+    "reason": "Explains that policy influence is measured by the adoption of a national aquaculture business plan and fisheries policy."
+  },
+  {
+    "file": "economic-1.pdf",
+    "question": "How is the influence of this work on the policy agenda measured or reported?",
+    "strict": false,
+    "relaxed": true,
+    "reattributed": true,
+    "chunkId": "Chunk acad7b1ecac6c511dd6da46615dfd7f33216964f",
+    "quote": "The outcomes of these policies will be measured by: (a) a decrease from 453.4 tons of plastic sacks and bags (including cones) to 151 tons in the volume of single‐use plastic bags imported; and (b) an increase from 0 to 3 PPWS regularly monitored and monitoring results publicly disclosed.",
+    "reason": "Indicates that policy influence is measured by a decrease in imported single-use plastic bags."
+  },
+  {
+    "file": "economic-1.pdf",
+    "question": "How is the influence of this work on the policy agenda measured or reported?",
+    "strict": false,
+    "relaxed": true,
+    "reattributed": true,
+    "chunkId": "Chunk ec3964cc55be133dccc443241d96f8daf59c5bcc",
+    "quote": "Result Indicator: Increase in number of St. Vincent and the Grenadines Conservation Fund’s sustainable revenue sources.",
+    "reason": "Mentions that policy outcomes are measured by the number of sustainable revenue sources for the Conservation Fund."
+  },
+  {
+    "file": "economic-1.pdf",
+    "question": "How is the influence of this work on the policy agenda measured or reported?",
+    "strict": false,
+    "relaxed": false,
+    "reattributed": false,
+    "chunkId": "Chunk dfd64e08de40bad367be65854d00912e1c0e4abc",
+    "quote": "Result Indicator: Volume of domestically‐ Triggers | Results and indicators Trigger 8: The Recipient, through its Cabinet of Ministers, has adopted a time‐based phase out mined coastal sand reduced by 50 percent.",
+    "reason": "Describes how policy influence is measured by a reduction in domestically mined coastal sand."
+  },
+  {
+    "file": "economic-1.pdf",
+    "question": "How is the influence of this work on the policy agenda measured or reported?",
+    "strict": false,
+    "relaxed": true,
+    "reattributed": true,
+    "chunkId": "Chunk 3fd07cc969d16ebd9fc074b78acb3a9d8b789555",
+    "quote": "The results framework agreed to by the Government and the World Bank is presented in Annex 1. It includes indicators to be assessed at the end of 2020.",
+    "reason": "Discusses the framework for monitoring and evaluation which includes indicators to be assessed at the end of 2020."
+  },
+  {
+    "file": "economic-1.pdf",
+    "question": "How did the capacity of the responsible public institution change as a result of the intervention?",
+    "strict": true,
+    "relaxed": true,
+    "reattributed": false,
+    "chunkId": "d0b30d6400274dd71a27938ab3875fa9710e74c0",
+    "quote": "Institutional capacity was strengthened through public sector investment program (PSIP) workshops, focusing on the entire project preparation process.",
+    "reason": "Directly states institutional capacity was strengthened through PSIP workshops focusing on the entire project preparation process."
+  },
+  {
+    "file": "economic-1.pdf",
+    "question": "How did the capacity of the responsible public institution change as a result of the intervention?",
+    "strict": false,
+    "relaxed": true,
+    "reattributed": false,
+    "chunkId": "aee928315ef6b77a3d2021ef2800ae868084685a",
+    "quote": "Being a small island state, SVG's institutional and human resource capacity is limited.",
+    "reason": "Notes that SVG's institutional and human resource capacity is limited due to being a small island state."
+  },
+  {
+    "file": "economic-1.pdf",
+    "question": "How did the capacity of the responsible public institution change as a result of the intervention?",
+    "strict": false,
+    "relaxed": true,
+    "reattributed": false,
+    "chunkId": "d749dcacef68b4ef4ccba5cfa09698b93e0989bd",
+    "quote": "Trigger 5: The Recipient, through its Cabinet of Ministers, will strengthen SOE oversight by approving a broader SOE reporting framework, including the creation of a Monitoring and Oversight Committee...",
+    "reason": "Describes how the creation of an SOE Oversight Committee addresses shortcomings in governance hindering monitoring ability."
+  },
+  {
+    "file": "economic-1.pdf",
+    "question": "How did the capacity of the responsible public institution change as a result of the intervention?",
+    "strict": true,
+    "relaxed": true,
+    "reattributed": false,
+    "chunkId": "816c9ea027f82451b9baf8516ce00cfdfead265e",
+    "quote": "Previous difficulties in implementing an MTFF process were largely the result of capacity constraints and delays in producing national accounts data.",
+    "reason": "Mentions that previous difficulties in implementing an MTFF process were largely due to capacity constraints."
+  },
+  {
+    "file": "economic-1.pdf",
+    "question": "How did the capacity of the responsible public institution change as a result of the intervention?",
+    "strict": true,
+    "relaxed": true,
+    "reattributed": false,
+    "chunkId": "28a0a3d9234428ba8b937f86fafde73486e8ecfc",
+    "quote": "Statistical coverage of the operations of public entities is weak owing to their lack of compliance with already weak reporting requirements, in some cases due to a lack of capacity or lack of effective coordination.",
+    "reason": "States that statistical coverage is weak owing to lack of compliance, sometimes due to a lack of capacity."
+  },
+  {
+    "file": "economic-1.pdf",
+    "question": "How did the capacity of the responsible public institution change as a result of the intervention?",
+    "strict": false,
+    "relaxed": true,
+    "reattributed": false,
+    "chunkId": "74776dbfacd9863ab8dd080711621cfb979fa533",
+    "quote": "The Audit Office of the St. Vincent and the Grenadines (AOSVG) has capacity limitations and has not fully complied with its legislative mandate of performing timely annual audits...",
+    "reason": "Highlights that AOSVG has capacity limitations and has not fully complied with its legislative mandate for timely audits."
+  },
+  {
+    "file": "economic-1.pdf",
+    "question": "How did the capacity of the responsible public institution change as a result of the intervention?",
+    "strict": true,
+    "relaxed": true,
+    "reattributed": false,
+    "chunkId": "aee928315ef6b77a3d2021ef2800ae868084685a",
+    "quote": "Capacity to implement and sustain supported reforms relies on a small group of individuals, with decision‐making and technical capacity for implementation concentrated in the hands of a few.",
+    "reason": "Indicates that decision-making and technical capacity for implementation is concentrated in a small group, stretching resources thin."
+  },
+  {
+    "file": "economic-1.pdf",
+    "question": "How did the capacity of the responsible public institution change as a result of the intervention?",
+    "strict": true,
+    "relaxed": true,
+    "reattributed": false,
+    "chunkId": "d2eb558a842619d325cc450e335b272316703ee6",
+    "quote": "SVG is reforming state‐owned enterprises (SOEs) governance (including through measures supported by this operation). This will enhance transparency and facilitate oversight of such institutions.",
+    "reason": "Notes that SVG is reforming state-owned enterprises governance to enhance transparency and facilitate oversight."
+  },
+  {
+    "file": "economic-1.pdf",
+    "question": "What accountability, audit, or transparency mechanisms were introduced or strengthened?",
+    "strict": false,
+    "relaxed": true,
+    "reattributed": false,
+    "chunkId": "0d1b24f4acb8fc2c2150663030ce49909a092c2d",
+    "quote": "This includes the creation of a new SOE Oversight and Monitoring Committee, more stringent financial and operational reporting guidelines, the preparation of annual reports... The order will require that all SOEs submit timely financial and operational performance information to the MOF. This should enable the Ministry to better oversee and report on SOE performance, which would enhance overall accountability",
+    "reason": "Describes the creation of an SOE Oversight and Monitoring Committee with new reporting guidelines, directly addressing accountability mechanisms."
+  },
+  {
+    "file": "economic-1.pdf",
+    "question": "What accountability, audit, or transparency mechanisms were introduced or strengthened?",
+    "strict": false,
+    "relaxed": true,
+    "reattributed": false,
+    "chunkId": "8f6ffa69e9c284b04ad803aae1462b4dce5209a8",
+    "quote": "The new draft Public Procurement Bill... will align SVG's public procurement system with international best practices... It includes procurement methods appropriate to the needs of the Government, underpinned by requirements for transparency in the conduct of procurement proceedings. It will also establish a modern organizational structure, including a Procurement Board, which will oversee operations and the creation of a new post of Chief Procurement Officer",
+    "reason": "Details a new Public Procurement Act establishing a Procurement Board and Chief Procurement Officer with provisions for transparency."
+  },
+  {
+    "file": "economic-1.pdf",
+    "question": "What accountability, audit, or transparency mechanisms were introduced or strengthened?",
+    "strict": true,
+    "relaxed": true,
+    "reattributed": false,
+    "chunkId": "3d5253d1b5bf0ed593fa023dc8dc76f974cf6ab4",
+    "quote": "Prior Action 3: The Recipient, through its Minister of Finance, has submitted to the House of Assembly, amendments to the Income Tax Act aimed at addressing transfer pricing issues.",
+    "reason": "Mentions amendments to the Income Tax Act aimed at addressing transfer pricing issues to increase transparency."
+  },
+  {
+    "file": "economic-1.pdf",
+    "question": "What accountability, audit, or transparency mechanisms were introduced or strengthened?",
+    "strict": true,
+    "relaxed": true,
+    "reattributed": false,
+    "chunkId": "27f38d779e3f3edf494fe5c42b24435dd4504e1d",
+    "quote": "Prior Action 2: The Recipient, through its House of Assembly, has approved a revised Public Procurement Act, which is consistent with international good practice.",
+    "reason": "Notes a revised Public Procurement Act approved by the House of Assembly consistent with international good practice."
+  },
+  {
+    "file": "economic-1.pdf",
+    "question": "What accountability, audit, or transparency mechanisms were introduced or strengthened?",
+    "strict": true,
+    "relaxed": true,
+    "reattributed": false,
+    "chunkId": "d749dcacef68b4ef4ccba5cfa09698b93e0989bd",
+    "quote": "Prior Action 4: The Recipient, through its Cabinet of Ministers, has issued an order mandating quarterly and annual financial reporting standards and requirements for State Owned Enterprises (SOEs).",
+    "reason": "Describes an order mandating quarterly and annual financial reporting standards for State Owned Enterprises to improve oversight."
+  },
+  {
+    "file": "economic-1.pdf",
+    "question": "What accountability, audit, or transparency mechanisms were introduced or strengthened?",
+    "strict": true,
+    "relaxed": true,
+    "reattributed": false,
+    "chunkId": "da484f33d3abe079968c69aae09582080d08366f",
+    "quote": "Finally, a cash management committee was established in 2017, with the TOR approved by Cabinet, and various ministries and MOF departments being trained on forecasting techniques.",
+    "reason": "Highlights the establishment of a cash management committee in 2017 with TOR approved by Cabinet to improve control."
+  },
+  {
+    "file": "economic-1.pdf",
+    "question": "What accountability, audit, or transparency mechanisms were introduced or strengthened?",
+    "strict": false,
+    "relaxed": true,
+    "reattributed": false,
+    "chunkId": "da484f33d3abe079968c69aae09582080d08366f",
+    "quote": "Additionally, the Customs and Excise Departments are now implementing a Gold Card initiative and have begun to conduct post clearance audits, through desk audits and onsite visits to private importer's premises.",
+    "reason": "Mentions post clearance audits conducted through desk audits and onsite visits to private importer's premises."
+  },
+  {
+    "file": "economic-1.pdf",
+    "question": "What accountability, audit, or transparency mechanisms were introduced or strengthened?",
+    "strict": true,
+    "relaxed": true,
+    "reattributed": false,
+    "chunkId": "50caba6c89b4d0057c86abbb34065b9e1ff125d3",
+    "quote": "MOF publishes the annual budget address and Estimates of Revenue and Expenditure on its website and makes them available in print form. MOF provides in‐year budget execution reports to Parliament.",
+    "reason": "Describes MOF publishing annual budget address and Estimates of Revenue and Expenditure on its website for public access."
+  },
+  {
+    "file": "economic-1.pdf",
+    "question": "Which indicators track improvements in governance quality or institutional performance?",
+    "strict": false,
+    "relaxed": true,
+    "reattributed": false,
+    "chunkId": "8f6ffa69e9c284b04ad803aae1462b4dce5209a8",
+    "quote": "The new draft Public Procurement Bill, which the Government has drafted with technical support from the Bank, will align SVG's public procurement system with international best practices... It includes procurement methods appropriate to the needs of the Government, underpinned by requirements for transparency in the conduct of procurement proceedings. It will also establish a modern organizational structure, including a Procurement Board, which will oversee operations and the creation of a new post of Chief Procurement Officer, who will drive policy formulation.",
+    "reason": "Describes a new Public Procurement Bill establishing transparency requirements and organizational structures to improve institutional performance."
+  },
+  {
+    "file": "economic-1.pdf",
+    "question": "Which indicators track improvements in governance quality or institutional performance?",
+    "strict": false,
+    "relaxed": false,
+    "reattributed": false,
+    "chunkId": "d0b30d6400274dd71a27938ab3875fa9710e74c0",
+    "quote": "PFM reforms and initiatives since 2012 are ongoing and include: Credibility of the budget... Comprehensiveness and transparency. The GoSVG implemented a new Chart of Accounts (CoA)... To improve public access to key fiscal information, the MOF has established quarterly fiscal reports and monthly, quarterly and annual procurement reports, which are published on government websites and in the local newspaper.",
+    "reason": "Lists specific PFM reforms aimed at improving budget credibility, transparency, reporting, and external scrutiny as indicators of institutional capacity."
+  },
+  {
+    "file": "economic-1.pdf",
+    "question": "Which indicators track improvements in governance quality or institutional performance?",
+    "strict": false,
+    "relaxed": true,
+    "reattributed": true,
+    "chunkId": "4080148ea1d23176a6f86c9afcd951344e616395",
+    "quote": "Prior Action 2: The Recipient, through the House of Assembly, has approved a revised Public Procurement Act... Prior Action 3: The Recipient, through its Minister of Finance, has submitted to the House of Assembly, amendments to the Income Tax Act aimed at addressing transfer pricing issues. Prior Action 4: The Recipient, through its Trigger 1: The Recipient will approve a Parliamentary Result Indicator: Public debt convergence resolution that outlines declaratory fiscal policy...",
+    "reason": "Details a prior action to strengthen SOE oversight through reporting standards and the creation of a Monitoring and Oversight Committee."
+  },
+  {
+    "file": "economic-1.pdf",
+    "question": "Which indicators track improvements in governance quality or institutional performance?",
+    "strict": false,
+    "relaxed": true,
+    "reattributed": true,
+    "chunkId": "d749dcacef68b4ef4ccba5cfa09698b93e0989bd",
+    "quote": "This includes the creation of a new SOE Oversight and Monitoring Committee, more stringent financial and operational reporting guidelines, the preparation of annual reports, and a fiscal risk analysis function. Given that this significantly more ambitious program will understandably take time and require consultations with all relevant stakeholders, it has been included as a trigger for the second operation.",
+    "reason": "Outlines reforms to enhance accountability and transparency in SOE governance, including the creation of an oversight committee."
+  },
+  {
+    "file": "economic-1.pdf",
+    "question": "Which indicators track improvements in governance quality or institutional performance?",
+    "strict": false,
+    "relaxed": true,
+    "reattributed": false,
+    "chunkId": "aee928315ef6b77a3d2021ef2800ae868084685a",
+    "quote": "Institutional capacity risk is also considered substantial. Being a small island state, SVG's institutional and human resource capacity is limited. Capacity to implement and sustain supported reforms relies on a small group of individuals... While these individuals are capable and committed, this small cadre is stretched rather thin and saddled with numerous responsibilities.",
+    "reason": "Identifies institutional capacity risk and limitations in human resources affecting the ability to sustain reforms."
+  },
+  {
+    "file": "economic-1.pdf",
+    "question": "Which indicators track improvements in governance quality or institutional performance?",
+    "strict": false,
+    "relaxed": true,
+    "reattributed": false,
+    "chunkId": "3fd07cc969d16ebd9fc074b78acb3a9d8b789555",
+    "quote": "Monitoring, Evaluation, and Results Framework. The MOF will be responsible for coordinating actions by other relevant ministries and agencies... Monitoring and evaluation is traditionally weak in small island economies, including SVG, and the Government recognizes the need to strengthen mechanisms.",
+    "reason": "Notes the need to strengthen mechanisms for monitoring and evaluation due to traditionally weak processes in small island economies."
+  },
+  {
+    "file": "economic-1.pdf",
+    "question": "Which indicators track improvements in governance quality or institutional performance?",
+    "strict": false,
+    "relaxed": true,
+    "reattributed": false,
+    "chunkId": "74776dbfacd9863ab8dd080711621cfb979fa533",
+    "quote": "The Audit Office of the St. Vincent and the Grenadines (AOSVG) has capacity limitations and has not fully complied with its legislative mandate of performing timely annual audits of Government financial statements... The executive response to audit observations is weak and legislative scrutiny of audit findings is almost entirely absent, as the Public Accounts Committee does not meet regularly.",
+    "reason": "Highlights existing shortcomings in external scrutiny and audit as areas where institutional performance needs improvement."
+  },
+  {
+    "file": "economic-1.pdf",
+    "question": "Which indicators track improvements in governance quality or institutional performance?",
+    "strict": false,
+    "relaxed": true,
+    "reattributed": false,
+    "chunkId": "169d6ab30ad86da75a6722df0adcab634ac4ece4",
+    "quote": "The 2012 PEFA assessment indicated that SVG's PFM environment had shortcomings in: (i) credibility of the budget; (ii) comprehensiveness and transparency... A PFM Reform Action Plan was developed after the 2012 PEFA assessment, to address some of these shortcomings...",
+    "reason": "Mentions that a PFM Reform Action Plan was developed to address shortcomings in budget credibility and transparency."
+  },
+  {
+    "file": "economic-1.pdf",
+    "question": "What evidence is reported on corruption, integrity, or misuse of public resources?",
+    "strict": true,
+    "relaxed": true,
+    "reattributed": false,
+    "chunkId": "74776dbfacd9863ab8dd080711621cfb979fa533",
+    "quote": "The Audit Office of the St. Vincent and the Grenadines (AOSVG) has capacity limitations and has not fully complied with its legislative mandate of performing timely annual audits of Government financial statements.",
+    "reason": "Directly reports capacity limitations of the Audit Office regarding timely audits and weak legislative scrutiny."
+  },
+  {
+    "file": "economic-1.pdf",
+    "question": "What evidence is reported on corruption, integrity, or misuse of public resources?",
+    "strict": true,
+    "relaxed": true,
+    "reattributed": false,
+    "chunkId": "74776dbfacd9863ab8dd080711621cfb979fa533",
+    "quote": "The executive response to audit observations is weak and legislative scrutiny of audit findings is almost entirely absent, as the Public Accounts Committee does not meet regularly.",
+    "reason": "Explicitly states that executive response to audit observations is weak and parliamentary scrutiny is absent."
+  },
+  {
+    "file": "economic-1.pdf",
+    "question": "What evidence is reported on corruption, integrity, or misuse of public resources?",
+    "strict": false,
+    "relaxed": true,
+    "reattributed": false,
+    "chunkId": "169d6ab30ad86da75a6722df0adcab634ac4ece4",
+    "quote": "The 2012 PEFA assessment indicated that SVG's PFM environment had shortcomings in: ... (vi) external scrutiny and audit.",
+    "reason": "Reports on shortcomings in external scrutiny and audit identified by a PEFA assessment."
+  },
+  {
+    "file": "economic-1.pdf",
+    "question": "What evidence is reported on corruption, integrity, or misuse of public resources?",
+    "strict": false,
+    "relaxed": true,
+    "reattributed": false,
+    "chunkId": "aee928315ef6b77a3d2021ef2800ae868084685a",
+    "quote": "The 2012 PEFA assessment indicated that SVG's PFM environment has shortcomings in policy‐based budgeting, predictability and control in budget execution, accounting, recording, and reporting, and external scrutiny and audit.",
+    "reason": "Notes substantial fiduciary risks linked to weaknesses in accounting, recording, reporting, and external audit."
+  },
+  {
+    "file": "economic-1.pdf",
+    "question": "What evidence is reported on corruption, integrity, or misuse of public resources?",
+    "strict": true,
+    "relaxed": true,
+    "reattributed": false,
+    "chunkId": "28a0a3d9234428ba8b937f86fafde73486e8ecfc",
+    "quote": "Statistical coverage of the operations of public entities is weak owing to their lack of compliance with already weak reporting requirements, in some cases due to a lack of capacity or lack of effective coordination.",
+    "reason": "Describes weak statistical coverage of public entities due to lack of compliance with reporting requirements."
+  },
+  {
+    "file": "economic-1.pdf",
+    "question": "What evidence is reported on corruption, integrity, or misuse of public resources?",
+    "strict": true,
+    "relaxed": true,
+    "reattributed": false,
+    "chunkId": "d749dcacef68b4ef4ccba5cfa09698b93e0989bd",
+    "quote": "The submission of financial reports by public enterprises is not timely, with about a two‐year lag.",
+    "reason": "Highlights that submission of financial reports by public enterprises is not timely."
+  },
+  {
+    "file": "economic-1.pdf",
+    "question": "What evidence is reported on corruption, integrity, or misuse of public resources?",
+    "strict": true,
+    "relaxed": true,
+    "reattributed": false,
+    "chunkId": "3d5253d1b5bf0ed593fa023dc8dc76f974cf6ab4",
+    "quote": "Moving from a manual procurement system to an e‐procurement system will make the collection and publication of procurement information faster, easier and more comprehensive.",
+    "reason": "Proposes that moving to an e-procurement system will make information collection and publication faster and more comprehensive."
+  },
+  {
+    "file": "economic-1.pdf",
+    "question": "What evidence is reported on corruption, integrity, or misuse of public resources?",
+    "strict": true,
+    "relaxed": true,
+    "reattributed": false,
+    "chunkId": "8f6ffa69e9c284b04ad803aae1462b4dce5209a8",
+    "quote": "It includes procurement methods appropriate to the needs of the Government, underpinned by requirements for transparency in the conduct of procurement proceedings.",
+    "reason": "States that new Public Procurement Bill provisions include requirements for transparency in conduct of procurement proceedings."
+  },
+  {
+    "file": "economic-1.pdf",
+    "question": "How did citizen or community participation in decision-making change?",
+    "strict": false,
+    "relaxed": true,
+    "reattributed": false,
+    "chunkId": "41a0c21ac4b0639211389d40e5e01b6a425c88fc",
+    "quote": "The NOCC is comprised of State and non‐State agencies with responsibilities over maritime affairs and marine resources management, the private sector and civil society. ... (iv) facilitate participation of public and private institutions, non‐ governmental organizations and civil society in the implementation of the NOPSAP.",
+    "reason": "Describes the creation of the National Ocean Coordination Committee (NOCC) which includes civil society to facilitate participation in implementation."
+  },
+  {
+    "file": "economic-1.pdf",
+    "question": "How did citizen or community participation in decision-making change?",
+    "strict": true,
+    "relaxed": true,
+    "reattributed": false,
+    "chunkId": "6cb85e410f88573da6479ca123bf8137b7967ddb",
+    "quote": "Furthermore, as with most legislative and policy measures, including those supported through this operation, such reforms are subject to a consultative process involving the private sector, civil society, and groups likely to be impacted by such changes.",
+    "reason": "States that reforms are subject to a consultative process involving civil society groups likely to be impacted by changes."
+  },
+  {
+    "file": "economic-1.pdf",
+    "question": "How did citizen or community participation in decision-making change?",
+    "strict": true,
+    "relaxed": true,
+    "reattributed": false,
+    "chunkId": "6cb85e410f88573da6479ca123bf8137b7967ddb",
+    "quote": "The authorities have consulted a wide range of stakeholders on the measures supported by this operation.",
+    "reason": "Mentions that authorities have consulted a wide range of stakeholders on measures supported by the operation."
+  },
+  {
+    "file": "economic-1.pdf",
+    "question": "How did citizen or community participation in decision-making change?",
+    "strict": true,
+    "relaxed": true,
+    "reattributed": false,
+    "chunkId": "6e24db9fb4ade13674eaf92ef040d2a8932f48f8",
+    "quote": "The PLR also notes the effectiveness of meaningful policy dialogue in small states.",
+    "reason": "Notes that meaningful policy dialogue has been effective in small states, implying citizen engagement mechanisms."
+  },
+  {
+    "file": "economic-1.pdf",
+    "question": "How did citizen or community participation in decision-making change?",
+    "strict": true,
+    "relaxed": true,
+    "reattributed": false,
+    "chunkId": "0d1b24f4acb8fc2c2150663030ce49909a092c2d",
+    "quote": "Given that this significantly more ambitious program will understandably take time and require consultations with all relevant stakeholders, it has been included as a trigger for the second operation.",
+    "reason": "Describes a process requiring consultations with all relevant stakeholders before proceeding to the second operation."
+  },
+  {
+    "file": "economic-1.pdf",
+    "question": "How did citizen or community participation in decision-making change?",
+    "strict": true,
+    "relaxed": true,
+    "reattributed": false,
+    "chunkId": "6cb85e410f88573da6479ca123bf8137b7967ddb",
+    "quote": "Finally, the independent press in SVG actively covers such discussions, and is effective in generating public dialogue.",
+    "reason": "Mentions active coverage by independent press generating public dialogue on discussions."
+  },
+  {
+    "file": "economic-1.pdf",
+    "question": "How did citizen or community participation in decision-making change?",
+    "strict": true,
+    "relaxed": true,
+    "reattributed": false,
+    "chunkId": "6cb85e410f88573da6479ca123bf8137b7967ddb",
+    "quote": "As such, the objectives and results sought through this operation are consistent with public opinion and expressions of citizens’ priorities.",
+    "reason": "Indicates that objectives are consistent with expressions of citizens' priorities derived from a consultative process."
+  },
+  {
+    "file": "economic-1.pdf",
+    "question": "How did citizen or community participation in decision-making change?",
+    "strict": true,
+    "relaxed": true,
+    "reattributed": false,
+    "chunkId": "3fd07cc969d16ebd9fc074b78acb3a9d8b789555",
+    "quote": "Grievance Redress. Communities and individuals who believe that they are adversely affected by specific country policies supported as prior actions or tranche‐release conditions under a World Bank Development Policy Operation may submit complaints to the responsible country authorities, appropriate local/national grievance redress mechanisms, or the World Bank’s Grievance Redress Service (GRS).",
+    "reason": "Describes a grievance redress mechanism allowing communities to submit complaints regarding policies affecting them."
+  },
+  {
+    "file": "economic-1.pdf",
+    "question": "Which groups gained or lost representation in governing or consultative bodies?",
+    "strict": false,
+    "relaxed": true,
+    "reattributed": false,
+    "chunkId": "41a0c21ac4b0639211389d40e5e01b6a425c88fc",
+    "quote": "The NOCC is comprised of State and non‐State agencies with responsibilities over maritime affairs and marine resources management, the private sector and civil society. The Committee’s main tasks include: ... (iv) facilitate participation of public and private institutions, non‐ governmental organizations and civil society in the implementation of the NOPSAP.",
+    "reason": "Describes a committee comprising State and non-State agencies including civil society to facilitate participation in governance."
+  },
+  {
+    "file": "economic-1.pdf",
+    "question": "Which groups gained or lost representation in governing or consultative bodies?",
+    "strict": true,
+    "relaxed": true,
+    "reattributed": false,
+    "chunkId": "6cb85e410f88573da6479ca123bf8137b7967ddb",
+    "quote": "Furthermore, as with most legislative and policy measures, including those supported through this operation, such reforms are subject to a consultative process involving the private sector, civil society, and groups likely to be impacted by such changes.",
+    "reason": "Mentions a consultative process involving groups likely to be impacted by policy changes."
+  },
+  {
+    "file": "economic-1.pdf",
+    "question": "Which groups gained or lost representation in governing or consultative bodies?",
+    "strict": true,
+    "relaxed": true,
+    "reattributed": false,
+    "chunkId": "6cb85e410f88573da6479ca123bf8137b7967ddb",
+    "quote": "The proposed operation is in‐line with the NESDP 2013–25, which was developed following a substantive consultative process. As such, the objectives and results sought through this operation are consistent with public opinion and expressions of citizens’ priorities.",
+    "reason": "Notes that public opinion and citizen priorities were considered during the development of national plans."
+  },
+  {
+    "file": "economic-1.pdf",
+    "question": "Which groups gained or lost representation in governing or consultative bodies?",
+    "strict": true,
+    "relaxed": true,
+    "reattributed": false,
+    "chunkId": "83ce870c95a63115078bb031cca6e4edc0852cad",
+    "quote": "In addition, reforms around the Physical Planning Act and the National Ocean Policy in particular, involved close coordination and consultation across line ministries as responsibilities, oversight and policy functions are spread across ministries.",
+    "reason": "Describes coordination across line ministries for policies affecting various stakeholders."
+  },
+  {
+    "file": "economic-1.pdf",
+    "question": "What consultation processes were run, and how were their results used?",
+    "strict": false,
+    "relaxed": true,
+    "reattributed": false,
+    "chunkId": "6cb85e410f88573da6479ca123bf8137b7967ddb",
+    "quote": "As such, the objectives and results sought through this operation are consistent with public opinion and expressions of citizens' priorities. Furthermore, as with most legislative and policy measures...such reforms are subject to a consultative process involving the private sector, civil society, and groups likely to be impacted by such changes.",
+    "reason": "Describes substantive consultative processes used to develop policy measures involving private sector, civil society, and the press."
+  },
+  {
+    "file": "economic-1.pdf",
+    "question": "What consultation processes were run, and how were their results used?",
+    "strict": true,
+    "relaxed": true,
+    "reattributed": false,
+    "chunkId": "6cb85e410f88573da6479ca123bf8137b7967ddb",
+    "quote": "The authorities have consulted a wide range of stakeholders on the measures supported by this operation. Measures in the public financial management space have been thoroughly discussed with development partners integrally involved in SEMCAR, including Global Affairs Canada, CARTAC and the IMF.",
+    "reason": "Details consultations held between authorities and development partners regarding measures supported by the operation."
+  },
+  {
+    "file": "economic-1.pdf",
+    "question": "What consultation processes were run, and how were their results used?",
+    "strict": true,
+    "relaxed": true,
+    "reattributed": false,
+    "chunkId": "430ee1c181538e79164072de5f4f355f77d3e8c0",
+    "quote": "Furthermore, given that this is the first such operation in SVG it requires factoring in deeper stakeholder consultations and greater Bank support during preparation.",
+    "reason": "Mentions that deeper stakeholder consultations were required during preparation due to it being a first operation."
+  },
+  {
+    "file": "economic-1.pdf",
+    "question": "What consultation processes were run, and how were their results used?",
+    "strict": true,
+    "relaxed": true,
+    "reattributed": false,
+    "chunkId": "83ce870c95a63115078bb031cca6e4edc0852cad",
+    "quote": "In addition, reforms around the Physical Planning Act and the National Ocean Policy in particular, involved close coordination and consultation across line ministries as responsibilities, oversight and policy functions are spread across ministries.",
+    "reason": "Notes close coordination and consultation across line ministries for specific reforms like the Physical Planning Act."
+  },
+  {
+    "file": "economic-1.pdf",
+    "question": "What consultation processes were run, and how were their results used?",
+    "strict": true,
+    "relaxed": true,
+    "reattributed": false,
+    "chunkId": "36f3e3a0a87037980efa64b7951c74efaa184614",
+    "quote": "Extensive upstream policy engagement has been ongoing over the past several years in the areas of infrastructure resilience, PFM, and in fiscal and budget management.",
+    "reason": "References ongoing upstream policy engagement over several years which implies a continuous consultative process."
+  },
+  {
+    "file": "economic-1.pdf",
+    "question": "What consultation processes were run, and how were their results used?",
+    "strict": true,
+    "relaxed": true,
+    "reattributed": false,
+    "chunkId": "3fd07cc969d16ebd9fc074b78acb3a9d8b789555",
+    "quote": "The Bank will maintain an ongoing dialog with counterparts in the MOF and other involved ministries regarding the monitoring and evaluation of reforms supported by the operation.",
+    "reason": "States that the Bank will maintain an ongoing dialog with counterparts regarding monitoring and evaluation."
+  },
+  {
+    "file": "economic-1.pdf",
+    "question": "What consultation processes were run, and how were their results used?",
+    "strict": false,
+    "relaxed": true,
+    "reattributed": false,
+    "chunkId": "430ee1c181538e79164072de5f4f355f77d3e8c0",
+    "quote": "...The policy engagement in Grenada through the DPC series and associated technical support enabled the country to develop more prudent fiscal policies that are now being deepened through a next phase of reform engagement.",
+    "reason": "Mentions that policy engagement was enhanced through DPC series, implying a structured consultation mechanism."
+  },
+  {
+    "file": "economic-1.pdf",
+    "question": "What consultation processes were run, and how were their results used?",
+    "strict": true,
+    "relaxed": true,
+    "reattributed": false,
+    "chunkId": "3fd07cc969d16ebd9fc074b78acb3a9d8b789555",
+    "quote": "The Bank has discussed the importance of developing a monitoring and evaluation process with the relevant institutions to ensure adequate feedback to policymakers.",
+    "reason": "Notes that the Bank has discussed developing a monitoring and evaluation process with relevant institutions."
+  },
+  {
+    "file": "political-1.pdf",
+    "question": "What policy or legislative change did this work seek to bring about, and was it adopted?",
+    "strict": true,
+    "relaxed": true,
+    "reattributed": false,
+    "chunkId": "bba0fc53062b24caeb5eaee8cbded889ef943c2c",
+    "quote": "These recommendations can help identify issues or programs in agencies that might warrant additional oversight by Congress, create feedback loops regarding agency program implementation, and provide ideas and data to inform legislation.",
+    "reason": "Describes how Congress used a recommendation as the basis for passing new legislation (P.L. 116-187)."
+  },
+  {
+    "file": "political-1.pdf",
+    "question": "What policy or legislative change did this work seek to bring about, and was it adopted?",
+    "strict": true,
+    "relaxed": true,
+    "reattributed": false,
+    "chunkId": "9970e0c93b4ecbf03ee221f7a224d9f13e45d67d",
+    "quote": "Third, a recommendation might call for congressional action or inspire legislation. Congress has authority over many aspects of the jurisdiction, organization, and activities of executive branch agencies and may choose to act on the basis of a particular recommendation.",
+    "reason": "States that a recommendation may call for congressional action or inspire new legislation."
+  },
+  {
+    "file": "political-1.pdf",
+    "question": "What policy or legislative change did this work seek to bring about, and was it adopted?",
+    "strict": true,
+    "relaxed": true,
+    "reattributed": false,
+    "chunkId": "bdd4bc83b7cbd2c76086662f6b466d86e504cfa3",
+    "quote": "For example, in 2020, Congress passed P.L. 116-187, which directed the Comptroller General of the United States (who leads GAO) to study disability and pension benefits provided by the Department of Veterans Affairs to National Guard members and Armed Forces reservists.",
+    "reason": "Provides an example where Congress passed legislation directing GAO to study specific benefits."
+  },
+  {
+    "file": "political-1.pdf",
+    "question": "What policy or legislative change did this work seek to bring about, and was it adopted?",
+    "strict": false,
+    "relaxed": true,
+    "reattributed": true,
+    "chunkId": "6aada8c0c42761b7aa91f088cb8e76732ac45443",
+    "quote": "In such cases, Congress might consider legislation that enables an agency to resolve the underlying issue identified by the report.",
+    "reason": "Explains that Congress can use its authority over agencies to encourage implementation or pass laws based on recommendations."
+  },
+  {
+    "file": "political-1.pdf",
+    "question": "What policy or legislative change did this work seek to bring about, and was it adopted?",
+    "strict": true,
+    "relaxed": true,
+    "reattributed": false,
+    "chunkId": "171bab672ef43fa1d7c4af2b11dc784bcb81336f",
+    "quote": "Roles of Congress Recommendations issued by GAO and OIGs can, and often do, serve as raw material for the oversight and legislative work of Congress.",
+    "reason": "Describes how recommendations serve as raw material for legislative work and oversight hearings."
+  },
+  {
+    "file": "political-1.pdf",
+    "question": "What policy or legislative change did this work seek to bring about, and was it adopted?",
+    "strict": true,
+    "relaxed": true,
+    "reattributed": false,
+    "chunkId": "bba0fc53062b24caeb5eaee8cbded889ef943c2c",
+    "quote": "These recommendations may also prompt agencies to address issues without a need for direct congressional intervention.",
+    "reason": "Notes that recommendations provide data to inform legislation even if specific adoption isn't detailed."
+  },
+  {
+    "file": "political-1.pdf",
+    "question": "What policy or legislative change did this work seek to bring about, and was it adopted?",
+    "strict": false,
+    "relaxed": true,
+    "reattributed": false,
+    "chunkId": "9970e0c93b4ecbf03ee221f7a224d9f13e45d67d",
+    "quote": "Factors such as the significance of an issue, public awareness and concern, or the effectiveness of an agency's response may influence Congress's course of action.",
+    "reason": "Mentions that factors like public awareness influence whether Congress acts on a recommendation via legislation."
+  },
+  {
+    "file": "political-1.pdf",
+    "question": "What policy or legislative change did this work seek to bring about, and was it adopted?",
+    "strict": false,
+    "relaxed": true,
+    "reattributed": false,
+    "chunkId": "bba0fc53062b24caeb5eaee8cbded889ef943c2c",
+    "quote": "One way these offices fulfill their missions is by making specific recommendations to agencies that are intended to improve the agencies' operations or to address specific issues of compliance with laws or regulations, or other criteria.",
+    "reason": "Describes recommendations intended to improve operations which can lead to policy changes."
+  },
+  {
+    "file": "political-1.pdf",
+    "question": "Which government bodies or decision-makers were engaged, and what did they commit to?",
+    "strict": true,
+    "relaxed": true,
+    "reattributed": false,
+    "chunkId": "9970e0c93b4ecbf03ee221f7a224d9f13e45d67d",
+    "quote": "Second, Congress can use its authority over agencies to encourage them to implement recommendations. While neither GAO nor OIGs have authority to compel agencies to act, it is often the case that reporting on an issue to Congress will encourage agency action.",
+    "reason": "Describes how Congress engages with agencies by using its authority over them to encourage implementation of recommendations."
+  },
+  {
+    "file": "political-1.pdf",
+    "question": "Which government bodies or decision-makers were engaged, and what did they commit to?",
+    "strict": true,
+    "relaxed": true,
+    "reattributed": false,
+    "chunkId": "9970e0c93b4ecbf03ee221f7a224d9f13e45d67d",
+    "quote": "Third, a recommendation might call for congressional action or inspire legislation. Congress has authority over many aspects of the jurisdiction, organization, and activities of executive branch agencies and may choose to act on the basis of a particular recommendation.",
+    "reason": "Details how a recommendation might call for congressional action or inspire legislation as a form of engagement."
+  },
+  {
+    "file": "political-1.pdf",
+    "question": "Which government bodies or decision-makers were engaged, and what did they commit to?",
+    "strict": false,
+    "relaxed": true,
+    "reattributed": false,
+    "chunkId": "bdd4bc83b7cbd2c76086662f6b466d86e504cfa3",
+    "quote": "When GAO issues a recommendation to an agency, the head of that agency is required to submit a 'written statement on action taken or planned on the recommendation' and submit that recommendation to certain congressional committees (31 U.S.C. §720).",
+    "reason": "States that GAO recommendations are submitted to certain congressional committees as part of statutory requirements."
+  },
+  {
+    "file": "political-1.pdf",
+    "question": "Which government bodies or decision-makers were engaged, and what did they commit to?",
+    "strict": true,
+    "relaxed": true,
+    "reattributed": false,
+    "chunkId": "171bab672ef43fa1d7c4af2b11dc784bcb81336f",
+    "quote": "Roles of Congress Recommendations issued by GAO and OIGs can, and often do, serve as raw material for the oversight and legislative work of Congress.",
+    "reason": "Explains how GAO recommendations serve as raw material for Congress's oversight and legislative work."
+  },
+  {
+    "file": "political-1.pdf",
+    "question": "Which government bodies or decision-makers were engaged, and what did they commit to?",
+    "strict": false,
+    "relaxed": true,
+    "reattributed": false,
+    "chunkId": "9970e0c93b4ecbf03ee221f7a224d9f13e45d67d",
+    "quote": "Factors such as the significance of an issue, public awareness and concern, or the effectiveness of an agency's response may influence Congress's course of action.",
+    "reason": "Mentions that factors like public awareness may influence Congress's course of action regarding recommendations."
+  },
+  {
+    "file": "political-1.pdf",
+    "question": "Which government bodies or decision-makers were engaged, and what did they commit to?",
+    "strict": true,
+    "relaxed": true,
+    "reattributed": false,
+    "chunkId": "171bab672ef43fa1d7c4af2b11dc784bcb81336f",
+    "quote": "First, reviewing recommendations is one way that Congress can identify and learn about issues that may warrant additional oversight.",
+    "reason": "Notes that GAO recommendations can be used to identify issues warranting additional oversight by Congress."
+  },
+  {
+    "file": "political-1.pdf",
+    "question": "Which government bodies or decision-makers were engaged, and what did they commit to?",
+    "strict": false,
+    "relaxed": true,
+    "reattributed": false,
+    "chunkId": "171bab672ef43fa1d7c4af2b11dc784bcb81336f",
+    "quote": "By passing legislation mandating the study, Congress was able to establish its scope, specify the contents, and set a reporting deadline for GAO's work.",
+    "reason": "Describes how GAO reports are used to establish scope for studies directed by Congress."
+  },
+  {
+    "file": "political-1.pdf",
+    "question": "Which government bodies or decision-makers were engaged, and what did they commit to?",
+    "strict": false,
+    "relaxed": true,
+    "reattributed": false,
+    "chunkId": "6aada8c0c42761b7aa91f088cb8e76732ac45443",
+    "quote": "Additionally, OIGs must report to Congress every six months on their activities. In these semiannual reports, OIGs are now specifically required by the IG Act to identify 'each significant recommendation' for which 'corrective action has not been completed' (5 U.S.C. §405(b)).",
+    "reason": "Mentions that OIGs must report to Congress every six months on their activities including significant recommendations."
+  },
+  {
+    "file": "political-1.pdf",
+    "question": "What evidence shows a recommendation was taken up in law, regulation, or official guidance?",
+    "strict": true,
+    "relaxed": true,
+    "reattributed": false,
+    "chunkId": "171bab672ef43fa1d7c4af2b11dc784bcb81336f",
+    "quote": "Roles of Congress Recommendations issued by GAO and OIGs can, and often do, serve as raw material for the oversight and legislative work of Congress. Specifically, there are at least three ways that Congress might use recommendations.",
+    "reason": "Describes how Congress uses recommendations as raw material for legislative work, including passing laws based on them."
+  },
+  {
+    "file": "political-1.pdf",
+    "question": "What evidence shows a recommendation was taken up in law, regulation, or official guidance?",
+    "strict": true,
+    "relaxed": true,
+    "reattributed": false,
+    "chunkId": "bba0fc53062b24caeb5eaee8cbded889ef943c2c",
+    "quote": "These recommendations can help identify issues or programs in agencies that might warrant additional oversight by Congress, create feedback loops regarding agency program implementation, and provide ideas and data to inform legislation.",
+    "reason": "Provides a specific example where Congress passed legislation (P.L. 116-187) directing GAO to study VA benefits based on oversight needs."
+  },
+  {
+    "file": "political-1.pdf",
+    "question": "What evidence shows a recommendation was taken up in law, regulation, or official guidance?",
+    "strict": true,
+    "relaxed": true,
+    "reattributed": false,
+    "chunkId": "9970e0c93b4ecbf03ee221f7a224d9f13e45d67d",
+    "quote": "Third, a recommendation might call for congressional action or inspire legislation. Congress has authority over many aspects of the jurisdiction, organization, and activities of executive branch agencies and may choose to act on the basis of a particular recommendation.",
+    "reason": "Explains how GAO recommendations can inspire congressional action or lead directly to new statutes addressing identified issues."
+  },
+  {
+    "file": "political-1.pdf",
+    "question": "What evidence shows a recommendation was taken up in law, regulation, or official guidance?",
+    "strict": true,
+    "relaxed": true,
+    "reattributed": false,
+    "chunkId": "171bab672ef43fa1d7c4af2b11dc784bcb81336f",
+    "quote": "Further, when recommendations and reports are the basis for oversight hearings, GAO and OIGs can be invited to testify on their findings along with related agencies.",
+    "reason": "Details how GAO recommendations serve as raw material for oversight hearings that can lead to legislative outcomes."
+  },
+  {
+    "file": "political-1.pdf",
+    "question": "What evidence shows a recommendation was taken up in law, regulation, or official guidance?",
+    "strict": true,
+    "relaxed": true,
+    "reattributed": false,
+    "chunkId": "9970e0c93b4ecbf03ee221f7a224d9f13e45d67d",
+    "quote": "Second, Congress can use its authority over agencies to encourage them to implement recommendations.",
+    "reason": "Describes how Congress uses its authority over agencies to encourage implementation of recommendations through legislative means."
+  },
+  {
+    "file": "political-1.pdf",
+    "question": "What evidence shows a recommendation was taken up in law, regulation, or official guidance?",
+    "strict": true,
+    "relaxed": true,
+    "reattributed": false,
+    "chunkId": "bba0fc53062b24caeb5eaee8cbded889ef943c2c",
+    "quote": "A recommendation from GAO or an OIG is a formal suggestion—following careful study of agency activities— offered to agencies and intended to resolve an identified issue at the agency.",
+    "reason": "Notes that GAO and OIGs issue thousands of formal suggestions intended to resolve issues at agencies."
+  },
+  {
+    "file": "political-1.pdf",
+    "question": "What evidence shows a recommendation was taken up in law, regulation, or official guidance?",
+    "strict": true,
+    "relaxed": true,
+    "reattributed": false,
+    "chunkId": "dfb62c69707dd19af7255ece94446571f4e1575d",
+    "quote": "Tracking Recommendations Both GAO and the interagency body of OIGs—the Council of the Inspectors General on Integrity and Efficiency (CIGIE)—track recommendations in a manner that may be useful to Congress and the public.",
+    "reason": "Mentions that tracking unresolved recommendations helps identify less responsive agencies, implying a mechanism for policy influence."
+  },
+  {
+    "file": "political-1.pdf",
+    "question": "What evidence shows a recommendation was taken up in law, regulation, or official guidance?",
+    "strict": true,
+    "relaxed": true,
+    "reattributed": false,
+    "chunkId": "9970e0c93b4ecbf03ee221f7a224d9f13e45d67d",
+    "quote": "While neither GAO nor OIGs have authority to compel agencies to act, it is often the case that reporting on an issue to Congress will encourage agency action.",
+    "reason": "States that reporting issues to Congress encourages agency action, which is part of the advocacy process."
+  },
+  {
+    "file": "political-1.pdf",
+    "question": "How is the influence of this work on the policy agenda measured or reported?",
+    "strict": false,
+    "relaxed": true,
+    "reattributed": false,
+    "chunkId": "171bab672ef43fa1d7c4af2b11dc784bcb81336f",
+    "quote": "Specifically, there are at least three ways that Congress might use recommendations. First, reviewing recommendations is one way that Congress can identify and learn about issues that may warrant additional oversight... Second, Congress can use its authority over agencies to encourage them to implement recommendations.",
+    "reason": "Describes how Congress uses GAO/OIG recommendations as raw material for oversight hearings and legislation, directly addressing policy influence measurement."
+  },
+  {
+    "file": "political-1.pdf",
+    "question": "How is the influence of this work on the policy agenda measured or reported?",
+    "strict": true,
+    "relaxed": true,
+    "reattributed": false,
+    "chunkId": "9970e0c93b4ecbf03ee221f7a224d9f13e45d67d",
+    "quote": "In this context, tracking of unresolved recommendations by GAO and CIGIE may be useful. Congress might seek to monitor how quickly agencies act on recommendations and when recommendations remain unresolved.",
+    "reason": "Explains how tracking unresolved recommendations helps monitor agency responsiveness and drives further congressional oversight actions."
+  },
+  {
+    "file": "political-1.pdf",
+    "question": "How is the influence of this work on the policy agenda measured or reported?",
+    "strict": false,
+    "relaxed": true,
+    "reattributed": false,
+    "chunkId": "6aada8c0c42761b7aa91f088cb8e76732ac45443",
+    "quote": "In these semiannual reports, OIGs are now specifically required by the IG Act to identify 'each significant recommendation' for which 'corrective action has not been completed' (5 U.S.C. §405(b)).",
+    "reason": "Details the statutory requirement for OIGs to report significant uncorrected recommendations semiannually, providing a formal measurement mechanism."
+  },
+  {
+    "file": "political-1.pdf",
+    "question": "How is the influence of this work on the policy agenda measured or reported?",
+    "strict": false,
+    "relaxed": true,
+    "reattributed": false,
+    "chunkId": "bdd4bc83b7cbd2c76086662f6b466d86e504cfa3",
+    "quote": "When GAO issues a recommendation to an agency, the head of that agency is required to submit a 'written statement on action taken or planned on the recommendation' and submit that recommendation to certain congressional committees (31 U.S.C. §720).",
+    "reason": "Describes how GAO recommendations are submitted to congressional committees, creating a formal reporting channel for policy influence."
+  },
+  {
+    "file": "political-1.pdf",
+    "question": "How is the influence of this work on the policy agenda measured or reported?",
+    "strict": false,
+    "relaxed": true,
+    "reattributed": false,
+    "chunkId": "4ce81d8690a4ed5af9d803fdfbd676d4741ae598",
+    "quote": "Factors such as the significance of an issue, public awareness and concern, or the effectiveness of an agency's response may influence Congress's course of action.",
+    "reason": "Notes how factors like public awareness influence Congress's legislative response to recommendations, linking measurement of impact to external drivers."
+  },
+  {
+    "file": "political-1.pdf",
+    "question": "How is the influence of this work on the policy agenda measured or reported?",
+    "strict": false,
+    "relaxed": true,
+    "reattributed": false,
+    "chunkId": "dfb62c69707dd19af7255ece94446571f4e1575d",
+    "quote": "GAO maintains a searchable database of its recommendations. GAO's list includes over 5,000 open recommendations.",
+    "reason": "Mentions that GAO maintains a searchable database with over 5,000 open recommendations used for tracking and public review."
+  },
+  {
+    "file": "political-1.pdf",
+    "question": "How is the influence of this work on the policy agenda measured or reported?",
+    "strict": true,
+    "relaxed": true,
+    "reattributed": false,
+    "chunkId": "d9ec7f4f02e1723619d19ed0c7dabcf49265a933",
+    "quote": "CIGIE maintains a similar web page that collects recommendations from OIGs across the government, provides updates on their status, and includes statistical data that allow users to review open recommendations by agency, age, and other metrics.",
+    "reason": "Describes how CIGIE collects OIG recommendations and provides statistical data allowing users to review metrics like age of recommendations."
+  },
+  {
+    "file": "political-1.pdf",
+    "question": "How is the influence of this work on the policy agenda measured or reported?",
+    "strict": true,
+    "relaxed": true,
+    "reattributed": false,
+    "chunkId": "bba0fc53062b24caeb5eaee8cbded889ef943c2c",
+    "quote": "These recommendations can help identify issues or programs in agencies that might warrant additional oversight by Congress, create feedback loops regarding agency program implementation, and provide ideas and data to inform legislation.",
+    "reason": "States that GAO/OIG recommendations provide ideas and data to inform legislation, indicating a pathway for policy influence measurement."
+  },
+  {
+    "file": "political-1.pdf",
+    "question": "How did the capacity of the responsible public institution change as a result of the intervention?",
+    "strict": false,
+    "relaxed": true,
+    "reattributed": false,
+    "chunkId": "bba0fc53062b24caeb5eaee8cbded889ef943c2c",
+    "quote": "One way these offices fulfill their missions is by making specific recommendations to agencies that are intended to improve the agencies' operations or to address specific issues of compliance with laws or regulations, or other criteria.",
+    "reason": "Describes how GAO/OIGs issue formal suggestions intended to resolve identified issues at agencies."
+  },
+  {
+    "file": "political-1.pdf",
+    "question": "How did the capacity of the responsible public institution change as a result of the intervention?",
+    "strict": false,
+    "relaxed": true,
+    "reattributed": false,
+    "chunkId": "6aada8c0c42761b7aa91f088cb8e76732ac45443",
+    "quote": "Government Accountability Office GAO has broad authority to investigate and report on 'all matters related to the receipt, disbursement, and use of public money' (31 U.S.C. §712) and to 'evaluate the results of a program or activity the Government carries out under existing law' (31 U.S.C. §717).",
+    "reason": "States GAO/OIGs have authority to investigate and report on public money use and program results."
+  },
+  {
+    "file": "political-1.pdf",
+    "question": "How did the capacity of the responsible public institution change as a result of the intervention?",
+    "strict": false,
+    "relaxed": true,
+    "reattributed": false,
+    "chunkId": "75f0c29221144742604527e5bb382e25383ae84a",
+    "quote": "To support its legislative and oversight functions, Congress has established institutions dedicated to monitoring and reporting on federal agencies and making recommendations intended to improve those agencies' integrity, efficiency, and effectiveness.",
+    "reason": "Notes that GAO/OIGs are established institutions dedicated to monitoring agencies and making recommendations."
+  },
+  {
+    "file": "political-1.pdf",
+    "question": "How did the capacity of the responsible public institution change as a result of the intervention?",
+    "strict": true,
+    "relaxed": true,
+    "reattributed": false,
+    "chunkId": "9970e0c93b4ecbf03ee221f7a224d9f13e45d67d",
+    "quote": "In this context, tracking of unresolved recommendations by GAO and CIGIE may be useful. Congress might seek to monitor how quickly agencies act on recommendations and when recommendations remain unresolved.",
+    "reason": "Explains that tracking unresolved recommendations helps identify less responsive agencies."
+  },
+  {
+    "file": "political-1.pdf",
+    "question": "How did the capacity of the responsible public institution change as a result of the intervention?",
+    "strict": false,
+    "relaxed": true,
+    "reattributed": false,
+    "chunkId": "6aada8c0c42761b7aa91f088cb8e76732ac45443",
+    "quote": "Additionally, OIGs must report to Congress every six months on their activities. In these semiannual reports, OIGs are now specifically required by the IG Act to identify 'each significant recommendation' for which 'corrective action has not been completed' (5 U.S.C. §405(b)).",
+    "reason": "Mentions that OIGs must report semiannually, including significant recommendations without corrective action."
+  },
+  {
+    "file": "political-1.pdf",
+    "question": "How did the capacity of the responsible public institution change as a result of the intervention?",
+    "strict": false,
+    "relaxed": true,
+    "reattributed": false,
+    "chunkId": "dfb62c69707dd19af7255ece94446571f4e1575d",
+    "quote": "GAO maintains a searchable database of its recommendations. GAO's list includes over 5,000 open recommendations. GAO has determined that about 450 of these recommendations would have a particularly significant impact and has classified them as 'priority recommendations.'",
+    "reason": "Describes how GAO maintains a searchable database of recommendations including open and priority ones."
+  },
+  {
+    "file": "political-1.pdf",
+    "question": "How did the capacity of the responsible public institution change as a result of the intervention?",
+    "strict": true,
+    "relaxed": true,
+    "reattributed": false,
+    "chunkId": "d9ec7f4f02e1723619d19ed0c7dabcf49265a933",
+    "quote": "CIGIE maintains a similar web page that collects recommendations from OIGs across the government, provides updates on their status, and includes statistical data that allow users to review open recommendations by agency, age, and other metrics.",
+    "reason": "Notes CIGIE collects OIG recommendations, provides status updates, and includes statistical data for review."
+  },
+  {
+    "file": "political-1.pdf",
+    "question": "How did the capacity of the responsible public institution change as a result of the intervention?",
+    "strict": false,
+    "relaxed": true,
+    "reattributed": false,
+    "chunkId": "bdd4bc83b7cbd2c76086662f6b466d86e504cfa3",
+    "quote": "When GAO issues a recommendation to an agency, the head of that agency is required to submit a 'written statement on action taken or planned on the recommendation' and submit that recommendation to certain congressional committees (31 U.S.C. §720).",
+    "reason": "Indicates agencies are required to submit written statements on actions taken or planned regarding GAO recommendations."
+  },
+  {
+    "file": "political-1.pdf",
+    "question": "What accountability, audit, or transparency mechanisms were introduced or strengthened?",
+    "strict": true,
+    "relaxed": true,
+    "reattributed": false,
+    "chunkId": "bdd4bc83b7cbd2c76086662f6b466d86e504cfa3",
+    "quote": "When GAO issues a recommendation to an agency, the head of that agency is required to submit a “written statement on action taken or planned on the recommendation” and submit that recommendation to certain congressional committees (31 U.S.C. §720).",
+    "reason": "Describes statutory requirements for agencies to submit written statements on actions taken or planned regarding GAO recommendations, directly addressing accountability mechanisms."
+  },
+  {
+    "file": "political-1.pdf",
+    "question": "What accountability, audit, or transparency mechanisms were introduced or strengthened?",
+    "strict": true,
+    "relaxed": true,
+    "reattributed": false,
+    "chunkId": "6aada8c0c42761b7aa91f088cb8e76732ac45443",
+    "quote": "In these semiannual reports, OIGs are now specifically required by the IG Act to identify “each significant recommendation” for which “corrective action has not been completed” (5 U.S.C. §405(b)).",
+    "reason": "Details how OIGs must report semiannually to Congress, including a specific requirement to identify significant recommendations where corrective action has not been completed."
+  },
+  {
+    "file": "political-1.pdf",
+    "question": "What accountability, audit, or transparency mechanisms were introduced or strengthened?",
+    "strict": true,
+    "relaxed": true,
+    "reattributed": false,
+    "chunkId": "dfb62c69707dd19af7255ece94446571f4e1575d",
+    "quote": "Tracking Recommendations Both GAO and the interagency body of OIGs—the Council of the Inspectors General on Integrity and Efficiency (CIGIE)—track recommendations in a manner that may be useful to Congress and the public. GAO maintains a searchable database of its recommendations.",
+    "reason": "Explains that GAO and OIGs track recommendations in searchable databases to monitor unresolved issues, serving as a transparency mechanism for Congress and the public."
+  },
+  {
+    "file": "political-1.pdf",
+    "question": "What accountability, audit, or transparency mechanisms were introduced or strengthened?",
+    "strict": true,
+    "relaxed": true,
+    "reattributed": false,
+    "chunkId": "d9ec7f4f02e1723619d19ed0c7dabcf49265a933",
+    "quote": "CIGIE maintains a similar web page that collects recommendations from OIGs across the government, provides updates on their status, and includes statistical data that allow users to review open recommendations by agency, age, and other metrics.",
+    "reason": "Describes how CIGIE provides updates on recommendation status and statistical data allowing users to review open recommendations by agency, age, and other metrics."
+  },
+  {
+    "file": "political-1.pdf",
+    "question": "What accountability, audit, or transparency mechanisms were introduced or strengthened?",
+    "strict": false,
+    "relaxed": true,
+    "reattributed": true,
+    "chunkId": "ced4da84f9e69943c1ea094fda4ce9c4ccb0923c",
+    "quote": "Agencies are usually offered the opportunity to review and respond to GAO and OIG reports before publication. When agencies disagree with findings or recommendations, they generally share those points of disagreement with the oversight team.",
+    "reason": "Mentions that agencies are offered an opportunity to review and respond to GAO/OIG reports before publication, which is a transparency mechanism for contrasting views."
+  },
+  {
+    "file": "political-1.pdf",
+    "question": "What accountability, audit, or transparency mechanisms were introduced or strengthened?",
+    "strict": false,
+    "relaxed": true,
+    "reattributed": false,
+    "chunkId": "9970e0c93b4ecbf03ee221f7a224d9f13e45d67d",
+    "quote": "Second, Congress can use its authority over agencies to encourage them to implement recommendations. While neither GAO nor OIGs have authority to compel agencies to act... Third, a recommendation might call for congressional action or inspire legislation.",
+    "reason": "States that Congress can use its authority over agencies to encourage them to implement recommendations and may choose to act on specific recommendations through legislation."
+  },
+  {
+    "file": "political-1.pdf",
+    "question": "What accountability, audit, or transparency mechanisms were introduced or strengthened?",
+    "strict": true,
+    "relaxed": true,
+    "reattributed": false,
+    "chunkId": "171bab672ef43fa1d7c4af2b11dc784bcb81336f",
+    "quote": "First, reviewing recommendations is one way that Congress can identify and learn about issues that may warrant additional oversight. GAO and OIGs are structured to have resources, access, and technical expertise that allow them to identify and analyze matters that might be difficult for Congress itself to review on its own.",
+    "reason": "Notes that reviewing recommendations helps Congress identify issues warranting additional oversight and learn about matters difficult for Congress to review on its own."
+  },
+  {
+    "file": "political-1.pdf",
+    "question": "What accountability, audit, or transparency mechanisms were introduced or strengthened?",
+    "strict": true,
+    "relaxed": true,
+    "reattributed": false,
+    "chunkId": "ced4da84f9e69943c1ea094fda4ce9c4ccb0923c",
+    "quote": "Recommendations are typically offered as action items in written reports, including audits, investigations, studies, and evaluations. Recommendations are generally short and directive and are a way for GAO and OIGs to distill key points and identify possible responses.",
+    "reason": "Describes how GAO recommendations are offered as action items in written reports including audits, investigations, studies, and evaluations intended to resolve identified issues."
+  },
+  {
+    "file": "political-1.pdf",
+    "question": "Which indicators track improvements in governance quality or institutional performance?",
+    "strict": true,
+    "relaxed": true,
+    "reattributed": false,
+    "chunkId": "dfb62c69707dd19af7255ece94446571f4e1575d",
+    "quote": "Tracking Recommendations Both GAO and the interagency body of OIGs—the Council of the Inspectors General on Integrity and Efficiency (CIGIE)—track recommendations in a manner that may be useful to Congress and the public. GAO maintains a searchable database of its recommendations. GAO’s list includes over 5,000 open recommendations. GAO has determined that about 450 of these recommendations would have a particularly significant impact and has classified them as “priority recommendations.” CIGIE maintains a similar web page that collects recommendations from OIGs across the government, provides",
+    "reason": "Describes how GAO and CIGIE track recommendations with metrics like open status, age, and priority classification to monitor institutional performance."
+  },
+  {
+    "file": "political-1.pdf",
+    "question": "Which indicators track improvements in governance quality or institutional performance?",
+    "strict": true,
+    "relaxed": true,
+    "reattributed": false,
+    "chunkId": "9970e0c93b4ecbf03ee221f7a224d9f13e45d67d",
+    "quote": "In this context, tracking of unresolved recommendations by GAO and CIGIE may be useful. Congress might seek to monitor how quickly agencies act on recommendations and when recommendations remain unresolved. That knowledge may drive additional oversight by identifying less responsive agencies or highlighting especially challenging issues.",
+    "reason": "Explains how tracking unresolved recommendations helps identify less responsive agencies and highlights issues affecting institutional integrity."
+  },
+  {
+    "file": "political-1.pdf",
+    "question": "Which indicators track improvements in governance quality or institutional performance?",
+    "strict": true,
+    "relaxed": true,
+    "reattributed": false,
+    "chunkId": "75f0c29221144742604527e5bb382e25383ae84a",
+    "quote": "To support its legislative and oversight functions, Congress has established institutions dedicated to monitoring and reporting on federal agencies and making recommendations intended to improve those agencies’ integrity, efficiency, and effectiveness. These entities include the Government Accountability Office (GAO) and dozens of statutory Offices of Inspector General (OIGs).",
+    "reason": "States that GAO and OIGs are institutions established to monitor federal agencies for improvements in integrity, efficiency, and effectiveness."
+  },
+  {
+    "file": "political-1.pdf",
+    "question": "Which indicators track improvements in governance quality or institutional performance?",
+    "strict": true,
+    "relaxed": true,
+    "reattributed": false,
+    "chunkId": "9970e0c93b4ecbf03ee221f7a224d9f13e45d67d",
+    "quote": "Factors such as the significance of an issue, public awareness and concern, or the effectiveness of an agency’s response may influence Congress’s course of action.",
+    "reason": "Notes that factors like public awareness or agency response effectiveness influence congressional action, reflecting governance quality indicators."
+  },
+  {
+    "file": "political-1.pdf",
+    "question": "Which indicators track improvements in governance quality or institutional performance?",
+    "strict": true,
+    "relaxed": true,
+    "reattributed": false,
+    "chunkId": "dfb62c69707dd19af7255ece94446571f4e1575d",
+    "quote": "GAO and OIGs generally include such correspondence regarding recommendations as part of final reports. Contrasting views may assist Congress in weighing the considerations or trade-offs at play.",
+    "reason": "Mentions that GAO and OIGs include correspondence regarding disagreements with findings as part of reports to assist in weighing considerations."
+  },
+  {
+    "file": "political-1.pdf",
+    "question": "Which indicators track improvements in governance quality or institutional performance?",
+    "strict": true,
+    "relaxed": true,
+    "reattributed": false,
+    "chunkId": "9970e0c93b4ecbf03ee221f7a224d9f13e45d67d",
+    "quote": "While neither GAO nor OIGs have authority to compel agencies to act, it is often the case that reporting on an issue to Congress will encourage agency action.",
+    "reason": "Describes how reporting findings to Congress encourages agency action, serving as a mechanism for improving institutional performance."
+  },
+  {
+    "file": "political-1.pdf",
+    "question": "Which indicators track improvements in governance quality or institutional performance?",
+    "strict": true,
+    "relaxed": true,
+    "reattributed": false,
+    "chunkId": "dfb62c69707dd19af7255ece94446571f4e1575d",
+    "quote": "CIGIE maintains a similar web page that collects recommendations from OIGs across the government, provides updates on their status, and includes statistical data that allow users to review open recommendations by agency, age, and other metrics.",
+    "reason": "Indicates that tracking open recommendations by age and other metrics allows review of institutional responsiveness over time."
+  },
+  {
+    "file": "political-1.pdf",
+    "question": "Which indicators track improvements in governance quality or institutional performance?",
+    "strict": true,
+    "relaxed": true,
+    "reattributed": false,
+    "chunkId": "9970e0c93b4ecbf03ee221f7a224d9f13e45d67d",
+    "quote": "For instance, an agency might identify a statute that makes it more difficult to implement a specific recommendation.",
+    "reason": "Suggests that identifying statutes making implementation difficult highlights challenges affecting institutional performance."
+  },
+  {
+    "file": "political-1.pdf",
+    "question": "What consultation processes were run, and how were their results used?",
+    "strict": true,
+    "relaxed": true,
+    "reattributed": false,
+    "chunkId": "171bab672ef43fa1d7c4af2b11dc784bcb81336f",
+    "quote": "Roles of Congress Recommendations issued by GAO and OIGs can, and often do, serve as raw material for the oversight and legislative work of Congress. Specifically, there are at least three ways that Congress might use recommendations.",
+    "reason": "Describes how Congress uses GAO/OIG recommendations as raw material for oversight hearings, legislation, and agency implementation."
+  },
+  {
+    "file": "political-1.pdf",
+    "question": "What consultation processes were run, and how were their results used?",
+    "strict": true,
+    "relaxed": true,
+    "reattributed": false,
+    "chunkId": "dfb62c69707dd19af7255ece94446571f4e1575d",
+    "quote": "Agencies are usually offered the opportunity to review and respond to GAO and OIG reports before publication. When agencies disagree with findings or recommendations, they generally share those points of disagreement with the oversight team.",
+    "reason": "Details how agencies respond to GAO/OIG reports by reviewing them before publication and sharing disagreements."
+  },
+  {
+    "file": "political-1.pdf",
+    "question": "What consultation processes were run, and how were their results used?",
+    "strict": true,
+    "relaxed": true,
+    "reattributed": false,
+    "chunkId": "9970e0c93b4ecbf03ee221f7a224d9f13e45d67d",
+    "quote": "In this context, tracking of unresolved recommendations by GAO and CIGIE may be useful. Congress might seek to monitor how quickly agencies act on recommendations and when recommendations remain unresolved.",
+    "reason": "Explains that tracking unresolved recommendations helps Congress monitor agency responsiveness and drive additional oversight."
+  },
+  {
+    "file": "political-1.pdf",
+    "question": "What consultation processes were run, and how were their results used?",
+    "strict": true,
+    "relaxed": true,
+    "reattributed": false,
+    "chunkId": "bba0fc53062b24caeb5eaee8cbded889ef943c2c",
+    "quote": "These recommendations can help identify issues or programs in agencies that might warrant additional oversight by Congress, create feedback loops regarding agency program implementation, and provide ideas and data to inform legislation.",
+    "reason": "States that recommendations create feedback loops regarding agency program implementation, which relates to participation in decision-making."
+  },
+  {
+    "file": "political-1.pdf",
+    "question": "What consultation processes were run, and how were their results used?",
+    "strict": true,
+    "relaxed": true,
+    "reattributed": false,
+    "chunkId": "4ce81d8690a4ed5af9d803fdfbd676d4741ae598",
+    "quote": "Factors such as the significance of an issue, public awareness and concern, or the effectiveness of an agency’s response may influence Congress’s course of action.",
+    "reason": "Notes that factors like public awareness may influence whether Congress acts on a recommendation based on an issue identified in a report."
+  },
+  {
+    "file": "political-1.pdf",
+    "question": "What consultation processes were run, and how were their results used?",
+    "strict": true,
+    "relaxed": true,
+    "reattributed": false,
+    "chunkId": "bdd4bc83b7cbd2c76086662f6b466d86e504cfa3",
+    "quote": "Under these provisions, GAO may initiate an investigation or evaluation on its own initiative, at the direction of either house of Congress, or at the request of a committee of jurisdiction.",
+    "reason": "Mentions that GAO has authority to initiate investigations at the direction of either house of Congress, linking citizen representation."
+  }
+]

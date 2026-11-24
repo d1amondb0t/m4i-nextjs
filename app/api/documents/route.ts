@@ -1,7 +1,11 @@
+import { adminOnly } from "@/app/server/auth/session";
 import { validateDocumentSelection } from "@/app/server/documents/upload-policy";
 import type { DocumentUploadResponse } from "@/types/document-upload";
 
 export async function POST(request: Request) {
+  const denied = await adminOnly();
+  if (denied) return denied;
+
   const formData = await request.formData();
   const entries = formData.getAll("documents");
   const documents = entries.filter(

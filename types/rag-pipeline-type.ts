@@ -4,7 +4,14 @@ import type {
 } from "@/app/server/rag/storage/storage-types";
 import type { ChunkConfiguration, DocumentChunk } from "./chunk-type";
 import type { GenerationConfiguration } from "./generation-type";
-import type { RetrievalConfiguration, RetrievalScope } from "./retrieval-types";
+import type {
+  RerankedResult,
+  RerankingComparison,
+  RerankingConfiguration,
+  RetrievalConfiguration,
+  RetrievalScope,
+  RetrievalScores,
+} from "./retrieval-types";
 
 export const MAX_QUESTION_LENGTH = 2_000;
 
@@ -24,6 +31,20 @@ export type PipelineRetriever = {
   retrieve(question: string, scope?: RetrievalScope): Promise<SearchResult[]>;
 };
 
+export type RankingRetriever = {
+  rankCandidates(
+    question: string,
+    scope?: RetrievalScope,
+  ): Promise<SearchResult[]>;
+};
+
+export type ComparingRetriever = {
+  retrieveWithComparison(
+    question: string,
+    scope?: RetrievalScope,
+  ): Promise<RerankingComparison>;
+};
+
 export type Generator = {
   generate(question: string, results: SearchResult[]): Promise<string>;
 };
@@ -32,14 +53,18 @@ export type RagPipelineDependencies = {
   chunker?: Chunker;
   embedder?: Embedder;
   generator?: Generator;
-  retriever?: PipelineRetriever;
+  retriever?: ComparingRetriever;
   store?: Store;
 };
 
 export type RagPipelineResult = {
   answer: string;
+  candidateCount: number;
   chunks: DocumentChunk[];
-  results: SearchResult[];
+  rerankingModel: string;
+  results: RerankedResult[];
+  withoutReranking: RerankedResult[];
+  outsideTopK: RerankedResult[];
 };
 
 export type RagPipelineConfiguration = {
@@ -50,6 +75,7 @@ export type RagPipelineConfiguration = {
   generation: GenerationConfiguration;
   ollamaHost?: string;
   queryPrefix: string;
+  reranking: RerankingConfiguration;
   retrieval: RetrievalConfiguration;
   storage: StorageConfiguration;
 };
@@ -59,7 +85,15 @@ export type RagSource = {
   page: number;
   chunk: number;
   score: number;
+  scores: RetrievalScores;
   text: string;
+  retrievalRank: number;
+  rerankedRank: number;
+};
+
+export type RankChange = {
+  label: string;
+  tone: "gained" | "lost" | "neutral";
 };
 
 export type RagPipelineResponse =
@@ -68,6 +102,11 @@ export type RagPipelineResponse =
       answer: string;
       indexedChunks: number;
       sources: RagSource[];
+      reranking: {
+        model: string;
+        candidateCount: number;
+        withoutReranking: RagSource[];
+      };
     }
   | {
       ok: false;

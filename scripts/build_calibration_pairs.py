@@ -17,6 +17,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 DOCUMENTS_PER_BATCH = 10
 TOP_K = 20
+DEFAULT_RERANKING_MODEL = "mixedbread-ai/mxbai-rerank-xsmall-v1"
 FILE_REPLACE_ATTEMPTS = 6
 FILE_REPLACE_DELAY = 0.25
 COLUMNS = [
@@ -405,16 +406,23 @@ def build_pairs(args):
         "chunkSize": args.chunk_size,
         "chunkOverlap": args.chunk_overlap,
         "retrieval": {"strategy": args.strategy, "topK": TOP_K},
-        "reranking": {
-            "enabled": args.rerank,
-            "model": args.reranking_model,
-        },
+        "reranking": {"enabled": args.rerank},
     }
+    if args.reranking_runtime == "ollama":
+        configuration["reranking"]["runtime"] = args.reranking_runtime
+    if args.reranking_model or args.reranking_runtime != "ollama":
+        configuration["reranking"]["model"] = (
+            args.reranking_model or DEFAULT_RERANKING_MODEL
+        )
+    if args.reranking_candidates:
+        configuration["reranking"]["candidates"] = args.reranking_candidates
     if args.embedding_model:
         configuration["embeddingModel"] = args.embedding_model
 
     jobs = build_jobs(args, ontology)
     signature = build_signature(args, configuration, jobs)
+    # Set after the signature so that existing checkpoints still resume.
+    configuration["reranking"].setdefault("runtime", "transformers")
     rows_by_job, state_path = load_checkpoint(pd, args, jobs, signature)
     completed = len(rows_by_job)
 
@@ -484,10 +492,25 @@ def main():
         "--strategy", choices=("dense", "sparse", "hybrid"), default="hybrid"
     )
     parser.add_argument(
-        "--rerank", action="store_true", help="Enable cross-encoder reranking"
+        "--rerank",
+        action="store_true",
+        help="Cross-encoder reranking of the retrieved candidates",
     )
     parser.add_argument(
-        "--reranking-model", default="mixedbread-ai/mxbai-rerank-xsmall-v1"
+        "--reranking-runtime",
+        choices=("transformers", "ollama"),
+        help="transformers if omitted",
+    )
+    parser.add_argument(
+        "--reranking-model",
+        help=f"{DEFAULT_RERANKING_MODEL} if omitted; with the ollama runtime, "
+        "the server's RERANKING_MODEL, which requires the server's "
+        "RERANKING_RUNTIME to be ollama",
+    )
+    parser.add_argument(
+        "--reranking-candidates",
+        type=positive_integer,
+        help="Candidates to rerank; server default if omitted",
     )
     parser.add_argument(
         "--timeout",

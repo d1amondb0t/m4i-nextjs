@@ -24,6 +24,8 @@ function result(text: string): SearchResult {
     score: 1,
     denseScore: 1,
     sparseScore: null,
+    rrfScore: null,
+    rerankerScore: null,
   };
 }
 

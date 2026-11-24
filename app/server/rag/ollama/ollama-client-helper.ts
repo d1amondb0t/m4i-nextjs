@@ -1,0 +1,85 @@
+import { Ollama } from "ollama";
+
+import { fetchFailureCause } from "../fetch-failure-helper";
+
+const MAX_DETAIL_CHARACTERS = 500;
+
+function describedRequest(url: URL, init: RequestInit | undefined): string {
+  if (typeof init?.body !== "string") return url.pathname;
+  const { model } = JSON.parse(init.body) as { model?: unknown };
+  return typeof model === "string"
+    ? `${url.pathname} for model "${model}"`
+    : url.pathname;
+}
+
+function connectionFailure(error: unknown): string {
+  return (
+    fetchFailureCause(error) ??
+    (error instanceof Error ? error.message : String(error))
+  );
+}
+
+function shortened(text: string): string {
+  return text.length > MAX_DETAIL_CHARACTERS
+    ? `${text.slice(0, MAX_DETAIL_CHARACTERS)}… (${text.length} characters)`
+    : text;
+}
+
+function errorMessage(body: unknown): string | undefined {
+  const error = (body as { error?: unknown } | null)?.error;
+  if (typeof error === "string")
+    return errorMessage(parsedJson(error)) ?? error;
+  const message = (error as { message?: unknown } | null)?.message;
+  return typeof message === "string" ? message : undefined;
+}
+
+function parsedJson(text: string): unknown {
+  try {
+    return JSON.parse(text);
+  } catch {
+    return undefined;
+  }
+}
+
+async function responseDetail(response: Response): Promise<string> {
+  const text = (await response.text()).trim();
+  if (!text) return "the response had no details";
+  if (!response.headers.get("content-type")?.includes("application/json"))
+    return shortened(text);
+  return shortened(errorMessage(parsedJson(text)) ?? text);
+}
+
+export async function fetchWithOllamaContext(
+  input: string | URL | Request,
+  init?: RequestInit,
+): Promise<Response> {
+  const url = new URL(input instanceof Request ? input.url : input);
+  let response: Response;
+
+  try {
+    response = await fetch(input, init);
+  } catch (error) {
+    throw new Error(
+      `Could not reach Ollama at ${url.origin} (${describedRequest(url, init)}): ${connectionFailure(error)}. Check that Ollama is running and that OLLAMA_HOST is correct.`,
+      { cause: error },
+    );
+  }
+
+  if (!response.ok) {
+    throw Object.assign(
+      new Error(
+        `Ollama at ${url.origin} returned HTTP ${response.status} ${response.statusText} (${describedRequest(url, init)}): ${await responseDetail(response)}`,
+      ),
+      { status_code: response.status },
+    );
+  }
+
+  return response;
+}
+
+export function createOllamaClient(host?: string): Ollama {
+  return new Ollama({
+    ...(host ? { host } : {}),
+    fetch: fetchWithOllamaContext,
+  });
+}

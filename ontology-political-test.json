@@ -1,0 +1,317 @@
+{
+  "$comment": "Temporary political-only ontology for the indicator experiment. It keeps the political dimension of ontology.json unchanged and adds a results chain to each category: short-term outcomes (direct results of the work, usually within a year), medium-term outcomes (changes in decisions, rules or practice, usually 1-3 years) and long-term outcomes (lasting change in institutions or for people, usually 3+ years). Each outcome carries predefined indicators. They are asked as questions against the documents when a category matches strongly and the documents do not state indicators of their own for that horizon.",
+  "dimensions": [
+    {
+      "id": "political",
+      "name": "Political & governance",
+      "definition": "Changes involving political institutions, policy, governance, regulation, or public decision-making.",
+      "categories": [
+        {
+          "id": "advocacy_policy_influence",
+          "name": "Advocacy & policy influence",
+          "definition": "Efforts or changes intended to influence laws, policies, political agendas, or public decision-makers.",
+          "include": [
+            "policy recommendations",
+            "government engagement",
+            "legislative or regulatory influence",
+            "adoption of a standard or guideline"
+          ],
+          "exclude": [
+            "general public awareness without a policy objective",
+            "internal organisational strategy"
+          ],
+          "questions": [
+            "What policy or legislative change did this work seek to bring about, and was it adopted?",
+            "Which government bodies or decision-makers were engaged, and what did they commit to?",
+            "What evidence shows a recommendation was taken up in law, regulation, or official guidance?",
+            "How is the influence of this work on the policy agenda measured or reported?"
+          ],
+          "outcomes": [
+            {
+              "id": "advocacy_short",
+              "horizon": "short_term",
+              "statement": "Decision-makers receive the work's proposals and the issue reaches the policy agenda.",
+              "indicators": [
+                {
+                  "id": "recommendations_submitted",
+                  "name": "Policy recommendations submitted",
+                  "question": "How many policy recommendations, proposals or draft texts were submitted to government or legislators?",
+                  "answerType": "number",
+                  "unit": "recommendations"
+                },
+                {
+                  "id": "decision_makers_engaged",
+                  "name": "Decision-makers engaged",
+                  "question": "Which ministries, legislative committees or officials were engaged on the proposals?",
+                  "answerType": "text"
+                },
+                {
+                  "id": "issue_on_agenda",
+                  "name": "Issue placed on the official agenda",
+                  "question": "Was the issue taken up in a hearing, committee, cabinet meeting, consultation or other official agenda?",
+                  "answerType": "yes_no"
+                }
+              ]
+            },
+            {
+              "id": "advocacy_medium",
+              "horizon": "medium_term",
+              "statement": "Recommendations are adopted into law, regulation, official guidance or budget decisions.",
+              "indicators": [
+                {
+                  "id": "recommendations_adopted_share",
+                  "name": "Share of recommendations adopted",
+                  "question": "What share of the submitted recommendations was adopted by the responsible authority?",
+                  "answerType": "percentage"
+                },
+                {
+                  "id": "policy_instrument_stage",
+                  "name": "Stage reached by the policy instrument",
+                  "question": "How far did the targeted law, regulation, guideline or policy get?",
+                  "answerType": "status",
+                  "options": [
+                    "proposed",
+                    "drafted",
+                    "submitted or introduced",
+                    "approved or enacted",
+                    "in force and implemented"
+                  ]
+                },
+                {
+                  "id": "formal_commitments",
+                  "name": "Formal commitments made",
+                  "question": "What did decision-makers formally commit to, such as a review, a vote, a deadline or a budget allocation?",
+                  "answerType": "text"
+                }
+              ]
+            },
+            {
+              "id": "advocacy_long",
+              "horizon": "long_term",
+              "statement": "Adopted policies are funded, implemented and enforced, and change conditions for the people they target.",
+              "indicators": [
+                {
+                  "id": "policy_implemented",
+                  "name": "Adopted policy implemented and enforced",
+                  "question": "Is the adopted policy being implemented and enforced, for example through regulations, staff, monitoring or sanctions?",
+                  "answerType": "yes_no"
+                },
+                {
+                  "id": "sustained_funding",
+                  "name": "Sustained public funding",
+                  "question": "Is there a recurring public budget allocation or financing that sustains the policy?",
+                  "answerType": "yes_no"
+                },
+                {
+                  "id": "population_change",
+                  "name": "Change for the target population",
+                  "question": "What change in the target population's conditions is attributed to the adopted policy?",
+                  "answerType": "text"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "institutional_capacity",
+          "name": "Governance & institutional capacity",
+          "definition": "Changes in the capability, accountability, transparency, or integrity of public institutions.",
+          "include": [
+            "public administration reform",
+            "anti-corruption measures",
+            "transparency and audit",
+            "civil service capability"
+          ],
+          "exclude": [
+            "private-sector corporate governance",
+            "purely financial performance of an institution"
+          ],
+          "questions": [
+            "How did the capacity of the responsible public institution change as a result of the intervention?",
+            "What accountability, audit, or transparency mechanisms were introduced or strengthened?",
+            "Which indicators track improvements in governance quality or institutional performance?",
+            "What evidence is reported on corruption, integrity, or misuse of public resources?"
+          ],
+          "outcomes": [
+            {
+              "id": "institutional_short",
+              "horizon": "short_term",
+              "statement": "Public officials gain skills and institutions gain new systems, procedures or oversight bodies.",
+              "indicators": [
+                {
+                  "id": "officials_trained",
+                  "name": "Public officials trained",
+                  "question": "How many public officials or civil servants were trained?",
+                  "answerType": "number",
+                  "unit": "officials"
+                },
+                {
+                  "id": "systems_introduced",
+                  "name": "Systems, procedures or bodies introduced",
+                  "question": "Which new systems, procedures, committees or oversight bodies were introduced in public institutions?",
+                  "answerType": "text"
+                },
+                {
+                  "id": "audit_conducted",
+                  "name": "Audit or assessment carried out",
+                  "question": "Was an audit, review or assessment of the institution or programme carried out?",
+                  "answerType": "yes_no"
+                }
+              ]
+            },
+            {
+              "id": "institutional_medium",
+              "horizon": "medium_term",
+              "statement": "New practices become routine: reports are published, audit findings are acted on and rules are applied.",
+              "indicators": [
+                {
+                  "id": "regular_publication",
+                  "name": "Regular publication of public reports",
+                  "question": "Which fiscal, procurement, audit or performance reports are now published, and how often?",
+                  "answerType": "text"
+                },
+                {
+                  "id": "audit_recommendations_implemented",
+                  "name": "Audit recommendations acted on",
+                  "question": "What share of audit or oversight recommendations was implemented by the institution?",
+                  "answerType": "percentage"
+                },
+                {
+                  "id": "rules_adopted",
+                  "name": "Governance rules adopted",
+                  "question": "Which laws, standards or rules on procurement, financial management or integrity were adopted?",
+                  "answerType": "text"
+                }
+              ]
+            },
+            {
+              "id": "institutional_long",
+              "horizon": "long_term",
+              "statement": "Institutions perform better, misuse of public resources falls and trust in institutions grows.",
+              "indicators": [
+                {
+                  "id": "governance_score_change",
+                  "name": "Change in a governance quality score",
+                  "question": "How did a governance, transparency or public financial management score change (for example PEFA, CPI or WGI)?",
+                  "answerType": "text"
+                },
+                {
+                  "id": "irregularities_change",
+                  "name": "Change in irregularities or corruption cases",
+                  "question": "How did reported irregularities, corruption cases or misuse of public funds change?",
+                  "answerType": "text"
+                },
+                {
+                  "id": "institutional_trust",
+                  "name": "Public trust in institutions",
+                  "question": "How did public trust in, or satisfaction with, the institution change?",
+                  "answerType": "text"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "participation_representation",
+          "name": "Civic participation & representation",
+          "definition": "Changes in how citizens participate in, or are represented within, public decision-making.",
+          "include": [
+            "electoral participation",
+            "public consultation",
+            "civil society space",
+            "representation of under-represented groups"
+          ],
+          "exclude": [
+            "consumer market behaviour",
+            "employee engagement inside an organisation"
+          ],
+          "questions": [
+            "How did citizen or community participation in decision-making change?",
+            "Which groups gained or lost representation in governing or consultative bodies?",
+            "What consultation processes were run, and how were their results used?",
+            "How is civic space or freedom of association reported to have changed?"
+          ],
+          "outcomes": [
+            {
+              "id": "participation_short",
+              "horizon": "short_term",
+              "statement": "Citizens and civil society take part in consultations and new participation channels open.",
+              "indicators": [
+                {
+                  "id": "consultations_held",
+                  "name": "Consultations held",
+                  "question": "How many public consultations, hearings or participatory meetings were held?",
+                  "answerType": "number",
+                  "unit": "consultations"
+                },
+                {
+                  "id": "participants_reached",
+                  "name": "People or organisations taking part",
+                  "question": "How many citizens or civil society organisations took part in consultations or participatory processes?",
+                  "answerType": "number",
+                  "unit": "participants"
+                },
+                {
+                  "id": "groups_consulted",
+                  "name": "Groups consulted",
+                  "question": "Which stakeholder groups were consulted, such as civil society, the private sector, women or minorities?",
+                  "answerType": "text"
+                }
+              ]
+            },
+            {
+              "id": "participation_medium",
+              "horizon": "medium_term",
+              "statement": "Under-represented groups take part in decision-making bodies and citizen input shapes decisions.",
+              "indicators": [
+                {
+                  "id": "underrepresented_share",
+                  "name": "Share of under-represented groups in decision bodies",
+                  "question": "What share of members or participants in councils, committees or consultative bodies are women or other under-represented groups?",
+                  "answerType": "percentage"
+                },
+                {
+                  "id": "input_used",
+                  "name": "Citizen input reflected in decisions",
+                  "question": "How was input from consultations used in the final plan, policy or budget?",
+                  "answerType": "text"
+                },
+                {
+                  "id": "participation_mechanism_institutionalised",
+                  "name": "Participation mechanism made permanent",
+                  "question": "Was a participation mechanism, such as a council, committee or participatory budget, made permanent in rules or law?",
+                  "answerType": "yes_no"
+                }
+              ]
+            },
+            {
+              "id": "participation_long",
+              "horizon": "long_term",
+              "statement": "Citizens participate more in public life and civic space is protected.",
+              "indicators": [
+                {
+                  "id": "electoral_turnout_change",
+                  "name": "Change in electoral turnout",
+                  "question": "How did voter turnout or electoral participation change?",
+                  "answerType": "text"
+                },
+                {
+                  "id": "elected_representation_change",
+                  "name": "Change in representation in elected office",
+                  "question": "How did the representation of women or other under-represented groups in elected office change?",
+                  "answerType": "text"
+                },
+                {
+                  "id": "civic_space_change",
+                  "name": "Change in civic space",
+                  "question": "How did the space for civil society, a free press or freedom of association change?",
+                  "answerType": "text"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

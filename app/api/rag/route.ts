@@ -1,11 +1,16 @@
+import { adminOnly } from "@/app/server/auth/session";
 import { validateRagDocumentSelection } from "@/app/server/documents/upload-policy";
 import { RagPipeline } from "@/app/server/rag/pipeline/rag-pipeline";
+import { ragSource } from "@/app/server/rag/pipeline/rag-pipeline-helper";
 import type { RagPipelineResponse } from "@/types/rag-pipeline-type";
 import { validateQuestion } from "@/types/rag-pipeline-type";
 
 export const runtime = "nodejs";
 
 export async function POST(request: Request) {
+  const denied = await adminOnly();
+  if (denied) return denied;
+
   try {
     const formData = await request.formData();
     const documents = formData
@@ -30,13 +35,12 @@ export async function POST(request: Request) {
       ok: true,
       answer: result.answer,
       indexedChunks: result.chunks.length,
-      sources: result.results.map(({ chunk, score }) => ({
-        source: chunk.source,
-        page: chunk.page,
-        chunk: chunk.number,
-        score,
-        text: chunk.text,
-      })),
+      sources: result.results.map(ragSource),
+      reranking: {
+        model: result.rerankingModel,
+        candidateCount: result.candidateCount,
+        withoutReranking: result.withoutReranking.map(ragSource),
+      },
     } satisfies RagPipelineResponse;
 
     return Response.json(response);

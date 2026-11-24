@@ -1,9 +1,11 @@
 import type { Tensor } from "@huggingface/transformers";
+import type { Ollama } from "ollama";
 
 import type { DocumentChunk } from "@/types/chunk-type";
 import {
   DEFAULT_RERANKING_CONFIGURATION,
   type CrossEncoder,
+  type RerankingComparison,
   type RerankingConfiguration,
   type RetrievalConfiguration,
   type RetrievalScope,
@@ -11,7 +13,12 @@ import {
 import type { OllamaEmbedder } from "../embeddings/ollama-embedder";
 import type { SearchResult } from "../storage/storage-types";
 import type { QdrantStore } from "../storage/vector-storage";
-import { loadCrossEncoder } from "./reranker-helper";
+import {
+  loadCrossEncoder,
+  ollamaRerankerScores,
+  rerankingComparison,
+  sortByRerankerScore,
+} from "./reranker-helper";
 
 export class Retriever {
   private chunks: DocumentChunk[] | null = null;
@@ -22,6 +29,7 @@ export class Retriever {
     private readonly embedder: OllamaEmbedder,
     private readonly retrievalConfig: RetrievalConfiguration,
     private readonly rerankingConfig: RerankingConfiguration = DEFAULT_RERANKING_CONFIGURATION,
+    private readonly ollama?: Ollama,
   ) {}
 
   private async getCrossEncoder(): Promise<CrossEncoder> {
@@ -55,7 +63,10 @@ export class Retriever {
       },
     );
     const { logits } = (await model(features)) as { logits: Tensor };
-    const scores = Array.from(logits.data, (score) => Number(score));
+    const scores = Array.from(
+      logits.data,
+      (score) => 1 / (1 + Math.exp(-Number(score))),
+    );
 
     if (scores.length !== results.length) {
       throw new Error(
@@ -63,15 +74,27 @@ export class Retriever {
       );
     }
 
-    for (let index = 0; index < results.length; index += 1) {
-      const score = scores[index];
-      //results[index].rerankerScore = score;
-      //results[index].score = score;
-      results[index].rerankerScore = 1 / (1 + Math.exp(-score));
-      results[index].score = 1 / (1 + Math.exp(-score));
+    return sortByRerankerScore(results, scores);
+  }
+
+  async ollamaRerank(
+    question: string,
+    results: SearchResult[],
+  ): Promise<SearchResult[]> {
+    if (!this.ollama) {
+      throw new Error(
+        "The ollama reranking runtime requires an Ollama client.",
+      );
     }
 
-    return [...results].sort((left, right) => right.score - left.score);
+    const scores = await ollamaRerankerScores(
+      this.ollama,
+      this.rerankingConfig.model,
+      question,
+      results.map((result) => result.chunk.text),
+    );
+
+    return sortByRerankerScore(results, scores);
   }
 
   async dense(
@@ -116,36 +139,69 @@ export class Retriever {
         );
   }
 
-  async retrieve(
+  private async candidates(
     question: string,
     scope?: RetrievalScope,
   ): Promise<SearchResult[]> {
     const limit = this.rerankingConfig.enabled
       ? this.rerankingConfig.candidates
       : this.retrievalConfig.topK;
-    let results: SearchResult[];
 
     switch (this.retrievalConfig.strategy) {
       case "dense":
-        results = await this.dense(question, limit, scope);
-        break;
+        return this.dense(question, limit, scope);
       case "sparse":
-        results = await this.sparse(question, limit, scope);
-        break;
+        return this.sparse(question, limit, scope);
       case "hybrid":
-        results = await this.hybrid(question, limit, scope);
-        break;
+        return this.hybrid(question, limit, scope);
     }
+  }
 
-    if (!this.rerankingConfig.enabled) {
-      return results;
-    }
-
+  private async rerank(
+    question: string,
+    candidates: SearchResult[],
+  ): Promise<SearchResult[]> {
     if (this.rerankingConfig.strategy !== "cross_encoder") {
       throw new Error("Lexical reranking is not implemented yet.");
     }
 
-    const reranked = await this.crossEncoderRerank(question, results);
-    return reranked.slice(0, this.retrievalConfig.topK);
+    return this.rerankingConfig.runtime === "ollama"
+      ? this.ollamaRerank(question, candidates)
+      : this.crossEncoderRerank(question, candidates);
+  }
+
+  async rankCandidates(
+    question: string,
+    scope?: RetrievalScope,
+  ): Promise<SearchResult[]> {
+    const candidates = await this.candidates(question, scope);
+
+    if (!this.rerankingConfig.enabled) {
+      return candidates;
+    }
+
+    return this.rerank(question, candidates);
+  }
+
+  async retrieve(
+    question: string,
+    scope?: RetrievalScope,
+  ): Promise<SearchResult[]> {
+    return (await this.rankCandidates(question, scope)).slice(
+      0,
+      this.retrievalConfig.topK,
+    );
+  }
+
+  async retrieveWithComparison(
+    question: string,
+    scope?: RetrievalScope,
+  ): Promise<RerankingComparison> {
+    const candidates = await this.candidates(question, scope);
+    const reranked = this.rerankingConfig.enabled
+      ? await this.rerank(question, candidates)
+      : candidates;
+
+    return rerankingComparison(candidates, reranked, this.retrievalConfig.topK);
   }
 }

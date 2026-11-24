@@ -1,7 +1,17 @@
 import { DEFAULT_CHUNK_CONFIG } from "@/types/chunk-type";
 import { DEFAULT_GENERATION_CONFIGURATION } from "@/types/generation-type";
-import type { RagPipelineConfiguration } from "@/types/rag-pipeline-type";
-import { DEFAULT_RETRIEVAL_CONFIGURATION } from "@/types/retrieval-types";
+import type {
+  RagPipelineConfiguration,
+  RagSource,
+} from "@/types/rag-pipeline-type";
+import {
+  DEFAULT_RERANKING_CONFIGURATION,
+  DEFAULT_RETRIEVAL_CONFIGURATION,
+  ZERANK_RERANKING_CANDIDATES,
+  type RerankedResult,
+  type RerankingConfiguration,
+} from "@/types/retrieval-types";
+import { retrievalScores } from "../storage/storage-helper";
 import {
   DEFAULT_STORAGE_CONFIGURATION,
   type StorageConfiguration,
@@ -17,9 +27,49 @@ export const DEFAULT_RAG_PIPELINE_CONFIGURATION = {
   embeddingModel: DEFAULT_EMBEDDING_MODEL,
   generation: DEFAULT_GENERATION_CONFIGURATION,
   queryPrefix: "Represent this sentence for searching relevant passages: ",
+  reranking: DEFAULT_RERANKING_CONFIGURATION,
   retrieval: DEFAULT_RETRIEVAL_CONFIGURATION,
   storage: DEFAULT_STORAGE_CONFIGURATION,
 } as const satisfies RagPipelineConfiguration;
+
+export function ragSource(result: RerankedResult): RagSource {
+  return {
+    source: result.chunk.source,
+    page: result.chunk.page,
+    chunk: result.chunk.number,
+    score: result.score,
+    scores: retrievalScores(result),
+    text: result.chunk.text,
+    retrievalRank: result.retrievalRank,
+    rerankedRank: result.rerankedRank,
+  };
+}
+
+export function isRerankingRuntime(
+  value: unknown,
+): value is RerankingConfiguration["runtime"] {
+  return value === "transformers" || value === "ollama";
+}
+
+export function rerankingRuntime(
+  value: string | undefined,
+): RerankingConfiguration["runtime"] {
+  const runtime = value?.trim() || DEFAULT_RERANKING_CONFIGURATION.runtime;
+
+  if (!isRerankingRuntime(runtime)) {
+    throw new Error("RERANKING_RUNTIME must be transformers or ollama.");
+  }
+
+  return runtime;
+}
+
+export function rerankingCandidates(
+  runtime: RerankingConfiguration["runtime"],
+): number {
+  return runtime === "ollama"
+    ? ZERANK_RERANKING_CANDIDATES
+    : DEFAULT_RERANKING_CONFIGURATION.candidates;
+}
 
 export function positiveInteger(
   value: string | undefined,
@@ -58,6 +108,25 @@ export function storageFromEnvironment(): StorageConfiguration {
   };
 }
 
+export function rerankingFromEnvironment(): RerankingConfiguration {
+  const runtime = rerankingRuntime(process.env.RERANKING_RUNTIME);
+  const model = process.env.RERANKING_MODEL?.trim();
+
+  if (runtime === "ollama" && !model) {
+    throw new Error(
+      "RERANKING_MODEL is required when RERANKING_RUNTIME is ollama.",
+    );
+  }
+
+  return {
+    ...DEFAULT_RERANKING_CONFIGURATION,
+    enabled: process.env.RAG_RERANKING?.trim() !== "false",
+    runtime,
+    model: model || DEFAULT_RERANKING_CONFIGURATION.model,
+    candidates: rerankingCandidates(runtime),
+  };
+}
+
 export function ragPipelineConfigurationFromEnvironment(): RagPipelineConfiguration {
   return {
     chunking: DEFAULT_CHUNK_CONFIG,
@@ -87,6 +156,7 @@ export function ragPipelineConfigurationFromEnvironment(): RagPipelineConfigurat
     queryPrefix:
       process.env.OLLAMA_QUERY_PREFIX ??
       "Represent this sentence for searching relevant passages: ",
+    reranking: rerankingFromEnvironment(),
     retrieval: DEFAULT_RETRIEVAL_CONFIGURATION,
     storage: storageFromEnvironment(),
   };
