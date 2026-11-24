@@ -1,0 +1,684 @@
+{
+  "$comment": "Manual answer key. expectedGated: true = the category should trigger indicator work, false = it should not, null = either is defensible. answers: expect 'value' means the document supports an answer and one of 'accept' (case-insensitive substring) must appear in it; 'absent' means the document does not support an answer, so the basis must not be 'reported' and the answer must not invent a figure; 'skip' is not scored. documentIndicators lists indicators the document itself reports, as keyword groups (all keywords of a group must appear in the discovered name + value + quote).",
+  "participatory-budgeting-evaluation.txt": {
+    "expectedGated": {
+      "advocacy_policy_influence": true,
+      "institutional_capacity": null,
+      "participation_representation": true
+    },
+    "documentIndicators": {
+      "participation_representation": [
+        {
+          "horizon": "short_term",
+          "keywords": ["32"]
+        },
+        {
+          "horizon": "short_term",
+          "keywords": ["4,100"]
+        },
+        {
+          "horizon": "short_term",
+          "keywords": ["44%"]
+        },
+        {
+          "horizon": "short_term",
+          "keywords": ["27"]
+        },
+        {
+          "horizon": "medium_term",
+          "keywords": ["ordinance"]
+        },
+        {
+          "horizon": "medium_term",
+          "keywords": ["18%"]
+        },
+        {
+          "horizon": "medium_term",
+          "keywords": ["36%"]
+        },
+        {
+          "horizon": "long_term",
+          "keywords": ["49%"]
+        },
+        {
+          "horizon": "long_term",
+          "keywords": ["3.4"]
+        },
+        {
+          "horizon": "long_term",
+          "keywords": ["24%"]
+        }
+      ],
+      "advocacy_policy_influence": [
+        {
+          "horizon": "medium_term",
+          "keywords": ["ordinance"]
+        },
+        {
+          "horizon": "medium_term",
+          "keywords": ["18%"]
+        },
+        {
+          "horizon": "medium_term",
+          "keywords": ["2025"]
+        }
+      ]
+    },
+    "answers": {
+      "consultations_held": {
+        "expect": "value",
+        "accept": ["32"]
+      },
+      "participants_reached": {
+        "expect": "value",
+        "accept": ["4,100", "4100", "10,900", "6,800"]
+      },
+      "groups_consulted": {
+        "expect": "value",
+        "accept": ["women", "residents' associations", "civil society"]
+      },
+      "underrepresented_share": {
+        "expect": "value",
+        "accept": ["44", "36"]
+      },
+      "input_used": {
+        "expect": "value",
+        "accept": ["41", "capital budget", "costed"]
+      },
+      "participation_mechanism_institutionalised": {
+        "expect": "value",
+        "accept": ["yes"]
+      },
+      "electoral_turnout_change": {
+        "expect": "value",
+        "accept": ["49"]
+      },
+      "elected_representation_change": {
+        "expect": "value",
+        "accept": ["24"]
+      },
+      "civic_space_change": {
+        "expect": "value",
+        "accept": ["no restrictions", "open", "stream", "radio", "newspaper"]
+      },
+      "recommendations_submitted": {
+        "expect": "skip"
+      },
+      "decision_makers_engaged": {
+        "expect": "value",
+        "accept": ["council", "planning department"]
+      },
+      "issue_on_agenda": {
+        "expect": "value",
+        "accept": ["yes"]
+      },
+      "recommendations_adopted_share": {
+        "expect": "skip"
+      },
+      "policy_instrument_stage": {
+        "expect": "value",
+        "accept": ["in force and implemented", "approved or enacted"]
+      },
+      "formal_commitments": {
+        "expect": "value",
+        "accept": ["15%", "2025", "ordinance"]
+      },
+      "policy_implemented": {
+        "expect": "value",
+        "accept": ["yes"]
+      },
+      "sustained_funding": {
+        "expect": "value",
+        "accept": ["yes"]
+      },
+      "population_change": {
+        "expect": "value",
+        "accept": ["41", "project", "street lighting", "turnout", "trust"]
+      },
+      "officials_trained": {
+        "expect": "absent"
+      },
+      "systems_introduced": {
+        "expect": "value",
+        "accept": ["report", "stream", "ordinance", "committee", "oversight"]
+      },
+      "audit_conducted": {
+        "expect": "skip"
+      },
+      "regular_publication": {
+        "expect": "value",
+        "accept": ["yearly", "annual", "each year"]
+      },
+      "audit_recommendations_implemented": {
+        "expect": "absent"
+      },
+      "rules_adopted": {
+        "expect": "skip"
+      },
+      "governance_score_change": {
+        "expect": "skip"
+      },
+      "irregularities_change": {
+        "expect": "absent"
+      },
+      "institutional_trust": {
+        "expect": "value",
+        "accept": ["3.4"]
+      }
+    }
+  },
+  "procurement-transparency-brief.txt": {
+    "expectedGated": {
+      "advocacy_policy_influence": true,
+      "institutional_capacity": true,
+      "participation_representation": null
+    },
+    "documentIndicators": {
+      "institutional_capacity": [
+        {
+          "horizon": "short_term",
+          "keywords": ["140"]
+        },
+        {
+          "horizon": "short_term",
+          "keywords": ["35"]
+        },
+        {
+          "horizon": "short_term",
+          "keywords": ["portal"]
+        },
+        {
+          "horizon": "medium_term",
+          "keywords": ["7"]
+        },
+        {
+          "horizon": "medium_term",
+          "keywords": ["law"]
+        },
+        {
+          "horizon": "medium_term",
+          "keywords": ["award"]
+        }
+      ],
+      "advocacy_policy_influence": [
+        {
+          "horizon": "medium_term",
+          "keywords": ["law"]
+        },
+        {
+          "horizon": "medium_term",
+          "keywords": ["cabinet"]
+        }
+      ]
+    },
+    "answers": {
+      "officials_trained": {
+        "expect": "value",
+        "accept": ["140", "175"]
+      },
+      "systems_introduced": {
+        "expect": "value",
+        "accept": ["portal", "complaints"]
+      },
+      "audit_conducted": {
+        "expect": "value",
+        "accept": ["yes"]
+      },
+      "regular_publication": {
+        "expect": "value",
+        "accept": ["award", "tender", "portal"]
+      },
+      "audit_recommendations_implemented": {
+        "expect": "value",
+        "accept": ["58", "7 of 12", "7 out of 12"]
+      },
+      "rules_adopted": {
+        "expect": "value",
+        "accept": ["procurement law"]
+      },
+      "governance_score_change": {
+        "expect": "absent"
+      },
+      "irregularities_change": {
+        "expect": "skip"
+      },
+      "institutional_trust": {
+        "expect": "absent"
+      },
+      "recommendations_submitted": {
+        "expect": "skip"
+      },
+      "decision_makers_engaged": {
+        "expect": "value",
+        "accept": [
+          "ministry of finance",
+          "procurement agency",
+          "cabinet",
+          "parliament",
+          "ministry of infrastructure"
+        ]
+      },
+      "issue_on_agenda": {
+        "expect": "value",
+        "accept": ["yes"]
+      },
+      "recommendations_adopted_share": {
+        "expect": "skip"
+      },
+      "policy_instrument_stage": {
+        "expect": "value",
+        "accept": ["approved or enacted", "in force and implemented"]
+      },
+      "formal_commitments": {
+        "expect": "value",
+        "accept": ["cabinet", "parliament", "passed", "law", "amendment"]
+      },
+      "policy_implemented": {
+        "expect": "skip"
+      },
+      "sustained_funding": {
+        "expect": "absent"
+      },
+      "population_change": {
+        "expect": "absent"
+      },
+      "consultations_held": {
+        "expect": "skip"
+      },
+      "participants_reached": {
+        "expect": "skip"
+      },
+      "groups_consulted": {
+        "expect": "value",
+        "accept": ["civil society"]
+      },
+      "underrepresented_share": {
+        "expect": "absent"
+      },
+      "input_used": {
+        "expect": "skip"
+      },
+      "participation_mechanism_institutionalised": {
+        "expect": "skip"
+      },
+      "electoral_turnout_change": {
+        "expect": "absent"
+      },
+      "elected_representation_change": {
+        "expect": "absent"
+      },
+      "civic_space_change": {
+        "expect": "skip"
+      }
+    }
+  },
+  "programme-report.txt": {
+    "expectedGated": {
+      "advocacy_policy_influence": true,
+      "institutional_capacity": null,
+      "participation_representation": true
+    },
+    "documentIndicators": {
+      "advocacy_policy_influence": [
+        {
+          "horizon": "medium_term",
+          "keywords": ["three"]
+        },
+        {
+          "horizon": "medium_term",
+          "keywords": ["review"]
+        }
+      ],
+      "participation_representation": [
+        {
+          "horizon": "medium_term",
+          "keywords": ["31%"]
+        }
+      ],
+      "institutional_capacity": [
+        {
+          "horizon": "short_term",
+          "keywords": ["audit"]
+        },
+        {
+          "horizon": "short_term",
+          "keywords": ["data system"]
+        }
+      ]
+    },
+    "answers": {
+      "recommendations_submitted": {
+        "expect": "value",
+        "accept": ["5", "five"]
+      },
+      "decision_makers_engaged": {
+        "expect": "value",
+        "accept": [
+          "ministry of health",
+          "health committee",
+          "ministry of finance"
+        ]
+      },
+      "issue_on_agenda": {
+        "expect": "value",
+        "accept": ["yes"]
+      },
+      "recommendations_adopted_share": {
+        "expect": "value",
+        "accept": ["60"]
+      },
+      "policy_instrument_stage": {
+        "expect": "value",
+        "accept": ["approved or enacted", "in force and implemented"]
+      },
+      "formal_commitments": {
+        "expect": "value",
+        "accept": ["review"]
+      },
+      "policy_implemented": {
+        "expect": "absent"
+      },
+      "sustained_funding": {
+        "expect": "value",
+        "accept": ["no"]
+      },
+      "population_change": {
+        "expect": "skip"
+      },
+      "officials_trained": {
+        "expect": "skip"
+      },
+      "systems_introduced": {
+        "expect": "value",
+        "accept": ["data system"]
+      },
+      "audit_conducted": {
+        "expect": "value",
+        "accept": ["yes"]
+      },
+      "regular_publication": {
+        "expect": "value",
+        "accept": ["month", "quarter"]
+      },
+      "audit_recommendations_implemented": {
+        "expect": "absent"
+      },
+      "rules_adopted": {
+        "expect": "skip"
+      },
+      "governance_score_change": {
+        "expect": "absent"
+      },
+      "irregularities_change": {
+        "expect": "skip"
+      },
+      "institutional_trust": {
+        "expect": "absent"
+      },
+      "consultations_held": {
+        "expect": "absent"
+      },
+      "participants_reached": {
+        "expect": "absent"
+      },
+      "groups_consulted": {
+        "expect": "skip"
+      },
+      "underrepresented_share": {
+        "expect": "value",
+        "accept": ["31"]
+      },
+      "input_used": {
+        "expect": "absent"
+      },
+      "participation_mechanism_institutionalised": {
+        "expect": "absent"
+      },
+      "electoral_turnout_change": {
+        "expect": "absent"
+      },
+      "elected_representation_change": {
+        "expect": "absent"
+      },
+      "civic_space_change": {
+        "expect": "absent"
+      }
+    }
+  },
+  "river-sediment-note.txt": {
+    "expectedGated": {
+      "advocacy_policy_influence": false,
+      "institutional_capacity": false,
+      "participation_representation": false
+    },
+    "documentIndicators": {},
+    "answers": {}
+  },
+  "political-1.pdf": {
+    "expectedGated": {
+      "advocacy_policy_influence": null,
+      "institutional_capacity": null,
+      "participation_representation": false
+    },
+    "documentIndicators": {},
+    "answers": {
+      "recommendations_submitted": {
+        "expect": "skip"
+      },
+      "decision_makers_engaged": {
+        "expect": "skip"
+      },
+      "issue_on_agenda": {
+        "expect": "skip"
+      },
+      "recommendations_adopted_share": {
+        "expect": "absent"
+      },
+      "policy_instrument_stage": {
+        "expect": "skip"
+      },
+      "formal_commitments": {
+        "expect": "skip"
+      },
+      "policy_implemented": {
+        "expect": "absent"
+      },
+      "sustained_funding": {
+        "expect": "absent"
+      },
+      "population_change": {
+        "expect": "absent"
+      },
+      "officials_trained": {
+        "expect": "absent"
+      },
+      "systems_introduced": {
+        "expect": "skip"
+      },
+      "audit_conducted": {
+        "expect": "skip"
+      },
+      "regular_publication": {
+        "expect": "value",
+        "accept": ["semiannual", "six months", "database", "web page"]
+      },
+      "audit_recommendations_implemented": {
+        "expect": "absent"
+      },
+      "rules_adopted": {
+        "expect": "skip"
+      },
+      "governance_score_change": {
+        "expect": "absent"
+      },
+      "irregularities_change": {
+        "expect": "absent"
+      },
+      "institutional_trust": {
+        "expect": "absent"
+      },
+      "consultations_held": {
+        "expect": "absent"
+      },
+      "participants_reached": {
+        "expect": "absent"
+      },
+      "groups_consulted": {
+        "expect": "absent"
+      },
+      "underrepresented_share": {
+        "expect": "absent"
+      },
+      "input_used": {
+        "expect": "absent"
+      },
+      "participation_mechanism_institutionalised": {
+        "expect": "absent"
+      },
+      "electoral_turnout_change": {
+        "expect": "absent"
+      },
+      "elected_representation_change": {
+        "expect": "absent"
+      },
+      "civic_space_change": {
+        "expect": "absent"
+      }
+    }
+  },
+  "economic-1.pdf": {
+    "expectedGated": {
+      "advocacy_policy_influence": true,
+      "institutional_capacity": true,
+      "participation_representation": null
+    },
+    "documentIndicators": {
+      "institutional_capacity": [
+        {
+          "horizon": "medium_term",
+          "keywords": ["procurement spending"]
+        },
+        {
+          "horizon": "medium_term",
+          "keywords": ["soe"]
+        },
+        {
+          "horizon": "medium_term",
+          "keywords": ["procurement act"]
+        }
+      ],
+      "advocacy_policy_influence": [
+        {
+          "horizon": "medium_term",
+          "keywords": ["procurement act"]
+        },
+        {
+          "horizon": "medium_term",
+          "keywords": ["income tax"]
+        }
+      ]
+    },
+    "answers": {
+      "recommendations_submitted": {
+        "expect": "skip"
+      },
+      "decision_makers_engaged": {
+        "expect": "value",
+        "accept": [
+          "house of assembly",
+          "cabinet",
+          "ministry of finance",
+          "minister of finance",
+          "parliament"
+        ]
+      },
+      "issue_on_agenda": {
+        "expect": "value",
+        "accept": ["yes"]
+      },
+      "recommendations_adopted_share": {
+        "expect": "absent"
+      },
+      "policy_instrument_stage": {
+        "expect": "value",
+        "accept": ["approved or enacted", "submitted or introduced", "in force"]
+      },
+      "formal_commitments": {
+        "expect": "skip"
+      },
+      "policy_implemented": {
+        "expect": "skip"
+      },
+      "sustained_funding": {
+        "expect": "skip"
+      },
+      "population_change": {
+        "expect": "skip"
+      },
+      "officials_trained": {
+        "expect": "skip"
+      },
+      "systems_introduced": {
+        "expect": "value",
+        "accept": [
+          "committee",
+          "oversight",
+          "procurement",
+          "monitoring",
+          "reporting"
+        ]
+      },
+      "audit_conducted": {
+        "expect": "skip"
+      },
+      "regular_publication": {
+        "expect": "value",
+        "accept": ["quarterly", "procurement", "fiscal", "annual"]
+      },
+      "audit_recommendations_implemented": {
+        "expect": "skip"
+      },
+      "rules_adopted": {
+        "expect": "value",
+        "accept": ["procurement act", "procurement"]
+      },
+      "governance_score_change": {
+        "expect": "skip"
+      },
+      "irregularities_change": {
+        "expect": "skip"
+      },
+      "institutional_trust": {
+        "expect": "absent"
+      },
+      "consultations_held": {
+        "expect": "skip"
+      },
+      "participants_reached": {
+        "expect": "skip"
+      },
+      "groups_consulted": {
+        "expect": "value",
+        "accept": ["civil society", "private sector"]
+      },
+      "underrepresented_share": {
+        "expect": "absent"
+      },
+      "input_used": {
+        "expect": "skip"
+      },
+      "participation_mechanism_institutionalised": {
+        "expect": "skip"
+      },
+      "electoral_turnout_change": {
+        "expect": "absent"
+      },
+      "elected_representation_change": {
+        "expect": "absent"
+      },
+      "civic_space_change": {
+        "expect": "skip"
+      }
+    }
+  }
+}

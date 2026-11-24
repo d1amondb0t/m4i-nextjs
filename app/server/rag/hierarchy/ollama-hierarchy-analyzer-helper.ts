@@ -1,5 +1,48 @@
-import type { ExtractedHierarchyMatch } from "@/types/hierarchy-types";
+import type { ChatResponse } from "ollama";
+
+import type {
+  ExtractedHierarchyMatch,
+  FrameworkCategory,
+} from "@/types/hierarchy-types";
 import { isRecord, requireNonEmptyText } from "./hierarchy-helper";
+
+export const MAX_MATCHES_PER_QUESTION = 8;
+
+// Sibling questions and the include/exclude lists made qwen3.5:9b return no
+// matches for indicator evidence it accepted once they were left out.
+export function analyzerCategory(
+  { id, name, definition }: FrameworkCategory,
+  question: string,
+) {
+  return { id, name, definition, questions: [question] };
+}
+
+const REPLY_ENDING_CHARACTERS = 200;
+
+type ChatCompletion = Pick<
+  ChatResponse,
+  "model" | "done_reason" | "prompt_eval_count" | "eval_count"
+>;
+
+export function requireCompleteResponse(
+  response: ChatCompletion,
+  contextTokens: number,
+): void {
+  if (response.done_reason !== "length") return;
+
+  throw new Error(
+    `The hierarchy model ${response.model} stopped at its token limit before finishing its reply ` +
+      `(${response.prompt_eval_count} prompt tokens, ${response.eval_count} reply tokens, ` +
+      `context ${contextTokens} tokens).`,
+  );
+}
+
+function describeReplyEnding(content: string): string {
+  const trimmed = content.trim();
+  if (!trimmed) return "The reply was empty.";
+
+  return `The reply ends with: ${JSON.stringify(trimmed.slice(-REPLY_ENDING_CHARACTERS))}`;
+}
 
 export const MATCH_SCHEMA = {
   type: "object",
@@ -8,7 +51,7 @@ export const MATCH_SCHEMA = {
   properties: {
     matches: {
       type: "array",
-      maxItems: 20,
+      maxItems: MAX_MATCHES_PER_QUESTION,
       items: {
         type: "object",
         additionalProperties: false,
@@ -41,8 +84,11 @@ export function parseMatchResponse(content: string): ExtractedHierarchyMatch[] {
 
   try {
     value = JSON.parse(content);
-  } catch {
-    throw new Error("The hierarchy model returned invalid JSON.");
+  } catch (error) {
+    throw new Error(
+      `The hierarchy model returned invalid JSON (${(error as Error).message}). ${describeReplyEnding(content)}`,
+      { cause: error },
+    );
   }
 
   if (!isRecord(value) || !Array.isArray(value.matches)) {

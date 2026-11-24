@@ -1,14 +1,18 @@
 import Link from "next/link";
+import { notFound } from "next/navigation";
 
-import { HierarchyUpload } from "../components/hierarchy-upload";
+import { HierarchyUpload } from "@/app/components/hierarchy-upload";
+import { currentUser } from "@/app/server/auth/session";
 
-export default function HierarchyPage() {
+export default async function HierarchyPage() {
+  if (!(await currentUser())?.isAdmin) notFound();
+
   return (
     <main className="min-h-screen bg-zinc-50 px-5 py-12 sm:px-8 lg:py-20">
       <div className="mx-auto max-w-6xl">
         <header className="mb-10 max-w-3xl">
           <Link
-            href="/"
+            href="/dev/rag"
             className="text-sm font-medium text-blue-700 hover:text-blue-900"
           >
             ← Standard RAG tester

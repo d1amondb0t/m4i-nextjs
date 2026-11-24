@@ -1,3 +1,4 @@
+import type { SearchResult } from "@/app/server/rag/storage/storage-types";
 import type { DocumentChunk } from "./chunk-type";
 import type { RetrievalScores } from "./retrieval-types";
 
@@ -35,6 +36,8 @@ export type ExtractedHierarchyMatch = {
   evidence: ExtractedHierarchyEvidence[];
 };
 
+export type OntologySize = { questions: number; categories: number };
+
 export type HierarchyRetrievedChunk = {
   chunkId: string;
   source: string;
@@ -63,6 +66,14 @@ export type HierarchyDimensionResult = Omit<
   categories: HierarchyCategoryResult[];
 };
 
+export type QuestionRetrieval = {
+  question: string;
+  cutoff: number;
+  results: SearchResult[];
+  droppedBelowCutoff: SearchResult[];
+  droppedOutsideTopK: SearchResult[];
+};
+
 export type HierarchyCategoryDiagnostics = {
   categoryId: string;
   retrievedChunks: number;
@@ -72,10 +83,20 @@ export type HierarchyCategoryDiagnostics = {
     question: string;
     retrievedChunks: number;
     chunks: HierarchyRetrievedChunk[];
+    candidates: number;
+    cutoff: number;
+    droppedBelowCutoff: HierarchyRetrievedChunk[];
+    droppedOutsideTopK: HierarchyRetrievedChunk[];
     generatedCandidates: number;
     acceptedCandidates: number;
   }[];
   rejected: { question: string; reason: string }[];
+};
+
+export type CategoryRetrievals = {
+  dimensionId: string;
+  categoryId: string;
+  questions: QuestionRetrieval[];
 };
 
 export type HierarchyPipelineResult = {
@@ -84,11 +105,14 @@ export type HierarchyPipelineResult = {
   };
   diagnostics: HierarchyCategoryDiagnostics[];
   chunks: DocumentChunk[];
+  retrievals: CategoryRetrievals[];
 };
 
 export type HierarchyConfiguration = {
   topKPerQuery: number;
   minimumRetrievalScore: number;
+  retrievalScoreFloor: number;
+  relativeRetrievalScore: number;
   maxContextWords: number;
   analyzerContextTokens: number;
 };
@@ -100,17 +124,28 @@ export const DEFAULT_HIERARCHY_CONFIGURATION = {
   // rest to the analyzer; 0.05 kept 94% of relevant top-12 chunks.
   // TODO (REVIEW minimumRetrievalScore)
   minimumRetrievalScore: 0.05,
+  retrievalScoreFloor: 0.05,
+  relativeRetrievalScore: 0,
   maxContextWords: 4_000,
   // Ollama's default context is 4,096 tokens on GPUs under 24 GB, which cuts
-  // off a 4,000-word context. This covers the largest measured prompt (5.7k
-  // tokens) plus the answer (3k) and still fits qwen3.5 9B in 10 GB of VRAM.
-  analyzerContextTokens: 12_288,
+  // off a 4,000-word context. The context plus the system prompt is about
+  // 6,000 tokens and a full 8-match reply can add about 2,000 more; this
+  // leaves room to spare so the reply is not cut off.
+  analyzerContextTokens: 16_384,
 } as const satisfies HierarchyConfiguration;
 
 // zerank-2's probability, sigmoid(logit / 5), sits higher than mxbai's: 0.05
-// keeps 99% of irrelevant chunks. 0.3 kept 97% of relevant top-12 chunks on the
-// Claude-labelled dev split and dropped 28% of all chunks.
-export const ZERANK_MINIMUM_RETRIEVAL_SCORE = 0.3;
+// keeps 99% of irrelevant chunks. A fixed 0.3 kept 97% of relevant top-12
+// chunks on the Claude-labelled dev split, but on indicator lists and web pages
+// relevant chunks often rank first and still score 0.15-0.3. The cutoff is
+// therefore 0.6 of the best score, kept between 0.15 and 0.3: it kept the same
+// 97% on the dev and test splits and let 3-4 points more irrelevant chunks
+// through.
+export const ZERANK_RETRIEVAL_CUTOFF = {
+  minimumRetrievalScore: 0.3,
+  retrievalScoreFloor: 0.15,
+  relativeRetrievalScore: 0.6,
+} as const satisfies Partial<HierarchyConfiguration>;
 
 export type HierarchyPipelineResponse =
   | {

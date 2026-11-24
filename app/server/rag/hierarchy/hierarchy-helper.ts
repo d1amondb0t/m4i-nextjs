@@ -4,13 +4,14 @@ import {
   DEFAULT_HIERARCHY_CONFIGURATION,
   MAX_HIERARCHY_CATEGORIES,
   MAX_HIERARCHY_DIMENSIONS,
-  ZERANK_MINIMUM_RETRIEVAL_SCORE,
+  ZERANK_RETRIEVAL_CUTOFF,
   type ExtractedHierarchyMatch,
   type FrameworkCategory,
   type FrameworkDimension,
   type FrameworkOntology,
   type HierarchyConfiguration,
   type HierarchyRetrievedChunk,
+  type OntologySize,
 } from "@/types/hierarchy-types";
 import type { RerankingConfiguration } from "@/types/retrieval-types";
 
@@ -18,10 +19,7 @@ export function hierarchyConfigurationFor(
   reranking: RerankingConfiguration,
 ): HierarchyConfiguration {
   return reranking.runtime === "ollama"
-    ? {
-        ...DEFAULT_HIERARCHY_CONFIGURATION,
-        minimumRetrievalScore: ZERANK_MINIMUM_RETRIEVAL_SCORE,
-      }
+    ? { ...DEFAULT_HIERARCHY_CONFIGURATION, ...ZERANK_RETRIEVAL_CUTOFF }
     : DEFAULT_HIERARCHY_CONFIGURATION;
 }
 
@@ -35,6 +33,60 @@ export function hierarchyRetrievedChunk(
     chunk: result.chunk.number,
     scores: retrievalScores(result),
   };
+}
+
+export function retrievalScoreCutoff(
+  bestScore: number,
+  {
+    minimumRetrievalScore,
+    retrievalScoreFloor,
+    relativeRetrievalScore,
+  }: HierarchyConfiguration,
+): number {
+  return Math.min(
+    minimumRetrievalScore,
+    Math.max(retrievalScoreFloor, relativeRetrievalScore * bestScore),
+  );
+}
+
+export function splitRankedCandidates(
+  ranked: readonly SearchResult[],
+  configuration: HierarchyConfiguration,
+) {
+  const topRanked = ranked.slice(0, configuration.topKPerQuery);
+  const cutoff = retrievalScoreCutoff(
+    Math.max(...topRanked.map((result) => result.score)),
+    configuration,
+  );
+
+  return {
+    cutoff,
+    results: topRanked.filter((result) => result.score >= cutoff),
+    droppedBelowCutoff: topRanked.filter((result) => result.score < cutoff),
+    droppedOutsideTopK: ranked.slice(configuration.topKPerQuery),
+  };
+}
+
+export function ontologySize(ontology: FrameworkOntology): OntologySize {
+  return {
+    questions: countOntologyQuestions(ontology),
+    categories: ontology.dimensions.reduce(
+      (total, dimension) => total + dimension.categories.length,
+      0,
+    ),
+  };
+}
+
+export function countOntologyQuestions(ontology: FrameworkOntology): number {
+  return ontology.dimensions.reduce(
+    (total, dimension) =>
+      total +
+      dimension.categories.reduce(
+        (sum, category) => sum + category.questions.length,
+        0,
+      ),
+    0,
+  );
 }
 
 export function isRecord(value: unknown): value is Record<string, unknown> {
@@ -220,7 +272,7 @@ export function buildHierarchyContext(
   return sections.join("\n\n");
 }
 
-function normalizedEvidenceText(value: string): string {
+export function normalizedEvidenceText(value: string): string {
   return value.replace(/\s+/g, " ").trim().toLocaleLowerCase("en-US");
 }
 

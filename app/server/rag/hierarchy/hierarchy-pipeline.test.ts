@@ -79,7 +79,7 @@ describe("HierarchyPipeline", () => {
       chunker: { chunkDocuments: vi.fn(async () => [chunk()]) },
       embedder: { embed: vi.fn(async () => [[0.1, 0.2]]) },
       store: { upsert: vi.fn(async () => undefined) },
-      retriever: { retrieve: vi.fn(async () => [searchResult()]) },
+      retriever: { rankCandidates: vi.fn(async () => [searchResult()]) },
       analyzer: { match: vi.fn(async () => [match]) },
     };
   });
@@ -91,6 +91,20 @@ describe("HierarchyPipeline", () => {
       dependencies,
     );
   }
+
+  it.each([
+    [{ retrievalScoreFloor: 0.5 }, "retrievalScoreFloor must be between"],
+    [{ relativeRetrievalScore: 1.5 }, "relativeRetrievalScore must be between"],
+  ])("rejects an invalid cutoff setting %o", (override, message) => {
+    expect(
+      () =>
+        new HierarchyPipeline(
+          DEFAULT_RAG_PIPELINE_CONFIGURATION,
+          { ...DEFAULT_HIERARCHY_CONFIGURATION, ...override },
+          dependencies,
+        ),
+    ).toThrow(message);
+  });
 
   it("matches every supplied question, preserving explicit and implicit support", async () => {
     vi.mocked(dependencies.analyzer.match)
@@ -112,12 +126,15 @@ describe("HierarchyPipeline", () => {
 
     expect(dependencies.chunker.chunkDocuments).toHaveBeenCalledTimes(1);
     expect(dependencies.store.upsert).toHaveBeenCalledTimes(1);
-    expect(dependencies.retriever.retrieve).toHaveBeenCalledTimes(3);
+    expect(dependencies.retriever.rankCandidates).toHaveBeenCalledTimes(3);
     for (const question of questions) {
-      expect(dependencies.retriever.retrieve).toHaveBeenCalledWith(question, {
-        documentIds: ["document-1"],
-        indexFingerprints: ["fingerprint"],
-      });
+      expect(dependencies.retriever.rankCandidates).toHaveBeenCalledWith(
+        question,
+        {
+          documentIds: ["document-1"],
+          indexFingerprints: ["fingerprint"],
+        },
+      );
       expect(dependencies.analyzer.match).toHaveBeenCalledWith(
         expect.objectContaining({ id: "advocacy" }),
         question,
@@ -146,10 +163,12 @@ describe("HierarchyPipeline", () => {
 
   it("finishes reranking across every dimension before the first generation, retrieving a repeated question once", async () => {
     const calls: string[] = [];
-    vi.mocked(dependencies.retriever.retrieve).mockImplementation(async () => {
-      calls.push("retrieve");
-      return [searchResult()];
-    });
+    vi.mocked(dependencies.retriever.rankCandidates).mockImplementation(
+      async () => {
+        calls.push("retrieve");
+        return [searchResult()];
+      },
+    );
     vi.mocked(dependencies.analyzer.match).mockImplementation(async () => {
       calls.push("generate");
       return [match];
@@ -173,7 +192,7 @@ describe("HierarchyPipeline", () => {
   });
 
   it("skips the model and preserves empty categories when retrieval is below the cutoff", async () => {
-    vi.mocked(dependencies.retriever.retrieve).mockResolvedValue([
+    vi.mocked(dependencies.retriever.rankCandidates).mockResolvedValue([
       { ...searchResult(), score: 0.01, denseScore: 0.01 },
     ]);
     const result = await pipeline().run(
@@ -184,6 +203,63 @@ describe("HierarchyPipeline", () => {
     expect(dependencies.analyzer.match).not.toHaveBeenCalled();
     expect(result.framework.dimensions[0].categories[0].matches).toEqual([]);
     expect(result.diagnostics[0].retrievedChunks).toBe(0);
+  });
+
+  it("keeps chunks dropped by the cutoff and by the top-K limit", async () => {
+    const ranked = Array.from({ length: 14 }, (_, index) => ({
+      ...searchResult(),
+      chunk: { ...chunk(), chunkId: `chunk-${index}` },
+      score: index < 10 ? 0.9 : 0.01,
+    }));
+    vi.mocked(dependencies.retriever.rankCandidates).mockResolvedValue(ranked);
+
+    const result = await pipeline().run(
+      [new File(["content"], "report.txt")],
+      ontology,
+    );
+    const [first] = result.retrievals[0].questions;
+
+    expect(result.retrievals[0]).toMatchObject({
+      dimensionId: "political",
+      categoryId: "advocacy",
+    });
+    expect(first.results.map((r) => r.chunk.chunkId)).toEqual(
+      ranked.slice(0, 10).map((r) => r.chunk.chunkId),
+    );
+    expect(first.droppedBelowCutoff.map((r) => r.chunk.chunkId)).toEqual([
+      "chunk-10",
+      "chunk-11",
+    ]);
+    expect(first.droppedOutsideTopK.map((r) => r.chunk.chunkId)).toEqual([
+      "chunk-12",
+      "chunk-13",
+    ]);
+    const [diagnostics] = result.diagnostics[0].questions;
+    expect(diagnostics).toMatchObject({ candidates: 14, cutoff: 0.05 });
+    expect(diagnostics.droppedBelowCutoff.map((c) => c.chunkId)).toEqual([
+      "chunk-10",
+      "chunk-11",
+    ]);
+    expect(diagnostics.droppedOutsideTopK.map((c) => c.chunkId)).toEqual([
+      "chunk-12",
+      "chunk-13",
+    ]);
+  });
+
+  it("reports indexing, then each question once for retrieval and for matching", async () => {
+    const progress: [string, number, number][] = [];
+
+    await pipeline().run(
+      [new File(["content"], "report.txt")],
+      ontology,
+      (stage, done, total) => progress.push([stage, done, total]),
+    );
+
+    expect(progress).toEqual([
+      ["indexing", 0, 1],
+      ...[0, 1, 2, 3].map((done) => ["retrieving", done, 3]),
+      ...[0, 1, 2, 3].map((done) => ["matching", done, 3]),
+    ]);
   });
 
   it.each([
@@ -272,6 +348,10 @@ describe("HierarchyPipeline", () => {
             scores,
           },
         ],
+        candidates: 1,
+        cutoff: 0.05,
+        droppedBelowCutoff: [],
+        droppedOutsideTopK: [],
         generatedCandidates: 3,
         acceptedCandidates: 2,
       })),

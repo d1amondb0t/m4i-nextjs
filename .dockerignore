@@ -1,0 +1,15 @@
+.git
+.next
+node_modules
+data
+dataset
+calibration
+presentation
+qdrant_storage
+coverage
+.env*
+!.env.example
+*.tsbuildinfo
+next-env.d.ts
+.claude
+.vscode

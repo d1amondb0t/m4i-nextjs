@@ -1,3 +1,7 @@
+# The project name matches the main checkout, so this file and the one there
+# share the same Qdrant container and volume instead of starting a second one.
+name: m4i-nextjs
+
 services:
   qdrant:
     image: qdrant/qdrant:latest
@@ -7,5 +11,29 @@ services:
     volumes:
       - qdrant_data:/qdrant/storage
 
+  # Feedback app. Start it alone with `docker compose up -d --build app`;
+  # Qdrant is left as it is when its definition above is unchanged.
+  app:
+    build: .
+    depends_on:
+      - qdrant
+    ports:
+      # Local only. Tailscale Funnel publishes it: tailscale funnel --bg 3080
+      - "127.0.0.1:3080:3000"
+    environment:
+      DATA_DIR: /data
+      QDRANT_HOST: qdrant
+      QDRANT_PORT: "6333"
+      OLLAMA_HOST: http://host.docker.internal:11434
+      OLLAMA_GENERATION_MODEL: ${OLLAMA_GENERATION_MODEL:-qwen3.5:9b-q4_K_M}
+      RERANKING_RUNTIME: ${RERANKING_RUNTIME:-ollama}
+      RERANKING_MODEL: ${RERANKING_MODEL:-zerank-2-score}
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    volumes:
+      - m4i_data:/data
+    restart: unless-stopped
+
 volumes:
   qdrant_data:
+  m4i_data:
